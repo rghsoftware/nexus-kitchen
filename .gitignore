@@ -1,0 +1,29 @@
+# IDEs
+.idea/
+.fleet/
+*.iml
+.vscode/
+
+# Gradle
+.gradle/
+build/
+local.properties
+
+# Node
+node_modules/
+.pnpm-store/
+
+# SvelteKit
+.svelte-kit/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated
+shared/api-spec/generated/

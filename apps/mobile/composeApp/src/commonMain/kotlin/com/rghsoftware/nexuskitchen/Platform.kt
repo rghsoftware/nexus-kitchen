@@ -1,0 +1,7 @@
+package com.rghsoftware.nexuskitchen
+
+interface Platform {
+    val name: String
+}
+
+expect fun getPlatform(): Platform

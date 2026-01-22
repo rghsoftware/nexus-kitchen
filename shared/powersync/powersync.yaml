@@ -1,0 +1,9 @@
+# PowerSync sync rules
+# See: https://docs.powersync.com/usage/sync-rules
+
+bucket_definitions:
+  user_data:
+    parameters: SELECT request.user_id() as user_id
+    data:
+      - SELECT * FROM recipes WHERE user_id = bucket.user_id
+      - SELECT * FROM meal_plans WHERE user_id = bucket.user_id
