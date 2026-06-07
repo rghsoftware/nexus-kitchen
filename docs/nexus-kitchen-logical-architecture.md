@@ -96,7 +96,7 @@
 
 | Component | Responsibility |
 |-----------|----------------|
-| **Svelte UI** | Headless components + custom design tokens; ADHD-friendly flows; same code on all platforms |
+| **Svelte UI** | Components built on the **design system** (warm palette, 1–5 energy scale, Phosphor icons, `.nk-*` classes); shame-free, ADHD-friendly flows; light + dark |
 | **State / stores** | Client state, optimistic updates, reconciliation against server |
 | **Read cache** | Keep recent recipes / current plan / active list responsive; reduce refetches |
 | **supabase-js** | Auth session, PostgREST CRUD, Realtime subscriptions, Storage |

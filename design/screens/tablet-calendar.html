@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meal Plan · Tablet</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<style>
+  html, body { height: 100%; }
+  body { background: var(--bg); overflow: hidden; }
+  .app { display: grid; grid-template-columns: 96px 1fr; height: 100vh; }
+
+  /* icon rail */
+  .rail { background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: var(--space-5) 0; gap: var(--space-2); }
+  .rail__mark { width: 48px; height: 48px; border-radius: 14px; background: var(--primary); color: var(--text-on-accent); display: grid; place-items: center; font-size: 26px; margin-bottom: var(--space-4); }
+  .rail__item { width: 68px; padding: var(--space-2) 0; border-radius: var(--radius-md); display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; }
+  .rail__item i { font-size: 26px; }
+  .rail__item span { font-size: 11px; font-weight: 600; }
+  .rail__item--active { background: var(--primary-soft); color: var(--primary-text); }
+  .rail__sep { width: 44px; height: 1px; background: var(--border); margin: var(--space-2) 0; }
+  .rail__user { margin-top: auto; width: 44px; height: 44px; border-radius: 50%; background: var(--clay-200); color: var(--clay-600); display: grid; place-items: center; font-weight: 700; font-size: var(--text-sm); }
+
+  .main { display: flex; flex-direction: column; min-width: 0; }
+  .topbar { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5) var(--space-6); border-bottom: 1px solid var(--border); }
+  .topbar h1 { font-size: var(--text-2xl); }
+  .topbar p { font-size: var(--text-sm); color: var(--text-muted); }
+  .weeknav { display: flex; align-items: center; gap: var(--space-2); margin-left: var(--space-3); }
+  .weeknav__range { font-weight: 600; min-width: 130px; text-align: center; }
+  .icon-btn { width: 44px; height: 44px; border-radius: var(--radius-md); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-secondary); display: grid; place-items: center; font-size: 1.1em; }
+  .spacer { flex: 1; }
+  .energy-now { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-pill); }
+  .energy-now__label { font-size: var(--text-sm); color: var(--text-secondary); font-weight: 600; }
+  .energy-now__opts { display: flex; gap: 5px; }
+  .energy-dot { width: 34px; height: 34px; border-radius: 50%; border: 2px solid transparent; display: grid; place-items: center; }
+  .energy-dot[data-e="1"]{background:var(--energy-1-soft)} .energy-dot[data-e="2"]{background:var(--energy-2-soft)} .energy-dot[data-e="3"]{background:var(--energy-3-soft)} .energy-dot[data-e="4"]{background:var(--energy-4-soft)} .energy-dot[data-e="5"]{background:var(--energy-5-soft)}
+  .energy-dot__core { width: 13px; height: 13px; border-radius: 50%; }
+  .energy-dot[data-e="1"] .energy-dot__core{background:var(--energy-1)} .energy-dot[data-e="2"] .energy-dot__core{background:var(--energy-2)} .energy-dot[data-e="3"] .energy-dot__core{background:var(--energy-3)} .energy-dot[data-e="4"] .energy-dot__core{background:var(--energy-4)} .energy-dot[data-e="5"] .energy-dot__core{background:var(--energy-5)}
+  .energy-dot--sel { border-color: var(--energy-3); }
+
+  .assist { display: flex; align-items: center; gap: var(--space-3); margin: var(--space-4) var(--space-6) 0; padding: var(--space-3) var(--space-4); background: var(--primary-soft); border: 1px solid color-mix(in oklab, var(--primary) 22%, transparent); border-radius: var(--radius-md); font-size: var(--text-sm); color: var(--primary-text); }
+  .assist i { font-size: 1.2em; } .assist b { font-weight: 700; } .assist a { margin-left: auto; color: var(--primary-text); font-weight: 700; text-decoration: none; }
+
+  .cal-scroll { flex: 1; overflow: auto; padding: var(--space-5) var(--space-6) var(--space-7); }
+  .cal { display: grid; grid-template-columns: 80px repeat(7, minmax(0,1fr)); gap: var(--space-2); }
+  .cal__day { padding: var(--space-2); text-align: center; }
+  .cal__day b { font-family: var(--font-display); font-size: var(--text-lg); display: block; }
+  .cal__day span { font-size: var(--text-2xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: var(--tracking-wide); font-weight: 700; }
+  .cal__day--today { background: var(--primary-soft); border-radius: var(--radius-md); }
+  .cal__day--today b { color: var(--primary-text); }
+  .cal__slot { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); padding-right: var(--space-2); padding-top: var(--space-3); font-size: 11px; font-weight: 700; letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--text-muted); }
+  .cal__slot i { font-size: 1.3em; }
+
+  .cell { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); min-height: 92px; padding: var(--space-2); display: flex; flex-direction: column; gap: var(--space-2); }
+  .cell--today { background: color-mix(in oklab, var(--primary-soft) 50%, var(--surface)); }
+  .cell--empty { justify-content: center; }
+  .cell__add { flex: 1; min-height: 58px; border: 1.5px dashed var(--border-strong); border-radius: var(--radius-sm); background: transparent; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600; font-size: var(--text-sm); font-family: var(--font-sans); }
+  .meal { display: flex; gap: var(--space-2); padding: var(--space-2); border-radius: var(--radius-sm); background: var(--surface-2); border: 1px solid var(--border); align-items: flex-start; }
+  .meal__tile { width: 30px; height: 30px; flex: none; border-radius: 8px; display: grid; place-items: center; font-size: 16px; }
+  .meal__name { font-size: var(--text-sm); font-weight: 600; line-height: 1.2; }
+  .meal__meta { display: flex; gap: 5px; margin-top: 4px; flex-wrap: wrap; }
+  .tag { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 999px; }
+  .tag--prepped { background: var(--info-soft); color: var(--info); }
+  .tag--exp { background: var(--attention-soft); color: var(--attention); }
+  .tag--e2 { background: var(--energy-2-soft); color: var(--energy-2); } .tag--e4 { background: var(--energy-4-soft); color: var(--energy-4); }
+  [data-theme="dark"] .tag { filter: brightness(1.08); }
+  .meal--takeout { background: var(--clay-50); border-color: color-mix(in oklab, var(--clay-500) 24%, transparent); }
+</style>
+</head>
+<body data-theme="light">
+  <div class="app">
+    <nav class="rail">
+      <div class="rail__mark"><i class="ph-fill ph-cooking-pot"></i></div>
+      <a class="rail__item"><i class="ph ph-house"></i><span>Today</span></a>
+      <a class="rail__item rail__item--active"><i class="ph-fill ph-calendar-dots"></i><span>Plan</span></a>
+      <a class="rail__item"><i class="ph ph-book-open"></i><span>Recipes</span></a>
+      <a class="rail__item"><i class="ph ph-shelves"></i><span>Pantry</span></a>
+      <a class="rail__item"><i class="ph ph-shopping-cart-simple"></i><span>Shop</span></a>
+      <div class="rail__sep"></div>
+      <a class="rail__item"><i class="ph ph-cooking-pot"></i><span>Prep</span></a>
+      <div class="rail__user">JR</div>
+    </nav>
+
+    <div class="main">
+      <header class="topbar">
+        <div><h1>Plan</h1><p>Tap a slot to add · drag to move</p></div>
+        <div class="weeknav">
+          <button class="icon-btn"><i class="ph ph-caret-left"></i></button>
+          <div class="weeknav__range">Dec 23 – 29</div>
+          <button class="icon-btn"><i class="ph ph-caret-right"></i></button>
+        </div>
+        <div class="spacer"></div>
+        <div class="energy-now">
+          <span class="energy-now__label">Today</span>
+          <div class="energy-now__opts">
+            <div class="energy-dot" data-e="1"><div class="energy-dot__core"></div></div>
+            <div class="energy-dot" data-e="2"><div class="energy-dot__core"></div></div>
+            <div class="energy-dot energy-dot--sel" data-e="3"><div class="energy-dot__core"></div></div>
+            <div class="energy-dot" data-e="4"><div class="energy-dot__core"></div></div>
+            <div class="energy-dot" data-e="5"><div class="energy-dot__core"></div></div>
+          </div>
+        </div>
+        <button class="nk-btn nk-btn--primary"><i class="ph ph-sparkle"></i> Generate plan</button>
+      </header>
+
+      <div class="assist">
+        <i class="ph ph-battery-medium"></i>
+        <span><b>Energy-aware planning is on.</b> Simpler meals on your typically lower-energy days.</span>
+        <a href="#">Adjust</a>
+      </div>
+
+      <div class="cal-scroll nk-scroll"><div class="cal" id="cal"></div></div>
+    </div>
+  </div>
+<script>
+  const theme = new URLSearchParams(location.search).get('theme');
+  if (theme === 'dark') document.body.setAttribute('data-theme','dark');
+
+  const days=[{dow:'Mon',d:23},{dow:'Tue',d:24},{dow:'Wed',d:25,today:true},{dow:'Thu',d:26},{dow:'Fri',d:27},{dow:'Sat',d:28},{dow:'Sun',d:29}];
+  const slots=[{key:'Breakfast',icon:'ph-coffee'},{key:'Lunch',icon:'ph-bowl-food'},{key:'Dinner',icon:'ph-fork-knife'},{key:'Snack',icon:'ph-cookie'}];
+  const meals={
+    Breakfast:[{n:'Overnight oats',icon:'ph-bowl-food',tile:5,tags:[['e',2]]},{n:'Eggs & toast',icon:'ph-egg',tile:5,tags:[['e',2]]},null,{n:'Berry smoothie',icon:'ph-blueprint',tile:4,tags:[['e',2]]},{n:'Overnight oats',icon:'ph-bowl-food',tile:5,tags:[['e',2]]},null,{n:'Pancakes',icon:'ph-stack',tile:5,tags:[['e',4]]}],
+    Lunch:[{n:'Black bean soup',icon:'ph-bowl-food',tile:3,tags:[['prepped'],['exp']]},{n:'Greek salad',icon:'ph-leaf',tile:3,tags:[['e',2]]},null,{n:'Marinara pasta',icon:'ph-cooking-pot',tile:5,tags:[['prepped']]},{n:'Leftovers',icon:'ph-arrow-counter-clockwise',tile:2,tags:[['e',2]]},{n:'Burrito bowl',icon:'ph-bowl-food',tile:4,tags:[['prepped']]},null],
+    Dinner:[{n:'Chicken stir fry',icon:'ph-fork-knife',tile:4,tags:[['e',4]]},{n:'Marinara pasta',icon:'ph-cooking-pot',tile:5,tags:[['prepped']]},null,{n:'Takeout',icon:'ph-moped',takeout:true,tags:[['e',2]]},{n:'Black bean soup',icon:'ph-bowl-food',tile:3,tags:[['prepped']]},{n:'Sheet-pan salmon',icon:'ph-fish',tile:4,tags:[['e',4]]},{n:'Burrito bowl',icon:'ph-bowl-food',tile:4,tags:[['prepped']]}],
+    Snack:[null,{n:'Yogurt & fruit',icon:'ph-bowl-food',tile:4,tags:[['e',2]]},null,null,null,{n:'Hummus & pita',icon:'ph-circle-half',tile:3,tags:[['e',2]]},null],
+  };
+  const cal=document.getElementById('cal');
+  cal.appendChild(el('div',''));
+  days.forEach(d=>{const c=el('div','cal__day'+(d.today?' cal__day--today':''));c.innerHTML=`<span>${d.dow}</span><b>${d.d}</b>`;cal.appendChild(c);});
+  slots.forEach(s=>{
+    const lab=el('div','cal__slot');lab.innerHTML=`<span>${s.key}</span><i class="ph ${s.icon}"></i>`;cal.appendChild(lab);
+    days.forEach((d,i)=>{const m=meals[s.key][i];const cell=el('div','cell'+(d.today?' cell--today':'')+(m?'':' cell--empty'));
+      if(!m){cell.innerHTML=`<button class="cell__add"><i class="ph ph-plus"></i> Add</button>`;}else{cell.appendChild(mealEl(m));}cal.appendChild(cell);});
+  });
+  function mealEl(m){const w=el('div','meal'+(m.takeout?' meal--takeout':''));const tc=m.takeout?'var(--clay-100)':`var(--energy-${m.tile}-soft)`;const ic=m.takeout?'var(--clay-600)':`var(--energy-${m.tile})`;
+    let t='';(m.tags||[]).forEach(x=>{if(x[0]==='prepped')t+=`<span class="tag tag--prepped"><i class="ph ph-snowflake"></i> Prepped</span>`;else if(x[0]==='exp')t+=`<span class="tag tag--exp"><i class="ph ph-warning-circle"></i> 2d</span>`;else if(x[0]==='e')t+=`<span class="tag tag--e${x[1]}">${['','Low','Low','Steady','Good','Hi'][x[1]]}</span>`;});
+    w.innerHTML=`<div class="meal__tile" style="background:${tc};color:${ic}"><i class="ph ${m.icon}"></i></div><div><div class="meal__name">${m.n}</div><div class="meal__meta">${t}</div></div>`;return w;}
+  function el(t,c){const e=document.createElement(t);if(c)e.className=c;return e;}
+</script>
+</body>
+</html>

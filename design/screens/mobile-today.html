@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Today · Mobile</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<style>
+  html, body { height: 100%; }
+  body { background: var(--bg); display: flex; flex-direction: column; overflow: hidden; font-size: 16px; }
+  .statusbar { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-6); flex: none; }
+  .statusbar b { font-weight: 700; font-size: 15px; }
+  .statusbar__right { display: flex; gap: 6px; align-items: center; font-size: 15px; }
+
+  .scroll { flex: 1; overflow-y: auto; padding: var(--space-2) var(--space-5) var(--space-7); }
+
+  .ghead { display: flex; align-items: center; justify-content: space-between; }
+  .ghead h1 { font-size: var(--text-2xl); }
+  .ghead p { font-size: var(--text-sm); color: var(--text-muted); margin-top: 1px; }
+  .ghead .avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--clay-200); color: var(--clay-600); display: grid; place-items: center; font-weight: 700; font-size: var(--text-sm); flex: none; }
+
+  /* energy card */
+  .ecard { margin-top: var(--space-4); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-4); box-shadow: var(--shadow-sm); }
+  .ecard__label { font-size: var(--text-sm); color: var(--text-secondary); font-weight: 600; margin-bottom: var(--space-3); display: flex; align-items: center; gap: var(--space-2); }
+  .ecard__label i { color: var(--primary-text); font-size: 1.2em; }
+  .ecard__opts { display: flex; gap: var(--space-2); }
+  .ebtn { flex: 1; height: 52px; border-radius: var(--radius-md); border: 2px solid transparent; background: var(--surface-2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+  .ebtn__core { width: 15px; height: 15px; border-radius: 50%; }
+  .ebtn__n { font-size: var(--text-2xs); font-weight: 700; color: var(--text-muted); }
+  .ebtn[data-e="1"]{background:var(--energy-1-soft)} .ebtn[data-e="1"] .ebtn__core{background:var(--energy-1)}
+  .ebtn[data-e="2"]{background:var(--energy-2-soft)} .ebtn[data-e="2"] .ebtn__core{background:var(--energy-2)}
+  .ebtn[data-e="3"]{background:var(--energy-3-soft)} .ebtn[data-e="3"] .ebtn__core{background:var(--energy-3)}
+  .ebtn[data-e="4"]{background:var(--energy-4-soft)} .ebtn[data-e="4"] .ebtn__core{background:var(--energy-4)}
+  .ebtn[data-e="5"]{background:var(--energy-5-soft)} .ebtn[data-e="5"] .ebtn__core{background:var(--energy-5)}
+  .ebtn--sel { border-color: var(--energy-4); } .ebtn--sel .ebtn__n { color: var(--text); }
+
+  /* gentle reminder */
+  .reminder { margin-top: var(--space-4); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--surface); border: 1px solid color-mix(in oklab, var(--energy-4) 32%, transparent); box-shadow: var(--shadow-sm); }
+  .reminder__top { display: flex; align-items: center; gap: var(--space-3); }
+  .reminder__ic { width: 42px; height: 42px; border-radius: 50%; background: var(--energy-4-soft); color: var(--energy-4); display: grid; place-items: center; font-size: 21px; flex: none; }
+  .reminder__top b { font-size: var(--text-base); font-family: var(--font-display); }
+  .reminder p { color: var(--text-secondary); font-size: var(--text-sm); margin-top: var(--space-2); }
+  .reminder__btns { display: flex; gap: var(--space-2); margin-top: var(--space-3); }
+
+  .sec-label { font-size: var(--text-xs); font-weight: 700; letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--text-muted); margin: var(--space-6) 0 var(--space-3); }
+
+  .meal { display: flex; align-items: center; gap: var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-3); box-shadow: var(--shadow-sm); margin-bottom: var(--space-2); }
+  .meal__tile { width: 46px; height: 46px; border-radius: var(--radius-sm); display: grid; place-items: center; font-size: 24px; flex: none; }
+  .meal__body { flex: 1; min-width: 0; }
+  .meal__slot { font-size: var(--text-2xs); font-weight: 700; letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--text-muted); }
+  .meal__name { font-weight: 600; font-size: var(--text-base); margin-top: 1px; }
+  .meal__meta { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+  .state { display: inline-flex; align-items: center; gap: 4px; font-size: var(--text-xs); font-weight: 700; }
+  .state--eaten { color: var(--primary-text); }
+  .state--planned { color: var(--text-muted); }
+  .tag { display: inline-flex; align-items: center; gap: 4px; font-size: var(--text-2xs); font-weight: 700; padding: 2px 7px; border-radius: 999px; background: var(--info-soft); color: var(--info); }
+  .logbtn { flex: none; height: 38px; padding: 0 var(--space-4); border-radius: var(--radius-pill); border: 1.5px solid var(--border-strong); background: var(--surface); color: var(--text); font-weight: 600; font-size: var(--text-sm); font-family: var(--font-sans); display: inline-flex; align-items: center; gap: 5px; }
+
+  .qa { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+  .qa__btn { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-4); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); font-weight: 600; font-size: var(--text-sm); color: var(--text); box-shadow: var(--shadow-sm); }
+  .qa__btn i { font-size: 1.4em; color: var(--primary-text); }
+
+  /* FAB quick log */
+  .fab { position: absolute; right: var(--space-5); bottom: 92px; height: 56px; padding: 0 var(--space-5); border-radius: var(--radius-pill); background: var(--primary); color: var(--text-on-accent); border: none; font-family: var(--font-sans); font-weight: 700; font-size: var(--text-base); display: flex; align-items: center; gap: var(--space-2); box-shadow: var(--shadow-lg); }
+  .fab i { font-size: 1.3em; }
+
+  .tabs { flex: none; display: flex; padding: var(--space-2) var(--space-4) var(--space-5); border-top: 1px solid var(--border); background: var(--surface); }
+  .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--text-muted); font-size: var(--text-2xs); font-weight: 600; }
+  .tab i { font-size: 24px; }
+  .tab--active { color: var(--primary-text); }
+  .homebar { height: 5px; width: 134px; background: var(--text); opacity: 0.28; border-radius: 3px; margin: 8px auto 6px; }
+</style>
+</head>
+<body data-theme="light">
+  <div class="statusbar"><b>1:12</b><div class="statusbar__right"><i class="ph-fill ph-cell-signal-full"></i> <i class="ph-fill ph-wifi-high"></i> <i class="ph-fill ph-battery-high"></i></div></div>
+
+  <div class="scroll nk-scroll">
+    <div class="ghead">
+      <div>
+        <h1>Good afternoon</h1>
+        <p>Wednesday, Dec 25</p>
+      </div>
+      <div class="avatar">JR</div>
+    </div>
+
+    <div class="ecard">
+      <div class="ecard__label"><i class="ph ph-battery-medium"></i> Right now I feel…</div>
+      <div class="ecard__opts">
+        <button class="ebtn" data-e="1"><div class="ebtn__core"></div><span class="ebtn__n">Low</span></button>
+        <button class="ebtn" data-e="2"><div class="ebtn__core"></div><span class="ebtn__n">2</span></button>
+        <button class="ebtn" data-e="3"><div class="ebtn__core"></div><span class="ebtn__n">3</span></button>
+        <button class="ebtn ebtn--sel" data-e="4"><div class="ebtn__core"></div><span class="ebtn__n">Good</span></button>
+        <button class="ebtn" data-e="5"><div class="ebtn__core"></div><span class="ebtn__n">High</span></button>
+      </div>
+    </div>
+
+    <div class="reminder">
+      <div class="reminder__top">
+        <div class="reminder__ic"><i class="ph ph-bell-simple-ringing"></i></div>
+        <b>It's around lunchtime.</b>
+      </div>
+      <p>Your Marinara pasta is prepped and ready whenever you are. No rush.</p>
+      <div class="reminder__btns">
+        <button class="nk-btn nk-btn--ghost nk-btn--sm">Not now</button>
+        <button class="nk-btn nk-btn--primary nk-btn--sm"><i class="ph ph-check"></i> Log lunch</button>
+      </div>
+    </div>
+
+    <div class="sec-label">Today's meals</div>
+    <div class="meal">
+      <div class="meal__tile" style="background:var(--energy-5-soft);color:var(--energy-5)"><i class="ph ph-bowl-food"></i></div>
+      <div class="meal__body">
+        <div class="meal__slot">Breakfast</div>
+        <div class="meal__name">Overnight oats</div>
+        <div class="meal__meta"><span class="state state--eaten"><i class="ph-fill ph-check-circle"></i> Eaten · 8:10am</span></div>
+      </div>
+    </div>
+    <div class="meal">
+      <div class="meal__tile" style="background:var(--info-soft);color:var(--info)"><i class="ph ph-cooking-pot"></i></div>
+      <div class="meal__body">
+        <div class="meal__slot">Lunch</div>
+        <div class="meal__name">Marinara pasta</div>
+        <div class="meal__meta"><span class="tag"><i class="ph ph-snowflake"></i> Prepped</span></div>
+      </div>
+      <button class="logbtn"><i class="ph ph-check"></i> Log</button>
+    </div>
+    <div class="meal">
+      <div class="meal__tile" style="background:var(--energy-4-soft);color:var(--energy-4)"><i class="ph ph-fish"></i></div>
+      <div class="meal__body">
+        <div class="meal__slot">Dinner</div>
+        <div class="meal__name">Sheet-pan salmon</div>
+        <div class="meal__meta"><span class="state state--planned"><i class="ph ph-clock"></i> Planned · 6:30pm</span></div>
+      </div>
+    </div>
+
+    <div class="sec-label">Quick actions</div>
+    <div class="qa">
+      <a class="qa__btn"><i class="ph ph-calendar-dots"></i> Plan week</a>
+      <a class="qa__btn"><i class="ph ph-lightning"></i> Make now</a>
+      <a class="qa__btn"><i class="ph ph-cooking-pot"></i> Meal prep</a>
+      <a class="qa__btn"><i class="ph ph-shopping-cart-simple"></i> Shopping</a>
+    </div>
+  </div>
+
+  <button class="fab"><i class="ph ph-plus"></i> Log a meal</button>
+
+  <nav class="tabs">
+    <a class="tab tab--active"><i class="ph-fill ph-house"></i> Today</a>
+    <a class="tab"><i class="ph ph-calendar-dots"></i> Plan</a>
+    <a class="tab"><i class="ph ph-book-open"></i> Recipes</a>
+    <a class="tab"><i class="ph ph-shelves"></i> Pantry</a>
+    <a class="tab"><i class="ph ph-cooking-pot"></i> Prep</a>
+  </nav>
+  <div class="homebar"></div>
+
+<script>
+  const theme = new URLSearchParams(location.search).get('theme');
+  if (theme === 'dark') document.body.setAttribute('data-theme','dark');
+</script>
+</body>
+</html>

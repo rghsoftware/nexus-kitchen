@@ -481,6 +481,8 @@ The application is guided by a core principle: **"Good enough nutrition maintain
 - REQ-VD-004: Icons shall be accompanied by text labels for clarity
 - REQ-VD-005: The system shall use consistent visual language throughout
 
+> The visual language realizing these requirements — the "Warm Kitchen, Calm Mind" palette, the 1–5 energy scale, type, spacing, component vocabulary, and light/dark — is specified in **nexus-kitchen-design-system.md** (built from the Claude Design mockup).
+
 ### 6.3 Error Handling
 
 - REQ-EH-001: Error messages shall be human-readable (no technical jargon)

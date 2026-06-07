@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reminder Setup · Mobile</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<style>
+  html, body { height: 100%; }
+  body { background: var(--bg); display: flex; flex-direction: column; overflow: hidden; font-size: 16px; }
+  .statusbar { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-6); flex: none; }
+  .statusbar b { font-weight: 700; font-size: 15px; }
+  .statusbar__right { display: flex; gap: 6px; align-items: center; font-size: 15px; }
+
+  .navbar { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-4) var(--space-3); flex: none; }
+  .navbar__back { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--text); display: grid; place-items: center; font-size: 1.2em; flex: none; }
+  .navbar__title { font-weight: 700; font-size: var(--text-base); }
+
+  .scroll { flex: 1; overflow-y: auto; padding: var(--space-3) var(--space-5) var(--space-6); }
+  .intro { display: flex; flex-direction: column; align-items: center; text-align: center; padding: var(--space-4) var(--space-4) var(--space-6); }
+  .intro__ic { width: 64px; height: 64px; border-radius: 20px; background: var(--energy-4-soft); color: var(--energy-4); display: grid; place-items: center; font-size: 32px; margin-bottom: var(--space-4); }
+  .intro h1 { font-size: var(--text-2xl); }
+  .intro p { color: var(--text-secondary); font-size: var(--text-base); margin-top: var(--space-2); max-width: 30ch; }
+
+  .row { display: flex; align-items: center; gap: var(--space-3); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); margin-bottom: var(--space-3); box-shadow: var(--shadow-sm); }
+  .row__ic { width: 40px; height: 40px; border-radius: var(--radius-sm); display: grid; place-items: center; font-size: 20px; flex: none; background: var(--surface-2); color: var(--text-secondary); }
+  .row__body { flex: 1; min-width: 0; }
+  .row__name { font-weight: 600; font-size: var(--text-base); }
+  .row__time { font-size: var(--text-sm); color: var(--text-muted); margin-top: 1px; display: inline-flex; align-items: center; gap: 5px; }
+  .row--on .row__ic { background: var(--energy-4-soft); color: var(--energy-4); }
+
+  .nk-toggle { position: relative; width: 50px; height: 30px; border-radius: 999px; background: var(--border-strong); border: none; flex: none; padding: 0; }
+  .nk-toggle[aria-pressed="true"] { background: var(--primary); }
+  .nk-toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: var(--shadow-sm); transition: transform var(--transition); }
+  .nk-toggle[aria-pressed="true"]::after { transform: translateX(20px); }
+
+  .reassure { display: flex; align-items: center; gap: var(--space-2); justify-content: center; margin-top: var(--space-4); font-size: var(--text-sm); color: var(--text-muted); }
+  .reassure i { color: var(--primary-text); }
+
+  .foot { flex: none; padding: var(--space-4) var(--space-5) var(--space-3); border-top: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; gap: var(--space-2); }
+  .homebar { height: 5px; width: 134px; background: var(--text); opacity: 0.28; border-radius: 3px; margin: var(--space-1) auto var(--space-2); }
+</style>
+</head>
+<body data-theme="light">
+  <div class="statusbar"><b>9:41</b><div class="statusbar__right"><i class="ph-fill ph-cell-signal-full"></i> <i class="ph-fill ph-wifi-high"></i> <i class="ph-fill ph-battery-high"></i></div></div>
+
+  <div class="navbar">
+    <button class="navbar__back"><i class="ph ph-arrow-left"></i></button>
+    <div class="navbar__title">Gentle nudges</div>
+  </div>
+
+  <div class="scroll nk-scroll">
+    <div class="intro">
+      <div class="intro__ic"><i class="ph ph-bell-simple-ringing"></i></div>
+      <h1>When would you like a nudge?</h1>
+      <p>Soft reminders to eat — never naggy, always easy to dismiss.</p>
+    </div>
+
+    <div class="row row--on">
+      <div class="row__ic"><i class="ph ph-coffee"></i></div>
+      <div class="row__body"><div class="row__name">Breakfast</div><div class="row__time"><i class="ph ph-clock"></i> 8:00 AM</div></div>
+      <button class="nk-toggle" aria-pressed="true" aria-label="Breakfast reminder"></button>
+    </div>
+    <div class="row row--on">
+      <div class="row__ic"><i class="ph ph-bowl-food"></i></div>
+      <div class="row__body"><div class="row__name">Lunch</div><div class="row__time"><i class="ph ph-clock"></i> 12:30 PM</div></div>
+      <button class="nk-toggle" aria-pressed="true" aria-label="Lunch reminder"></button>
+    </div>
+    <div class="row row--on">
+      <div class="row__ic"><i class="ph ph-fork-knife"></i></div>
+      <div class="row__body"><div class="row__name">Dinner</div><div class="row__time"><i class="ph ph-clock"></i> 6:30 PM · 30 min pre-alert</div></div>
+      <button class="nk-toggle" aria-pressed="true" aria-label="Dinner reminder"></button>
+    </div>
+    <div class="row">
+      <div class="row__ic"><i class="ph ph-cookie"></i></div>
+      <div class="row__body"><div class="row__name">Snacks</div><div class="row__time"><i class="ph ph-clock"></i> 3:00 PM</div></div>
+      <button class="nk-toggle" aria-pressed="false" aria-label="Snack reminder"></button>
+    </div>
+
+    <div class="reassure"><i class="ph ph-info"></i> Change any of this anytime in Settings.</div>
+  </div>
+
+  <div class="foot">
+    <button class="nk-btn nk-btn--primary nk-btn--block nk-btn--lg">Set reminders</button>
+    <button class="nk-btn nk-btn--ghost nk-btn--block">Maybe later</button>
+    <div class="homebar"></div>
+  </div>
+<script>
+  const theme = new URLSearchParams(location.search).get('theme');
+  if (theme === 'dark') document.body.setAttribute('data-theme','dark');
+</script>
+</body>
+</html>

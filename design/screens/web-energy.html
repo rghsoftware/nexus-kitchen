@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Right Now · Web</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<style>
+  html, body { height: 100%; }
+  body { background: var(--bg-sunken); overflow: hidden; }
+  .app { display: grid; grid-template-columns: 248px 1fr; height: 100vh; }
+  .side { background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: var(--space-5) var(--space-4); }
+  .side__logo { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-2) var(--space-6); }
+  .side__mark { width: 38px; height: 38px; border-radius: 11px; background: var(--primary); color: var(--text-on-accent); display: grid; place-items: center; font-size: 21px; }
+  .side__name { font-family: var(--font-display); font-weight: 700; font-size: var(--text-lg); letter-spacing: -0.02em; }
+  .side__name span { color: var(--primary-text); }
+  .nav { display: flex; flex-direction: column; gap: 2px; }
+  .nav__item { display: flex; align-items: center; gap: var(--space-3); height: 46px; padding: 0 var(--space-3); border-radius: var(--radius-md); color: var(--text-secondary); font-weight: 600; font-size: var(--text-base); text-decoration: none; }
+  .nav__item i { font-size: 1.32em; }
+  .nav__item:hover { background: var(--surface-2); color: var(--text); }
+  .nav__item--active { background: var(--primary-soft); color: var(--primary-text); }
+  .nav__sep { height: 1px; background: var(--border); margin: var(--space-4) var(--space-2); }
+  .side__foot { margin-top: auto; }
+  .side__user { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2); }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--clay-200); color: var(--clay-600); display: grid; place-items: center; font-weight: 700; font-size: var(--text-sm); }
+  .side__user b { font-size: var(--text-sm); display: block; } .side__user span { font-size: var(--text-xs); color: var(--text-muted); }
+
+  .main { min-width: 0; background: var(--bg); overflow: auto; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: var(--space-8) var(--space-8) var(--space-9); }
+  .head h1 { font-size: var(--text-3xl); }
+  .head p { color: var(--text-secondary); font-size: var(--text-lg); margin-top: var(--space-2); }
+
+  /* energy selector — big */
+  .epick { margin-top: var(--space-6); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); box-shadow: var(--shadow-sm); }
+  .epick__label { font-size: var(--text-sm); font-weight: 600; color: var(--text-secondary); margin-bottom: var(--space-3); }
+  .epick__opts { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-3); }
+  .ebig { border-radius: var(--radius-md); border: 2px solid transparent; background: var(--surface-2); padding: var(--space-4); display: flex; flex-direction: column; align-items: center; gap: var(--space-2); cursor: pointer; font-family: var(--font-sans); }
+  .ebig__sw { width: 100%; height: 24px; border-radius: var(--radius-sm); }
+  .ebig__n { font-weight: 700; font-size: var(--text-sm); color: var(--text-secondary); }
+  .ebig[data-e="1"] .ebig__sw{background:var(--energy-1)} .ebig[data-e="2"] .ebig__sw{background:var(--energy-2)} .ebig[data-e="3"] .ebig__sw{background:var(--energy-3)} .ebig[data-e="4"] .ebig__sw{background:var(--energy-4)} .ebig[data-e="5"] .ebig__sw{background:var(--energy-5)}
+  .ebig--sel { border-color: var(--energy-2); background: var(--energy-2-soft); }
+  .ebig--sel .ebig__n { color: var(--text); }
+
+  /* result framing */
+  .framing { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-7); padding: var(--space-4) var(--space-5); border-radius: var(--radius-md); background: var(--energy-2-soft); border: 1px solid color-mix(in oklab, var(--energy-2) 30%, transparent); }
+  .framing i { font-size: 1.5em; color: var(--energy-2); }
+  .framing b { font-family: var(--font-display); font-size: var(--text-lg); }
+  .framing p { font-size: var(--text-sm); color: var(--text-secondary); }
+
+  .grp { margin-top: var(--space-7); }
+  .grp__label { font-size: var(--text-xs); font-weight: 700; letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--text-muted); margin-bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-2); }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); }
+  .rc { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-4); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: var(--space-3); }
+  .rc__tile { height: 96px; border-radius: var(--radius-md); display: grid; place-items: center; font-size: 40px; }
+  .rc__name { font-weight: 600; font-size: var(--text-base); }
+  .rc__meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+  .tag { display: inline-flex; align-items: center; gap: 4px; font-size: var(--text-2xs); font-weight: 700; padding: 3px 8px; border-radius: 999px; }
+  .tag--nocook { background: var(--energy-1-soft); color: var(--energy-1); }
+  .tag--prepped { background: var(--info-soft); color: var(--info); }
+  .tag--time { background: var(--surface-2); color: var(--text-secondary); }
+  .tag--e2 { background: var(--energy-2-soft); color: var(--energy-2); }
+  [data-theme="dark"] .tag:not(.tag--time){ filter: brightness(1.08); }
+
+  /* hidden / collapsed group */
+  .later { margin-top: var(--space-7); padding: var(--space-5); border-radius: var(--radius-lg); border: 1px dashed var(--border-strong); background: transparent; display: flex; align-items: center; gap: var(--space-3); }
+  .later i { font-size: 1.4em; color: var(--text-muted); }
+  .later b { font-size: var(--text-base); }
+  .later p { font-size: var(--text-sm); color: var(--text-muted); }
+  .later a { margin-left: auto; color: var(--primary-text); font-weight: 700; text-decoration: none; white-space: nowrap; }
+</style>
+</head>
+<body data-theme="light">
+  <div class="app">
+    <aside class="side">
+      <div class="side__logo"><div class="side__mark"><i class="ph-fill ph-cooking-pot"></i></div><div class="side__name">Nexus <span>Kitchen</span></div></div>
+      <nav class="nav">
+        <a class="nav__item"><i class="ph ph-house"></i> Today</a>
+        <a class="nav__item"><i class="ph ph-calendar-dots"></i> Plan</a>
+        <a class="nav__item nav__item--active"><i class="ph-fill ph-lightning"></i> Make now</a>
+        <a class="nav__item"><i class="ph ph-book-open"></i> Recipes</a>
+        <a class="nav__item"><i class="ph ph-shelves"></i> Pantry</a>
+        <div class="nav__sep"></div>
+        <a class="nav__item"><i class="ph ph-cooking-pot"></i> Meal prep</a>
+      </nav>
+      <div class="side__foot"><div class="nav__sep"></div><div class="side__user"><div class="avatar">JR</div><div><b>Jordan's kitchen</b><span>2 people</span></div></div></div>
+    </aside>
+
+    <div class="main nk-scroll">
+      <div class="wrap">
+        <div class="head">
+          <h1>What can I make right now?</h1>
+          <p>Tell me your energy and I'll only show what fits. Nothing complicated when you're not up for it.</p>
+        </div>
+
+        <div class="epick">
+          <div class="epick__label">My energy right now</div>
+          <div class="epick__opts">
+            <button class="ebig" data-e="1"><div class="ebig__sw"></div><span class="ebig__n">Running low</span></button>
+            <button class="ebig ebig--sel" data-e="2"><div class="ebig__sw"></div><span class="ebig__n">Low</span></button>
+            <button class="ebig" data-e="3"><div class="ebig__sw"></div><span class="ebig__n">Steady</span></button>
+            <button class="ebig" data-e="4"><div class="ebig__sw"></div><span class="ebig__n">Good</span></button>
+            <button class="ebig" data-e="5"><div class="ebig__sw"></div><span class="ebig__n">Energized</span></button>
+          </div>
+        </div>
+
+        <div class="framing">
+          <i class="ph ph-heart"></i>
+          <div>
+            <b>Low-key it is.</b>
+            <p>Showing no-cook and 15-minute options first. Complex recipes are tucked away — they'll be here when you want them.</p>
+          </div>
+        </div>
+
+        <div class="grp">
+          <div class="grp__label"><i class="ph ph-hand-palm" style="color:var(--energy-1)"></i> Ready now — no cooking</div>
+          <div class="cards">
+            <div class="rc">
+              <div class="rc__tile" style="background:var(--info-soft);color:var(--info)"><i class="ph ph-cooking-pot"></i></div>
+              <div class="rc__name">Marinara pasta</div>
+              <div class="rc__meta"><span class="tag tag--prepped"><i class="ph ph-snowflake"></i> Prepped</span><span class="tag tag--time">Reheat · 12 min</span></div>
+            </div>
+            <div class="rc">
+              <div class="rc__tile" style="background:var(--clay-100);color:var(--clay-600)"><i class="ph ph-moped"></i></div>
+              <div class="rc__name">Order takeout</div>
+              <div class="rc__meta"><span class="tag tag--nocook"><i class="ph ph-hand-palm"></i> No-cook</span><span class="tag tag--time">~30 min</span></div>
+            </div>
+            <div class="rc">
+              <div class="rc__tile" style="background:var(--energy-1-soft);color:var(--energy-1)"><i class="ph ph-bowl-food"></i></div>
+              <div class="rc__name">Yogurt &amp; granola</div>
+              <div class="rc__meta"><span class="tag tag--nocook"><i class="ph ph-hand-palm"></i> No-cook</span><span class="tag tag--time">2 min</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grp">
+          <div class="grp__label"><i class="ph ph-timer" style="color:var(--energy-2)"></i> 15 minutes or less</div>
+          <div class="cards">
+            <div class="rc">
+              <div class="rc__tile" style="background:var(--energy-5-soft);color:var(--energy-5)"><i class="ph ph-egg"></i></div>
+              <div class="rc__name">Eggs &amp; toast</div>
+              <div class="rc__meta"><span class="tag tag--e2">Low energy</span><span class="tag tag--time">10 min</span></div>
+            </div>
+            <div class="rc">
+              <div class="rc__tile" style="background:var(--energy-4-soft);color:var(--energy-4)"><i class="ph ph-sandwich"></i></div>
+              <div class="rc__name">Grilled cheese</div>
+              <div class="rc__meta"><span class="tag tag--e2">Low energy</span><span class="tag tag--time">15 min</span></div>
+            </div>
+            <div class="rc">
+              <div class="rc__tile" style="background:var(--energy-2-soft);color:var(--energy-2)"><i class="ph ph-leaf"></i></div>
+              <div class="rc__name">Greek salad jar</div>
+              <div class="rc__meta"><span class="tag tag--prepped"><i class="ph ph-snowflake"></i> Prepped</span><span class="tag tag--time">Grab &amp; go</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="later">
+          <i class="ph ph-moon-stars"></i>
+          <div>
+            <b>More involved recipes are resting</b>
+            <p>12 recipes that need more energy — hidden for now, never gone.</p>
+          </div>
+          <a href="#">Show anyway</a>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+  const theme = new URLSearchParams(location.search).get('theme');
+  if (theme === 'dark') document.body.setAttribute('data-theme','dark');
+</script>
+</body>
+</html>

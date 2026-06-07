@@ -1,0 +1,140 @@
+/* ============================================================
+   Nexus Kitchen — Color tokens
+   Warm, calm kitchen palette. Light is primary; dark mirrors it.
+   Rule: color is never the ONLY signal of state. Energy + status
+   tokens are a calm cool->warm ramp, never red=bad / green=good.
+   ============================================================ */
+
+:root {
+  /* --- Brand base --------------------------------------------------- */
+  --herb-50:  oklch(0.96 0.02 152);
+  --herb-100: oklch(0.92 0.04 152);
+  --herb-200: oklch(0.85 0.07 152);
+  --herb-300: oklch(0.76 0.09 152);
+  --herb-400: oklch(0.67 0.105 151);
+  --herb-500: oklch(0.585 0.115 150);  /* primary */
+  --herb-600: oklch(0.5 0.105 150);
+  --herb-700: oklch(0.42 0.085 150);
+
+  --clay-50:  oklch(0.96 0.02 46);
+  --clay-100: oklch(0.92 0.04 46);
+  --clay-200: oklch(0.85 0.07 46);
+  --clay-400: oklch(0.72 0.12 46);
+  --clay-500: oklch(0.655 0.13 45);    /* secondary accent */
+  --clay-600: oklch(0.57 0.12 43);
+
+  /* Warm neutral ramp (oat / clay-tinted greys) */
+  --oat-0:   oklch(1 0.003 85);
+  --oat-50:  oklch(0.985 0.007 84);
+  --oat-100: oklch(0.965 0.01 83);
+  --oat-150: oklch(0.945 0.012 82);
+  --oat-200: oklch(0.915 0.013 80);
+  --oat-300: oklch(0.86 0.014 78);
+  --oat-400: oklch(0.74 0.015 76);
+  --oat-500: oklch(0.62 0.017 74);
+  --oat-600: oklch(0.5 0.018 72);
+  --oat-700: oklch(0.4 0.018 70);
+  --oat-800: oklch(0.3 0.017 70);
+  --oat-900: oklch(0.235 0.015 70);
+  --oat-950: oklch(0.19 0.013 70);
+
+  /* --- Energy scale (1-5): calm cool->warm, NEVER red ------------- */
+  --energy-1: oklch(0.72 0.055 268);   /* running low — restful periwinkle */
+  --energy-2: oklch(0.73 0.06 232);    /* low — soft blue */
+  --energy-3: oklch(0.75 0.075 175);   /* steady — teal-sage */
+  --energy-4: oklch(0.79 0.1 128);     /* good — green-gold */
+  --energy-5: oklch(0.82 0.115 80);    /* energized — warm amber */
+  --energy-1-soft: oklch(0.94 0.03 268);
+  --energy-2-soft: oklch(0.94 0.035 232);
+  --energy-3-soft: oklch(0.94 0.04 175);
+  --energy-4-soft: oklch(0.95 0.05 128);
+  --energy-5-soft: oklch(0.95 0.055 80);
+
+  /* --- Status (calm, non-alarming) -------------------------------- */
+  --attention:       oklch(0.7 0.12 62);   /* "expires soon" — warm ochre, not red */
+  --attention-soft:  oklch(0.95 0.045 70);
+  --fresh:           var(--herb-500);
+  --fresh-soft:      var(--herb-50);
+  --info:            oklch(0.62 0.08 235);
+  --info-soft:       oklch(0.95 0.03 235);
+
+  /* ============================================================
+     SEMANTIC ALIASES — light mode (default)
+     ============================================================ */
+  --bg:            var(--oat-50);
+  --bg-sunken:     var(--oat-100);
+  --surface:       var(--oat-0);
+  --surface-2:     var(--oat-100);
+  --surface-3:     var(--oat-150);
+  --border:        var(--oat-200);
+  --border-strong: var(--oat-300);
+
+  --text:          var(--oat-900);
+  --text-secondary: var(--oat-600);
+  --text-muted:    var(--oat-500);
+  --text-on-accent: var(--oat-0);
+
+  --primary:       var(--herb-500);
+  --primary-hover: var(--herb-600);
+  --primary-soft:  var(--herb-50);
+  --primary-text:  var(--herb-700);
+
+  --secondary:     var(--clay-500);
+  --secondary-soft: var(--clay-50);
+  --secondary-text: var(--clay-600);
+
+  --focus-ring:    var(--herb-400);
+
+  /* Warm, low, soft shadows */
+  --shadow-sm: 0 1px 2px oklch(0.4 0.03 70 / 0.06), 0 1px 1px oklch(0.4 0.03 70 / 0.04);
+  --shadow-md: 0 4px 12px oklch(0.4 0.03 70 / 0.07), 0 2px 4px oklch(0.4 0.03 70 / 0.05);
+  --shadow-lg: 0 12px 32px oklch(0.4 0.03 70 / 0.1), 0 4px 10px oklch(0.4 0.03 70 / 0.06);
+  --shadow-xl: 0 24px 60px oklch(0.35 0.03 70 / 0.14), 0 8px 20px oklch(0.35 0.03 70 / 0.08);
+}
+
+/* ============================================================
+   DARK MODE — warm charcoal, mirrors the light semantics
+   Applied via [data-theme="dark"] on any ancestor.
+   ============================================================ */
+[data-theme="dark"] {
+  --bg:            var(--oat-950);
+  --bg-sunken:     oklch(0.165 0.012 70);
+  --surface:       var(--oat-900);
+  --surface-2:     var(--oat-800);
+  --surface-3:     oklch(0.34 0.016 70);
+  --border:        oklch(0.33 0.015 70);
+  --border-strong: oklch(0.42 0.016 72);
+
+  --text:          oklch(0.94 0.008 82);
+  --text-secondary: oklch(0.74 0.012 80);
+  --text-muted:    oklch(0.6 0.014 76);
+  --text-on-accent: var(--oat-950);
+
+  --primary:       var(--herb-400);
+  --primary-hover: var(--herb-300);
+  --primary-soft:  oklch(0.33 0.05 150);
+  --primary-text:  var(--herb-200);
+
+  --secondary:     var(--clay-400);
+  --secondary-soft: oklch(0.34 0.05 46);
+  --secondary-text: var(--clay-200);
+
+  --attention:      oklch(0.78 0.12 66);
+  --attention-soft: oklch(0.33 0.05 66);
+  --fresh-soft:     oklch(0.32 0.05 150);
+  --info:           oklch(0.7 0.09 235);
+  --info-soft:      oklch(0.32 0.045 235);
+
+  --energy-1-soft: oklch(0.32 0.04 268);
+  --energy-2-soft: oklch(0.32 0.045 232);
+  --energy-3-soft: oklch(0.32 0.05 175);
+  --energy-4-soft: oklch(0.33 0.055 128);
+  --energy-5-soft: oklch(0.34 0.06 80);
+
+  --focus-ring:    var(--herb-300);
+
+  --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.3);
+  --shadow-md: 0 4px 12px oklch(0 0 0 / 0.36), 0 2px 4px oklch(0 0 0 / 0.3);
+  --shadow-lg: 0 12px 32px oklch(0 0 0 / 0.45), 0 4px 10px oklch(0 0 0 / 0.32);
+  --shadow-xl: 0 24px 60px oklch(0 0 0 / 0.55), 0 8px 20px oklch(0 0 0 / 0.4);
+}

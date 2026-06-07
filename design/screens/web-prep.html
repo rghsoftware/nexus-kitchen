@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meal Prep Session · Web</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<style>
+  html, body { height: 100%; }
+  body { background: var(--bg-sunken); overflow: hidden; }
+  .app { display: grid; grid-template-columns: 248px 1fr; height: 100vh; }
+
+  /* Sidebar (shared look) */
+  .side { background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: var(--space-5) var(--space-4); }
+  .side__logo { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-2) var(--space-6); }
+  .side__mark { width: 38px; height: 38px; border-radius: 11px; background: var(--primary); color: var(--text-on-accent); display: grid; place-items: center; font-size: 21px; }
+  .side__name { font-family: var(--font-display); font-weight: 700; font-size: var(--text-lg); letter-spacing: -0.02em; }
+  .side__name span { color: var(--primary-text); }
+  .nav { display: flex; flex-direction: column; gap: 2px; }
+  .nav__item { display: flex; align-items: center; gap: var(--space-3); height: 46px; padding: 0 var(--space-3); border-radius: var(--radius-md); color: var(--text-secondary); font-weight: 600; font-size: var(--text-base); cursor: pointer; text-decoration: none; }
+  .nav__item i { font-size: 1.32em; }
+  .nav__item:hover { background: var(--surface-2); color: var(--text); }
+  .nav__item--active { background: var(--primary-soft); color: var(--primary-text); }
+  .nav__sep { height: 1px; background: var(--border); margin: var(--space-4) var(--space-2); }
+  .side__foot { margin-top: auto; }
+  .side__user { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2); border-radius: var(--radius-md); }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--clay-200); color: var(--clay-600); display: grid; place-items: center; font-weight: 700; font-size: var(--text-sm); }
+  .side__user b { font-size: var(--text-sm); display: block; }
+  .side__user span { font-size: var(--text-xs); color: var(--text-muted); }
+
+  /* Main / wizard */
+  .main { display: flex; flex-direction: column; min-width: 0; background: var(--bg); overflow: auto; }
+  .wz { max-width: 920px; margin: 0 auto; width: 100%; padding: var(--space-7) var(--space-7) var(--space-9); }
+  .wz__back { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--text-muted); font-weight: 600; font-size: var(--text-sm); text-decoration: none; margin-bottom: var(--space-5); }
+  .wz__back:hover { color: var(--text); }
+
+  /* Stepper */
+  .stepper { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-7); }
+  .step { display: flex; align-items: center; gap: var(--space-2); }
+  .step__dot { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: var(--text-sm); font-weight: 700; flex: none; border: 2px solid var(--border-strong); color: var(--text-muted); background: var(--surface); }
+  .step__name { font-size: var(--text-sm); font-weight: 600; color: var(--text-muted); white-space: nowrap; }
+  .step--done .step__dot { background: var(--primary); border-color: var(--primary); color: var(--text-on-accent); }
+  .step--done .step__name { color: var(--text); }
+  .step--active .step__dot { border-color: var(--primary); color: var(--primary-text); background: var(--primary-soft); }
+  .step--active .step__name { color: var(--primary-text); }
+  .step__line { width: 26px; height: 2px; background: var(--border); border-radius: 2px; }
+
+  .wz__head h1 { font-size: var(--text-3xl); }
+  .wz__head p { color: var(--text-secondary); font-size: var(--text-lg); margin-top: var(--space-2); }
+
+  .wz__grid { display: grid; grid-template-columns: 1fr 312px; gap: var(--space-6); margin-top: var(--space-6); align-items: start; }
+
+  /* recipe quantity card */
+  .qcard { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); box-shadow: var(--shadow-sm); margin-bottom: var(--space-4); }
+  .qcard__top { display: flex; align-items: center; gap: var(--space-4); }
+  .qcard__tile { width: 56px; height: 56px; border-radius: var(--radius-md); display: grid; place-items: center; font-size: 28px; flex: none; }
+  .qcard__name { font-family: var(--font-display); font-weight: 700; font-size: var(--text-xl); }
+  .qcard__sub { font-size: var(--text-sm); color: var(--text-muted); margin-top: 2px; }
+  .qcard__row { display: flex; align-items: center; gap: var(--space-5); margin-top: var(--space-5); flex-wrap: wrap; }
+  .field__label { font-size: var(--text-xs); font-weight: 700; letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--text-muted); margin-bottom: var(--space-2); }
+  .stepper-num { display: inline-flex; align-items: center; gap: var(--space-3); border: 1px solid var(--border-strong); border-radius: var(--radius-pill); padding: 4px; }
+  .stepper-num button { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--surface-2); color: var(--text); font-size: 1.2em; cursor: pointer; display: grid; place-items: center; }
+  .stepper-num button:hover { background: var(--primary-soft); color: var(--primary-text); }
+  .stepper-num b { min-width: 30px; text-align: center; font-size: var(--text-xl); font-variant-numeric: tabular-nums; }
+  .mult { font-size: var(--text-sm); color: var(--primary-text); font-weight: 600; }
+  .segmented { display: inline-flex; background: var(--surface-2); border-radius: var(--radius-pill); padding: 4px; gap: 2px; }
+  .segmented button { border: none; background: transparent; padding: 8px 16px; border-radius: var(--radius-pill); font-weight: 600; font-size: var(--text-sm); color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-sans); }
+  .segmented button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+
+  /* summary panel */
+  .summary { position: sticky; top: var(--space-6); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden; }
+  .summary__head { padding: var(--space-5) var(--space-5) var(--space-4); background: var(--primary-soft); }
+  .summary__head .ds-label { color: var(--primary-text); }
+  .summary__big { font-family: var(--font-display); font-weight: 700; font-size: var(--text-3xl); color: var(--primary-text); line-height: 1; margin-top: var(--space-2); }
+  .summary__big small { font-size: var(--text-base); font-weight: 600; }
+  .summary__body { padding: var(--space-5); }
+  .sumrow { display: flex; justify-content: space-between; align-items: center; padding: var(--space-3) 0; font-size: var(--text-base); border-top: 1px solid var(--border); }
+  .sumrow:first-child { border-top: 0; }
+  .sumrow span { color: var(--text-secondary); }
+  .sumrow b { font-variant-numeric: tabular-nums; }
+  .sumrow--total b { color: var(--primary-text); font-size: var(--text-lg); }
+  .summary__note { display: flex; gap: var(--space-2); margin-top: var(--space-4); padding: var(--space-3); background: var(--surface-2); border-radius: var(--radius-md); font-size: var(--text-sm); color: var(--text-secondary); }
+  .summary__note i { color: var(--primary-text); font-size: 1.2em; flex: none; }
+
+  .ds-label { font-size: var(--text-xs); font-weight: 700; letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--text-muted); }
+
+  .wz__foot { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-7); padding-top: var(--space-5); border-top: 1px solid var(--border); }
+  .wz__foot .spacer { flex: 1; }
+</style>
+</head>
+<body data-theme="light">
+  <div class="app">
+    <aside class="side">
+      <div class="side__logo">
+        <div class="side__mark"><i class="ph-fill ph-cooking-pot"></i></div>
+        <div class="side__name">Nexus <span>Kitchen</span></div>
+      </div>
+      <nav class="nav">
+        <a class="nav__item"><i class="ph ph-house"></i> Today</a>
+        <a class="nav__item"><i class="ph ph-calendar-dots"></i> Plan</a>
+        <a class="nav__item"><i class="ph ph-book-open"></i> Recipes</a>
+        <a class="nav__item"><i class="ph ph-shelves"></i> Pantry</a>
+        <a class="nav__item"><i class="ph ph-shopping-cart-simple"></i> Shopping</a>
+        <div class="nav__sep"></div>
+        <a class="nav__item nav__item--active"><i class="ph ph-cooking-pot"></i> Meal prep</a>
+      </nav>
+      <div class="side__foot">
+        <div class="nav__sep"></div>
+        <div class="side__user">
+          <div class="avatar">JR</div>
+          <div><b>Jordan's kitchen</b><span>2 people</span></div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main nk-scroll">
+      <div class="wz">
+        <a class="wz__back" href="#"><i class="ph ph-arrow-left"></i> Back to meal prep</a>
+
+        <div class="stepper">
+          <div class="step step--done"><div class="step__dot"><i class="ph-fill ph-check"></i></div><div class="step__name">Recipes</div></div>
+          <div class="step__line"></div>
+          <div class="step step--active"><div class="step__dot">2</div><div class="step__name">Quantities</div></div>
+          <div class="step__line"></div>
+          <div class="step"><div class="step__dot">3</div><div class="step__name">Schedule</div></div>
+          <div class="step__line"></div>
+          <div class="step"><div class="step__dot">4</div><div class="step__name">Shopping</div></div>
+          <div class="step__line"></div>
+          <div class="step"><div class="step__dot">5</div><div class="step__name">Review</div></div>
+        </div>
+
+        <div class="wz__head">
+          <h1>How many of each?</h1>
+          <p>Set servings and where each batch will live. No rush — you can tweak this later.</p>
+        </div>
+
+        <div class="wz__grid">
+          <div>
+            <!-- Recipe 1 -->
+            <div class="qcard">
+              <div class="qcard__top">
+                <div class="qcard__tile" style="background:var(--energy-5-soft);color:var(--energy-5)"><i class="ph ph-cooking-pot"></i></div>
+                <div>
+                  <div class="qcard__name">Marinara Sauce</div>
+                  <div class="qcard__sub">Recipe makes 10 servings · ~40 min</div>
+                </div>
+              </div>
+              <div class="qcard__row">
+                <div>
+                  <div class="field__label">Servings to prep</div>
+                  <div class="stepper-num">
+                    <button aria-label="Fewer"><i class="ph ph-minus"></i></button>
+                    <b>8</b>
+                    <button aria-label="More"><i class="ph ph-plus"></i></button>
+                  </div>
+                </div>
+                <div>
+                  <div class="field__label">Store in</div>
+                  <div class="segmented">
+                    <button aria-pressed="true"><i class="ph ph-snowflake"></i> Freezer</button>
+                    <button aria-pressed="false"><i class="ph ph-thermometer-cold"></i> Fridge</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recipe 2 -->
+            <div class="qcard">
+              <div class="qcard__top">
+                <div class="qcard__tile" style="background:var(--energy-3-soft);color:var(--energy-3)"><i class="ph ph-bowl-food"></i></div>
+                <div>
+                  <div class="qcard__name">Black Bean Soup</div>
+                  <div class="qcard__sub">Recipe makes 6 servings · ~45 min</div>
+                </div>
+              </div>
+              <div class="qcard__row">
+                <div>
+                  <div class="field__label">Servings to prep</div>
+                  <div class="stepper-num">
+                    <button aria-label="Fewer"><i class="ph ph-minus"></i></button>
+                    <b>12</b>
+                    <button aria-label="More"><i class="ph ph-plus"></i></button>
+                  </div>
+                </div>
+                <div style="align-self:flex-end"><span class="mult">2× recipe</span></div>
+                <div>
+                  <div class="field__label">Store in</div>
+                  <div class="segmented">
+                    <button aria-pressed="false"><i class="ph ph-snowflake"></i> Freezer</button>
+                    <button aria-pressed="true"><i class="ph ph-thermometer-cold"></i> Fridge</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary -->
+          <aside class="summary">
+            <div class="summary__head">
+              <div class="ds-label">You'll have</div>
+              <div class="summary__big">33 <small>portions</small></div>
+            </div>
+            <div class="summary__body">
+              <div class="sumrow"><span>New this session</span><b>20</b></div>
+              <div class="sumrow"><span>Already prepped</span><b>13</b></div>
+              <div class="sumrow sumrow--total"><span>Total available</span><b>33</b></div>
+              <div class="summary__note">
+                <i class="ph ph-calendar-check"></i>
+                <span>At 4 meals a day, that's about <b>8 days</b> of meals ready to go.</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <div class="wz__foot">
+          <button class="nk-btn nk-btn--secondary"><i class="ph ph-arrow-left"></i> Back</button>
+          <span class="spacer"></span>
+          <button class="nk-btn nk-btn--ghost">Save &amp; finish later</button>
+          <button class="nk-btn nk-btn--primary nk-btn--lg">Next: Schedule <i class="ph ph-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+  const theme = new URLSearchParams(location.search).get('theme');
+  if (theme === 'dark') document.body.setAttribute('data-theme','dark');
+</script>
+</body>
+</html>

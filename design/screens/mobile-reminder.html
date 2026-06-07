@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reminder · Lock Screen</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<style>
+  html, body { height: 100%; }
+  body { margin: 0; overflow: hidden; font-size: 16px; height: 100%;
+    background:
+      radial-gradient(120% 80% at 20% 10%, oklch(0.7 0.09 150 / 0.55), transparent 55%),
+      radial-gradient(120% 90% at 90% 30%, oklch(0.72 0.1 46 / 0.45), transparent 50%),
+      linear-gradient(165deg, oklch(0.42 0.06 150), oklch(0.28 0.03 70));
+    display: flex; flex-direction: column; color: #fff; position: relative; }
+
+  .statusbar { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-6); flex: none; color: #fff; }
+  .statusbar b { font-weight: 700; font-size: 15px; }
+  .statusbar__right { display: flex; gap: 6px; align-items: center; font-size: 15px; }
+
+  .lock-top { text-align: center; margin-top: var(--space-6); flex: none; }
+  .lock-top .lock { font-size: 26px; opacity: 0.85; }
+  .lock-top .time { font-family: var(--font-display); font-weight: 700; font-size: 80px; line-height: 1; letter-spacing: -0.03em; margin-top: var(--space-2); }
+  .lock-top .date { font-size: var(--text-lg); opacity: 0.85; font-weight: 500; margin-top: var(--space-1); }
+
+  .notif-area { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 var(--space-4) var(--space-4); gap: var(--space-3); }
+
+  .notif { background: oklch(1 0 0 / 0.16); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid oklch(1 0 0 / 0.18); border-radius: var(--radius-lg); padding: var(--space-4); box-shadow: 0 8px 30px oklch(0 0 0 / 0.25); }
+  .notif__head { display: flex; align-items: center; gap: var(--space-3); }
+  .notif__app { width: 34px; height: 34px; border-radius: 9px; background: var(--primary); display: grid; place-items: center; font-size: 19px; color: #fff; flex: none; }
+  .notif__name { font-weight: 700; font-size: var(--text-sm); letter-spacing: 0.02em; text-transform: uppercase; opacity: 0.92; flex: 1; }
+  .notif__time { font-size: var(--text-xs); opacity: 0.7; }
+  .notif__title { font-family: var(--font-display); font-weight: 600; font-size: var(--text-lg); margin-top: var(--space-3); }
+  .notif__body { font-size: var(--text-base); opacity: 0.92; margin-top: 4px; line-height: 1.4; }
+  .notif__actions { display: flex; gap: var(--space-2); margin-top: var(--space-4); }
+  .notif__btn { flex: 1; height: 44px; border-radius: var(--radius-pill); border: none; font-family: var(--font-sans); font-weight: 600; font-size: var(--text-sm); display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .notif__btn--primary { background: #fff; color: var(--oat-900); }
+  .notif__btn--ghost { background: oklch(1 0 0 / 0.18); color: #fff; }
+
+  .lock-foot { display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-8) var(--space-4); flex: none; }
+  .lock-foot div { width: 50px; height: 50px; border-radius: 50%; background: oklch(0 0 0 / 0.28); display: grid; place-items: center; font-size: 22px; }
+  .homebar { height: 5px; width: 134px; background: #fff; opacity: 0.7; border-radius: 3px; margin: 0 auto var(--space-3); flex: none; }
+</style>
+</head>
+<body>
+  <div class="statusbar"><b>12:30</b><div class="statusbar__right"><i class="ph-fill ph-cell-signal-full"></i> <i class="ph-fill ph-wifi-high"></i> <i class="ph-fill ph-battery-high"></i></div></div>
+
+  <div class="lock-top">
+    <div class="lock"><i class="ph-fill ph-lock-simple"></i></div>
+    <div class="time">12:30</div>
+    <div class="date">Wednesday, December 25</div>
+  </div>
+
+  <div class="notif-area">
+    <div class="notif">
+      <div class="notif__head">
+        <div class="notif__app"><i class="ph-fill ph-cooking-pot"></i></div>
+        <div class="notif__name">Nexus Kitchen</div>
+        <div class="notif__time">now</div>
+      </div>
+      <div class="notif__title">It's around lunchtime</div>
+      <div class="notif__body">Your Marinara pasta is prepped and ready whenever you are. No rush — just a gentle nudge.</div>
+      <div class="notif__actions">
+        <button class="notif__btn notif__btn--ghost">Not now</button>
+        <button class="notif__btn notif__btn--primary"><i class="ph ph-check"></i> Log lunch</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="lock-foot">
+    <div><i class="ph-fill ph-flashlight"></i></div>
+    <div><i class="ph-fill ph-camera"></i></div>
+  </div>
+  <div class="homebar"></div>
+</body>
+</html>

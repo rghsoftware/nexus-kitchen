@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nexus Kitchen — Design System</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<style>
+  body { background: var(--bg-sunken); }
+  .ds-wrap { max-width: 1180px; margin: 0 auto; padding: var(--space-9) var(--space-6) var(--space-12); }
+
+  /* Hero */
+  .ds-hero {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-9);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+  .ds-hero::before {
+    content: "";
+    position: absolute; right: -80px; top: -80px; width: 360px; height: 360px;
+    background: radial-gradient(circle at center, var(--herb-100), transparent 68%);
+    opacity: 0.7; pointer-events: none;
+  }
+  [data-theme="dark"] .ds-hero::before { opacity: 0.25; }
+  .ds-logo { display: inline-flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-5); }
+  .ds-logo__mark {
+    width: 46px; height: 46px; border-radius: 13px;
+    background: var(--primary); color: var(--text-on-accent);
+    display: grid; place-items: center; font-size: 26px;
+    box-shadow: var(--shadow-sm);
+  }
+  .ds-logo__name { font-family: var(--font-display); font-weight: 700; font-size: var(--text-xl); letter-spacing: -0.02em; }
+  .ds-logo__name span { color: var(--primary-text); }
+  .ds-hero h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); max-width: 16ch; }
+  .ds-hero p { font-size: var(--text-lg); color: var(--text-secondary); max-width: 56ch; margin-top: var(--space-4); }
+  .ds-principles { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-7); }
+  .ds-principles .nk-chip { height: 38px; background: var(--surface-2); font-size: var(--text-sm); }
+  .ds-principles i { color: var(--primary-text); font-size: 1.1em; }
+
+  /* Section scaffold */
+  section.ds-sec { margin-top: var(--space-10); }
+  .ds-sec__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-5); flex-wrap: wrap; }
+  .ds-sec__head h2 { font-size: var(--text-2xl); }
+  .ds-sec__head p { color: var(--text-secondary); max-width: 50ch; }
+  .ds-num { color: var(--primary-text); font-variant-numeric: tabular-nums; font-weight: 700; margin-right: var(--space-3); }
+
+  .ds-grid { display: grid; gap: var(--space-5); }
+  .ds-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow-sm); }
+  .ds-panel h3 { font-size: var(--text-lg); margin-bottom: var(--space-4); }
+  .ds-label { font-size: var(--text-xs); font-weight: 600; letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--text-muted); }
+
+  /* Color swatches */
+  .sw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: var(--space-3); }
+  .sw { border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border); background: var(--surface); }
+  .sw__chip { height: 64px; }
+  .sw__meta { padding: var(--space-2) var(--space-3); }
+  .sw__name { font-size: var(--text-sm); font-weight: 600; }
+  .sw__val { font-size: var(--text-2xs); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+  /* Light/Dark side-by-side */
+  .ds-modes { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); }
+  .ds-mode { border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; }
+  .ds-mode__bar { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); font-size: var(--text-sm); font-weight: 600; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+  .ds-mode__body { padding: var(--space-5); }
+
+  /* Energy scale */
+  .energy-scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-3); }
+  .energy-cell { border-radius: var(--radius-md); padding: var(--space-4); border: 1px solid var(--border); }
+  .energy-cell__swatch { height: 56px; border-radius: var(--radius-sm); margin-bottom: var(--space-3); }
+  .energy-cell__n { font-family: var(--font-display); font-weight: 700; font-size: var(--text-lg); }
+  .energy-cell__t { font-weight: 600; font-size: var(--text-sm); margin-top: 2px; }
+  .energy-cell__d { font-size: var(--text-xs); color: var(--text-secondary); margin-top: var(--space-1); }
+
+  /* Type specimens */
+  .type-row { display: flex; align-items: baseline; gap: var(--space-5); padding: var(--space-4) 0; border-bottom: 1px dashed var(--border); }
+  .type-row:last-child { border-bottom: 0; }
+  .type-row .meta { min-width: 150px; }
+  .type-row .meta b { display: block; font-size: var(--text-sm); }
+  .type-row .meta span { font-size: var(--text-xs); color: var(--text-muted); }
+
+  /* Spacing / radius */
+  .scale-list { display: flex; flex-direction: column; gap: var(--space-3); }
+  .scale-item { display: flex; align-items: center; gap: var(--space-4); }
+  .scale-item .bar { height: 16px; background: var(--herb-300); border-radius: 4px; }
+  .scale-item code { font-size: var(--text-sm); color: var(--text-secondary); min-width: 90px; }
+  .radius-row { display: flex; gap: var(--space-4); flex-wrap: wrap; }
+  .radius-demo { width: 84px; height: 84px; background: var(--herb-100); border: 1.5px solid var(--herb-300); display: grid; place-items: end center; padding-bottom: 6px; font-size: var(--text-2xs); color: var(--herb-700); font-weight: 600; }
+  [data-theme="dark"] .radius-demo { background: var(--primary-soft); color: var(--herb-200); border-color: var(--herb-600); }
+
+  /* Components showcase */
+  .comp-row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+  .comp-block { margin-bottom: var(--space-6); }
+  .comp-block:last-child { margin-bottom: 0; }
+  .comp-block > .ds-label { display: block; margin-bottom: var(--space-3); }
+
+  /* Toggle */
+  .nk-toggle { position: relative; width: 52px; height: 30px; border-radius: 999px; background: var(--border-strong); border: none; cursor: pointer; transition: background var(--transition); padding: 0; }
+  .nk-toggle[aria-pressed="true"] { background: var(--primary); }
+  .nk-toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: var(--shadow-sm); transition: transform var(--transition); }
+  .nk-toggle[aria-pressed="true"]::after { transform: translateX(22px); }
+  .toggle-row { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-3) 0; }
+  .toggle-row .tl { flex: 1; }
+  .toggle-row .tl b { font-size: var(--text-base); }
+  .toggle-row .tl span { display:block; font-size: var(--text-sm); color: var(--text-secondary); }
+
+  /* Voice / tone */
+  .voice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); }
+  .voice-col { border-radius: var(--radius-lg); padding: var(--space-5); border: 1px solid var(--border); }
+  .voice-col--no { background: var(--surface-2); }
+  .voice-col--yes { background: var(--fresh-soft); border-color: var(--herb-200); }
+  [data-theme="dark"] .voice-col--yes { border-color: var(--herb-600); }
+  .voice-col h4 { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-base); margin-bottom: var(--space-4); font-family: var(--font-sans); font-weight: 700; }
+  .voice-col--no h4 { color: var(--text-muted); }
+  .voice-col--yes h4 { color: var(--primary-text); }
+  .voice-item { padding: var(--space-3) 0; border-top: 1px solid var(--border); font-size: var(--text-base); }
+  .voice-col--no .voice-item { color: var(--text-secondary); text-decoration: line-through; text-decoration-color: var(--oat-400); }
+  .voice-item:first-of-type { border-top: 0; }
+
+  /* Mockup tile previews */
+  .ds-foot { margin-top: var(--space-10); padding: var(--space-7); border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border); display: flex; gap: var(--space-5); align-items: center; flex-wrap: wrap; box-shadow: var(--shadow-sm); }
+  .ds-foot h3 { font-size: var(--text-xl); }
+  .ds-foot p { color: var(--text-secondary); max-width: 46ch; }
+  .ds-foot .grow { flex: 1; min-width: 260px; }
+
+  /* Floating theme toggle */
+  .theme-fab {
+    position: fixed; right: 20px; bottom: 20px; z-index: 50;
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    height: 50px; padding: 0 var(--space-5);
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--border-strong); border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-lg); cursor: pointer; font-weight: 600; font-family: var(--font-sans); font-size: var(--text-base);
+  }
+  .theme-fab i { font-size: 1.2em; }
+
+  @media (max-width: 720px) {
+    .ds-modes, .voice-grid { grid-template-columns: 1fr; }
+    .energy-scale { grid-template-columns: repeat(2, 1fr); }
+    .ds-wrap { padding: var(--space-6) var(--space-4) var(--space-10); }
+  }
+</style>
+</head>
+<body data-theme="light">
+  <div class="ds-wrap">
+
+    <!-- HERO -->
+    <header class="ds-hero">
+      <div class="ds-logo">
+        <div class="ds-logo__mark"><i class="ph-fill ph-cooking-pot"></i></div>
+        <div class="ds-logo__name">Nexus <span>Kitchen</span></div>
+      </div>
+      <h1>A calm, shame-free kitchen companion.</h1>
+      <p>The design system for an energy-aware meal planner. Built for low cognitive load: one clear action per screen, neutral language, and color that supports — never judges. Light &amp; dark, web &amp; mobile.</p>
+      <div class="ds-principles">
+        <span class="nk-chip"><i class="ph ph-hand-heart"></i> Shame-free language</span>
+        <span class="nk-chip"><i class="ph ph-cursor-click"></i> Minimal taps</span>
+        <span class="nk-chip"><i class="ph ph-battery-medium"></i> Energy-aware</span>
+        <span class="nk-chip"><i class="ph ph-eye"></i> Visual scaffolding</span>
+        <span class="nk-chip"><i class="ph ph-door-open"></i> Graceful exit ramps</span>
+      </div>
+    </header>
+
+    <!-- COLOR -->
+    <section class="ds-sec">
+      <div class="ds-sec__head">
+        <h2><span class="ds-num">01</span>Color</h2>
+        <p>Warm oat paper, a calm garden-sage primary, and a clay accent. Every surface and state mirrors cleanly between light and dark.</p>
+      </div>
+
+      <div class="ds-modes" style="margin-bottom: var(--space-5);">
+        <div class="ds-mode" data-theme="light">
+          <div class="ds-mode__bar"><i class="ph ph-sun"></i> Light mode</div>
+          <div class="ds-mode__body" style="background: var(--bg);">
+            <div class="sw-grid">
+              <div class="sw"><div class="sw__chip" style="background:var(--bg)"></div><div class="sw__meta"><div class="sw__name">Background</div><div class="sw__val">--bg</div></div></div>
+              <div class="sw"><div class="sw__chip" style="background:var(--surface)"></div><div class="sw__meta"><div class="sw__name">Surface</div><div class="sw__val">--surface</div></div></div>
+              <div class="sw"><div class="sw__chip" style="background:var(--surface-2)"></div><div class="sw__meta"><div class="sw__name">Surface 2</div><div class="sw__val">--surface-2</div></div></div>
+              <div class="sw"><div class="sw__chip" style="background:var(--text)"></div><div class="sw__meta"><div class="sw__name">Text</div><div class="sw__val">--text</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="ds-mode" data-theme="dark">
+          <div class="ds-mode__bar"><i class="ph ph-moon"></i> Dark mode</div>
+          <div class="ds-mode__body" style="background: var(--bg);">
+            <div class="sw-grid">
+              <div class="sw"><div class="sw__chip" style="background:var(--bg)"></div><div class="sw__meta"><div class="sw__name">Background</div><div class="sw__val">--bg</div></div></div>
+              <div class="sw"><div class="sw__chip" style="background:var(--surface)"></div><div class="sw__meta"><div class="sw__name">Surface</div><div class="sw__val">--surface</div></div></div>
+              <div class="sw"><div class="sw__chip" style="background:var(--surface-2)"></div><div class="sw__meta"><div class="sw__name">Surface 2</div><div class="sw__val">--surface-2</div></div></div>
+              <div class="sw"><div class="sw__chip" style="background:var(--text)"></div><div class="sw__meta"><div class="sw__name">Text</div><div class="sw__val">--text</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-panel">
+        <div class="ds-label" style="margin-bottom: var(--space-3);">Brand &amp; status</div>
+        <div class="sw-grid">
+          <div class="sw"><div class="sw__chip" style="background:var(--herb-500)"></div><div class="sw__meta"><div class="sw__name">Herb / Primary</div><div class="sw__val">--primary</div></div></div>
+          <div class="sw"><div class="sw__chip" style="background:var(--herb-700)"></div><div class="sw__meta"><div class="sw__name">Herb deep</div><div class="sw__val">--herb-700</div></div></div>
+          <div class="sw"><div class="sw__chip" style="background:var(--clay-500)"></div><div class="sw__meta"><div class="sw__name">Clay / Accent</div><div class="sw__val">--secondary</div></div></div>
+          <div class="sw"><div class="sw__chip" style="background:var(--attention)"></div><div class="sw__meta"><div class="sw__name">Attention</div><div class="sw__val">--attention</div></div></div>
+          <div class="sw"><div class="sw__chip" style="background:var(--info)"></div><div class="sw__meta"><div class="sw__name">Info</div><div class="sw__val">--info</div></div></div>
+        </div>
+        <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-4); display:flex; gap: var(--space-2); align-items:center;"><i class="ph ph-warning-circle" style="color:var(--attention)"></i> "Attention" is a warm ochre, never alarm-red — it flags "expires soon" without inducing panic, and always pairs with an icon + text.</p>
+      </div>
+    </section>
+
+    <!-- ENERGY SCALE -->
+    <section class="ds-sec">
+      <div class="ds-sec__head">
+        <h2><span class="ds-num">02</span>The energy scale</h2>
+        <p>The heart of the system. A calm cool→warm ramp from 1–5. Low energy reads as <em>rest</em>, not failure — there is no red, no green "good vs. bad".</p>
+      </div>
+      <div class="ds-panel">
+        <div class="energy-scale">
+          <div class="energy-cell"><div class="energy-cell__swatch" style="background:var(--energy-1)"></div><div class="energy-cell__n">1</div><div class="energy-cell__t">Running low</div><div class="energy-cell__d">No-cook, premade, delivery</div></div>
+          <div class="energy-cell"><div class="energy-cell__swatch" style="background:var(--energy-2)"></div><div class="energy-cell__n">2</div><div class="energy-cell__t">Low</div><div class="energy-cell__d">Simple, ≤15 min, prepped</div></div>
+          <div class="energy-cell"><div class="energy-cell__swatch" style="background:var(--energy-3)"></div><div class="energy-cell__n">3</div><div class="energy-cell__t">Steady</div><div class="energy-cell__d">Everyday cooking</div></div>
+          <div class="energy-cell"><div class="energy-cell__swatch" style="background:var(--energy-4)"></div><div class="energy-cell__n">4</div><div class="energy-cell__t">Good</div><div class="energy-cell__d">Multi-step recipes</div></div>
+          <div class="energy-cell"><div class="energy-cell__swatch" style="background:var(--energy-5)"></div><div class="energy-cell__n">5</div><div class="energy-cell__t">Energized</div><div class="energy-cell__d">Fresh cook, batch prep</div></div>
+        </div>
+        <div class="comp-row" style="margin-top: var(--space-6);">
+          <span class="nk-energy nk-energy--1"><span class="nk-energy__dots"><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot"></span><span class="nk-energy__dot"></span><span class="nk-energy__dot"></span><span class="nk-energy__dot"></span></span> Running low</span>
+          <span class="nk-energy nk-energy--2"><span class="nk-energy__dots"><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot"></span><span class="nk-energy__dot"></span><span class="nk-energy__dot"></span></span> Low</span>
+          <span class="nk-energy nk-energy--3"><span class="nk-energy__dots"><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot"></span><span class="nk-energy__dot"></span></span> Steady</span>
+          <span class="nk-energy nk-energy--4"><span class="nk-energy__dots"><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot"></span></span> Good</span>
+          <span class="nk-energy nk-energy--5"><span class="nk-energy__dots"><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span></span> Energized</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TYPE -->
+    <section class="ds-sec">
+      <div class="ds-sec__head">
+        <h2><span class="ds-num">03</span>Typography</h2>
+        <p>Bricolage Grotesque for warm, confident headings; Hanken Grotesk for body and UI. Nothing below 16px in product — kitchen-readable at arm's length.</p>
+      </div>
+      <div class="ds-panel">
+        <div class="type-row">
+          <div class="meta"><b>Display</b><span>Bricolage · 700 · 48px</span></div>
+          <div style="font-family: var(--font-display); font-weight: 700; font-size: 3rem; line-height: 1.1; letter-spacing: -0.02em;">Let's plan dinner</div>
+        </div>
+        <div class="type-row">
+          <div class="meta"><b>Heading</b><span>Bricolage · 700 · 30px</span></div>
+          <div style="font-family: var(--font-display); font-weight: 700; font-size: 1.875rem; letter-spacing: -0.02em;">This week's meals</div>
+        </div>
+        <div class="type-row">
+          <div class="meta"><b>Title</b><span>Bricolage · 600 · 20px</span></div>
+          <div style="font-family: var(--font-display); font-weight: 600; font-size: 1.25rem;">Black Bean Soup</div>
+        </div>
+        <div class="type-row">
+          <div class="meta"><b>Body</b><span>Hanken · 400 · 17px</span></div>
+          <div style="font-size: 1.0625rem; max-width: 48ch; color: var(--text-secondary);">You have 13 prepped portions ready — that's about three days of meals. No pressure to use them all.</div>
+        </div>
+        <div class="type-row">
+          <div class="meta"><b>Label / caps</b><span>Hanken · 600 · 12px</span></div>
+          <div class="ds-label">Good for meal prep</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SPACING / RADIUS -->
+    <section class="ds-sec">
+      <div class="ds-sec__head">
+        <h2><span class="ds-num">04</span>Spacing &amp; shape</h2>
+        <p>A 4px rhythm with generous, soft radii. Pill buttons, rounded cards, low warm shadows.</p>
+      </div>
+      <div class="ds-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="ds-panel">
+          <h3>Spacing</h3>
+          <div class="scale-list">
+            <div class="scale-item"><code>space-2 · 8</code><div class="bar" style="width:8px"></div></div>
+            <div class="scale-item"><code>space-4 · 16</code><div class="bar" style="width:16px"></div></div>
+            <div class="scale-item"><code>space-6 · 24</code><div class="bar" style="width:24px"></div></div>
+            <div class="scale-item"><code>space-8 · 40</code><div class="bar" style="width:40px"></div></div>
+            <div class="scale-item"><code>space-10 · 64</code><div class="bar" style="width:64px"></div></div>
+          </div>
+        </div>
+        <div class="ds-panel">
+          <h3>Radius &amp; elevation</h3>
+          <div class="radius-row">
+            <div class="radius-demo" style="border-radius: var(--radius-sm)">sm</div>
+            <div class="radius-demo" style="border-radius: var(--radius-md)">md</div>
+            <div class="radius-demo" style="border-radius: var(--radius-lg)">lg</div>
+            <div class="radius-demo" style="border-radius: var(--radius-pill); aspect-ratio:1; width:84px;">pill</div>
+          </div>
+          <div class="comp-row" style="margin-top: var(--space-5);">
+            <div style="width:80px;height:48px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-sm);border:1px solid var(--border)"></div>
+            <div style="width:80px;height:48px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-md);border:1px solid var(--border)"></div>
+            <div style="width:80px;height:48px;border-radius:var(--radius-md);background:var(--surface);box-shadow:var(--shadow-lg);border:1px solid var(--border)"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPONENTS -->
+    <section class="ds-sec">
+      <div class="ds-sec__head">
+        <h2><span class="ds-num">05</span>Components</h2>
+        <p>Built once, used across web and mobile. Icons always pair with a text label. Hit targets ≥ 44px.</p>
+      </div>
+      <div class="ds-panel">
+        <div class="comp-block">
+          <span class="ds-label">Buttons</span>
+          <div class="comp-row">
+            <button class="nk-btn nk-btn--primary"><i class="ph ph-plus"></i> Start prep session</button>
+            <button class="nk-btn nk-btn--secondary">Edit manually</button>
+            <button class="nk-btn nk-btn--ghost">Skip for now</button>
+            <button class="nk-btn nk-btn--primary nk-btn--lg"><i class="ph ph-check"></i> Log it</button>
+          </div>
+        </div>
+        <div class="comp-block">
+          <span class="ds-label">Chips &amp; food tiles</span>
+          <div class="comp-row">
+            <span class="nk-chip"><i class="ph ph-clock"></i> 15 min</span>
+            <span class="nk-chip"><i class="ph ph-snowflake"></i> Freezer</span>
+            <span class="nk-chip"><i class="ph ph-bowl-food"></i> Serves 6</span>
+            <span class="nk-note"><i class="ph ph-warning-circle"></i> Expires in 2 days</span>
+            <span class="nk-tile" style="width:48px; background:var(--energy-3-soft)"><i class="ph ph-bowl-food" style="color:var(--energy-3)"></i></span>
+            <span class="nk-tile" style="width:48px; background:var(--clay-100)"><i class="ph ph-cooking-pot" style="color:var(--clay-600)"></i></span>
+            <span class="nk-tile" style="width:48px; background:var(--energy-5-soft)"><i class="ph ph-egg" style="color:var(--energy-5)"></i></span>
+          </div>
+        </div>
+        <div class="comp-block">
+          <span class="ds-label">Feature toggles — calm, with helper text</span>
+          <div class="toggle-row">
+            <div class="tl"><b>Use my energy patterns</b><span>Simpler meals on typically low-energy times. You can change this anytime.</span></div>
+            <button class="nk-toggle" aria-pressed="true" aria-label="Use my energy patterns"></button>
+          </div>
+          <div class="toggle-row" style="border-top:1px solid var(--border)">
+            <div class="tl"><b>Track energy with meals</b><span>Off by default. Adds a quick 1–5 tap when you log.</span></div>
+            <button class="nk-toggle" aria-pressed="false" aria-label="Track energy with meals"></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VOICE -->
+    <section class="ds-sec">
+      <div class="ds-sec__head">
+        <h2><span class="ds-num">06</span>Voice &amp; tone</h2>
+        <p>Shame-free is not configurable — it's embedded everywhere. Neutral framing, gaps without judgment, and an easy way out of every flow.</p>
+      </div>
+      <div class="voice-grid">
+        <div class="voice-col voice-col--no">
+          <h4><i class="ph ph-x-circle"></i> Never</h4>
+          <div class="voice-item">"You missed lunch again."</div>
+          <div class="voice-item">"You broke your 6-day streak!"</div>
+          <div class="voice-item">"You're over your calorie goal."</div>
+          <div class="voice-item">"You haven't logged in 3 days."</div>
+        </div>
+        <div class="voice-col voice-col--yes">
+          <h4><i class="ph ph-check-circle"></i> Instead</h4>
+          <div class="voice-item">"Here when you're ready to eat."</div>
+          <div class="voice-item">"6 days logged — nice. Breaks are fine."</div>
+          <div class="voice-item">"Here's the nutrition, just as info."</div>
+          <div class="voice-item">"Welcome back. Want to pick up where you left off?"</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER / NEXT -->
+    <div class="ds-foot">
+      <div class="grow">
+        <h3>See it in the product</h3>
+        <p>The full system applied to the two priority flows — meal planning calendar and meal prep sessions — across web and mobile, in light and dark.</p>
+      </div>
+      <a class="nk-btn nk-btn--primary nk-btn--lg" href="Nexus Kitchen — Mockups.html"><i class="ph ph-squares-four"></i> View mockups</a>
+    </div>
+  </div>
+
+  <button class="theme-fab" id="themeFab"><i class="ph ph-moon"></i> <span>Dark</span></button>
+
+  <script>
+    const fab = document.getElementById('themeFab');
+    const body = document.body;
+    function setTheme(t){
+      body.setAttribute('data-theme', t);
+      fab.innerHTML = t === 'dark'
+        ? '<i class="ph ph-sun"></i> <span>Light</span>'
+        : '<i class="ph ph-moon"></i> <span>Dark</span>';
+      localStorage.setItem('nk-ds-theme', t);
+    }
+    fab.addEventListener('click', () => setTheme(body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+    setTheme(localStorage.getItem('nk-ds-theme') || 'light');
+  </script>
+</body>
+</html>

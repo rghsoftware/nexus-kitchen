@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nexus Kitchen — Mockups</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<style>
+  body { background:
+      radial-gradient(120% 90% at 50% -10%, oklch(0.96 0.012 84), transparent 60%),
+      var(--bg-sunken);
+    min-height: 100vh; }
+  .board { max-width: 1280px; margin: 0 auto; padding: var(--space-9) var(--space-6) var(--space-12); }
+
+  /* header */
+  .bhead { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-6); flex-wrap: wrap; margin-bottom: var(--space-9); }
+  .blogo { display: inline-flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4); }
+  .blogo__mark { width: 44px; height: 44px; border-radius: 12px; background: var(--primary); color: var(--text-on-accent); display: grid; place-items: center; font-size: 24px; }
+  .blogo__name { font-family: var(--font-display); font-weight: 700; font-size: var(--text-xl); letter-spacing: -0.02em; }
+  .blogo__name span { color: var(--primary-text); }
+  .bhead h1 { font-size: clamp(2rem, 4vw, 3rem); max-width: 18ch; }
+  .bhead p { color: var(--text-secondary); font-size: var(--text-lg); margin-top: var(--space-3); max-width: 52ch; }
+  .bhead__links { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+
+  /* section */
+  .bsec { margin-top: var(--space-10); }
+  .bsec__head { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-6); }
+  .bsec__icon { width: 40px; height: 40px; border-radius: 11px; background: var(--surface); border: 1px solid var(--border); display: grid; place-items: center; color: var(--primary-text); font-size: 1.3em; box-shadow: var(--shadow-sm); }
+  .bsec__head h2 { font-size: var(--text-2xl); }
+  .bsec__head p { font-size: var(--text-sm); color: var(--text-muted); }
+
+  /* frame caption */
+  .cap { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); font-size: var(--text-sm); font-weight: 600; color: var(--text-secondary); }
+  .cap .pip { width: 10px; height: 10px; border-radius: 50%; }
+  .cap .pip--light { background: oklch(0.92 0.03 84); border: 1px solid var(--border-strong); }
+  .cap .pip--dark { background: var(--oat-900); }
+
+  /* ----- Browser frame ----- */
+  .webrow { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: var(--space-6); }
+  .browser { border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-xl); border: 1px solid var(--border); background: var(--surface); }
+  .browser__bar { height: 44px; display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-4); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+  .lights { display: flex; gap: 7px; }
+  .lights i { width: 12px; height: 12px; border-radius: 50%; }
+  .lights i:nth-child(1){ background:#ec6a5e; } .lights i:nth-child(2){ background:#f3bf4f; } .lights i:nth-child(3){ background:#61c554; }
+  .urlpill { flex: 1; height: 28px; border-radius: 999px; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; gap: 7px; padding: 0 var(--space-3); font-size: var(--text-xs); color: var(--text-muted); }
+  .browser__view { position: relative; overflow: hidden; }
+  .browser__view iframe { border: 0; display: block; transform-origin: top left; position: absolute; top: 0; left: 0; }
+
+  /* ----- Tablet frame ----- */
+  .tabletrow { display: flex; flex-direction: column; gap: var(--space-7); }
+  .tablet { border-radius: 34px; padding: 16px; background: linear-gradient(160deg, var(--oat-700), var(--oat-950)); box-shadow: var(--shadow-xl); position: relative; }
+  [data-frame="dark"] .tablet { background: linear-gradient(160deg, oklch(0.3 0.01 70), #000); }
+  .tablet__cam { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 7px; height: 7px; border-radius: 50%; background: oklch(0.45 0.02 70); z-index: 6; }
+  .tablet__screen { border-radius: 20px; overflow: hidden; position: relative; background: #000; }
+  .tablet__screen iframe { border: 0; display: block; transform-origin: top left; position: absolute; top: 0; left: 0; }
+
+  /* ----- Tablet frame (portrait) ----- */
+  .cookrow { display: flex; gap: var(--space-6); flex-wrap: wrap; }
+  .tablet-p { border-radius: 38px; padding: 14px; background: linear-gradient(160deg, var(--oat-700), var(--oat-950)); box-shadow: var(--shadow-xl); position: relative; }
+  [data-frame="dark"] .tablet-p { background: linear-gradient(160deg, oklch(0.3 0.01 70), #000); }
+  .tablet-p__cam { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 7px; height: 7px; border-radius: 50%; background: oklch(0.45 0.02 70); z-index: 6; }
+  .tablet-p__screen { border-radius: 24px; overflow: hidden; position: relative; background: #000; }
+  .tablet-p__screen iframe { border: 0; display: block; transform-origin: top left; position: absolute; top: 0; left: 0; }
+
+  /* ----- Phone frame ----- */
+  .phonerow { display: flex; gap: var(--space-7); flex-wrap: wrap; }
+  .phone-col { display: flex; flex-direction: column; }
+  .phone { border-radius: 46px; padding: 11px; background: linear-gradient(160deg, var(--oat-800), var(--oat-950)); box-shadow: var(--shadow-xl); position: relative; }
+  [data-frame="dark"] .phone { background: linear-gradient(160deg, oklch(0.34 0.01 70), #000); }
+  .phone__screen { border-radius: 36px; overflow: hidden; position: relative; background: #000; }
+  .phone__screen iframe { border: 0; display: block; }
+  .phone__notch { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 120px; height: 30px; background: #0a0a0a; border-radius: 0 0 18px 18px; z-index: 5; }
+
+  .note-pill { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--text-secondary); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-pill); padding: var(--space-2) var(--space-4); }
+  .legend { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
+
+  .group { display: flex; align-items: center; gap: var(--space-4); margin-top: var(--space-12); }
+  .group:first-of-type { margin-top: var(--space-10); }
+  .group__tag { display: inline-flex; align-items: center; gap: var(--space-2); font-family: var(--font-display); font-weight: 700; font-size: var(--text-lg); color: var(--text); white-space: nowrap; }
+  .group__tag b { color: var(--primary-text); }
+  .group__line { flex: 1; height: 1px; background: var(--border-strong); }
+  .group__note { font-size: var(--text-sm); color: var(--text-muted); white-space: nowrap; }
+
+  @media (max-width: 980px) { .webrow { grid-template-columns: minmax(0,1fr); } }
+</style>
+</head>
+<body data-theme="light">
+  <div class="board">
+
+    <!-- HEADER -->
+    <header class="bhead">
+      <div>
+        <div class="blogo">
+          <div class="blogo__mark"><i class="ph-fill ph-cooking-pot"></i></div>
+          <div class="blogo__name">Nexus <span>Kitchen</span></div>
+        </div>
+        <h1>Mockups — the system, applied.</h1>
+        <p>Every priority flow — the daily essentials and planning ahead — across web/desktop and mobile, in light and dark.</p>
+      </div>
+      <div class="bhead__links">
+        <a class="nk-btn nk-btn--secondary" href="Nexus Kitchen — Design System.html"><i class="ph ph-swatches"></i> Design system</a>
+      </div>
+    </header>
+
+    <div class="group">
+      <span class="group__tag"><b>Priority 2</b> · Planning ahead</span>
+      <span class="group__line"></span>
+      <span class="group__note">Batches decisions to high-energy moments</span>
+    </div>
+
+    <!-- WEB: CALENDAR -->
+    <section class="bsec">
+      <div class="bsec__head">
+        <div class="bsec__icon"><i class="ph ph-calendar-dots"></i></div>
+        <div>
+          <h2>Meal planning calendar — Web</h2>
+          <p>Week grid · drag to move meals · energy-aware suggestions · prepped &amp; expiry awareness</p>
+        </div>
+      </div>
+      <div class="webrow">
+        <div>
+          <div class="cap"><span class="pip pip--light"></span> Light</div>
+          <div class="browser">
+            <div class="browser__bar"><div class="lights"><i></i><i></i><i></i></div><div class="urlpill"><i class="ph ph-lock-simple"></i> app.nexuskitchen.com/plan</div></div>
+            <div class="browser__view" data-web="screens/web-calendar.html?theme=light"></div>
+          </div>
+        </div>
+        <div>
+          <div class="cap"><span class="pip pip--dark"></span> Dark</div>
+          <div class="browser">
+            <div class="browser__bar"><div class="lights"><i></i><i></i><i></i></div><div class="urlpill"><i class="ph ph-lock-simple"></i> app.nexuskitchen.com/plan</div></div>
+            <div class="browser__view" data-web="screens/web-calendar.html?theme=dark"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WEB: PREP -->
+    <section class="bsec">
+      <div class="bsec__head">
+        <div class="bsec__icon"><i class="ph ph-cooking-pot"></i></div>
+        <div>
+          <h2>Meal prep session — Web</h2>
+          <p>5-step wizard · batches decisions to high-energy moments · live "days of meals" math</p>
+        </div>
+      </div>
+      <div class="webrow">
+        <div>
+          <div class="cap"><span class="pip pip--light"></span> Light · Step 2 of 5</div>
+          <div class="browser">
+            <div class="browser__bar"><div class="lights"><i></i><i></i><i></i></div><div class="urlpill"><i class="ph ph-lock-simple"></i> app.nexuskitchen.com/prep/new</div></div>
+            <div class="browser__view" data-web="screens/web-prep.html?theme=light"></div>
+          </div>
+        </div>
+        <div>
+          <div class="cap"><span class="pip pip--dark"></span> Dark · Step 2 of 5</div>
+          <div class="browser">
+            <div class="browser__bar"><div class="lights"><i></i><i></i><i></i></div><div class="urlpill"><i class="ph ph-lock-simple"></i> app.nexuskitchen.com/prep/new</div></div>
+            <div class="browser__view" data-web="screens/web-prep.html?theme=dark"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MOBILE -->
+    <section class="bsec">
+      <div class="bsec__head">
+        <div class="bsec__icon"><i class="ph ph-device-mobile"></i></div>
+        <div>
+          <h2>Mobile</h2>
+          <p>Same system, one-handed · day-focused planning &amp; the prep wizard · light and dark</p>
+        </div>
+      </div>
+      <div class="phonerow">
+        <div class="phone-col">
+          <div class="cap"><span class="pip pip--light"></span> Plan · Light</div>
+          <div class="phone" data-frame="light"><div class="phone__notch"></div><div class="phone__screen" data-mobile="screens/mobile-calendar.html?theme=light"></div></div>
+        </div>
+        <div class="phone-col">
+          <div class="cap"><span class="pip pip--dark"></span> Plan · Dark</div>
+          <div class="phone" data-frame="dark"><div class="phone__notch"></div><div class="phone__screen" data-mobile="screens/mobile-calendar.html?theme=dark"></div></div>
+        </div>
+        <div class="phone-col">
+          <div class="cap"><span class="pip pip--light"></span> Prep · Light</div>
+          <div class="phone" data-frame="light"><div class="phone__notch"></div><div class="phone__screen" data-mobile="screens/mobile-prep.html?theme=light"></div></div>
+        </div>
+        <div class="phone-col">
+          <div class="cap"><span class="pip pip--dark"></span> Prep · Dark</div>
+          <div class="phone" data-frame="dark"><div class="phone__notch"></div><div class="phone__screen" data-mobile="screens/mobile-prep.html?theme=dark"></div></div>
+        </div>
+      </div>
+      <div class="legend">
+        <span class="note-pill"><i class="ph ph-snowflake" style="color:var(--info)"></i> Prepped meal</span>
+        <span class="note-pill"><i class="ph ph-warning-circle" style="color:var(--attention)"></i> Expiring soon — calm, never alarm-red</span>
+        <span class="note-pill"><i class="ph ph-battery-medium" style="color:var(--primary-text)"></i> Energy 1–5 · rest, never failure</span>
+      </div>
+    </section>
+
+    <!-- ========================= PRIORITY 1 ========================= -->
+    <div class="group">
+      <span class="group__tag"><b>Priority 1</b> · The daily essentials</span>
+      <span class="group__line"></span>
+      <span class="group__note">Remember to eat · log in one tap · cook to your energy</span>
+    </div>
+
+    <!-- TODAY -->
+    <section class="bsec">
+      <div class="bsec__head">
+        <div class="bsec__icon"><i class="ph ph-house"></i></div>
+        <div>
+          <h2>Today — the daily anchor</h2>
+          <p>Greeting · current energy · today's meals · a gentle reminder · one-tap logging</p>
+        </div>
+      </div>
+      <div class="webrow">
+        <div>
+          <div class="cap"><span class="pip pip--light"></span> Light</div>
+          <div class="browser">
+            <div class="browser__bar"><div class="lights"><i></i><i></i><i></i></div><div class="urlpill"><i class="ph ph-lock-simple"></i> app.nexuskitchen.com</div></div>
+            <div class="browser__view" data-web="screens/web-today.html?theme=light"></div>
+          </div>
+        </div>
+        <div>
+          <div class="cap"><span class="pip pip--dark"></span> Dark</div>
+          <div class="browser">
+            <div class="browser__bar"><div class="lights"><i></i><i></i><i></i></div><div class="urlpill"><i class="ph ph-lock-simple"></i> app.nexuskitchen.com</div></div>
+            <div class="browser__view" data-web="screens/web-today.html?theme=dark"></div>
+          </div>
+        </div>
+      </div>
+      <div class="phonerow" style="margin-top: var(--space-7);">
+        <div class="phone-col">
+          <div class="cap"><span class="pip pip--light"></span> Today · Light</div>
+          <div class="phone" data-frame="light"><div class="phone__notch"></div><div class="phone__screen" data-mobile="screens/mobile-today.html?theme=light"></div></div>
+        </div>
+        <div class="phone-col">
+          <div class="cap"><span class="pip pip--dark"></span> Today · Dark</div>
+          <div class="phone" data-frame="dark"><div class="phone__notch"></div><div class="phone__screen" data-mobile="screens/mobile-today.html?theme=dark"></div></div>
+        </div>
+        <div class="phone-col">
+          <div class="cap"><span class="pip pip--light"></span> One-tap log · Light</div>
+          <div class="phone" data-frame="light"><div class="phone__notch"></div><div class="phone__screen" data-mobile="screens/mobile-log.html?theme=light"></div></div>
+        </div>
+        <div class="phone-col">
+          <div class="cap"><span class="pip pip--dark"></span> One-tap log · Dark</div>
+          <div class="phone" data-frame="dark"><div class="phone__notch"></div><div class="phone__screen" data-mobile="screens/mobile-log.html?theme=dark"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ENERGY FILTER -->
+    <section class="bsec">
+      <div class="bsec__head">
+        <div class="bsec__icon"><i class="ph ph-lightning"></i></div>
+        <div>
+          <h2>Energy-based filtering — "What can I make right now?"</h2>
+          <p>Low energy surfaces no-cook &amp; 15-min options first; complex recipes rest, never gone</p>
+        </div>
+      </div>
+      <div class="webrow">
+        <div>
+          <div class="cap"><span class="pip pip--light"></span> Light · energy set to Low</div>
+          <div class="browser">
+            <div class="browser__bar"><div class="lights"><i></i><i></i><i></i></div><div class="urlpill"><i class="ph ph-lock-simple"></i> app.nexuskitchen.com/now</div></div>
+            <div class="browser__view" data-web="screens/web-energy.html?theme=light"></div>
+          </div>
+        </div>
+        <div>
+          <div class="cap"><span class="pip pip--dark"></span> Dark · energy set to Low</div>
+          <div class="browser">
+            <div class="browser__bar"><div class="lights"><i></i><i></i><i></i></div><div class="urlpill"><i class="ph ph-lock-simple"></i> app.nexuskitchen.com/now</div></div>
+            <div class="browser__view" data-web="screens/web-energy.html?theme=dark"></div>
+          </div>
+        </div>
+      </div>
+      <div class="phonerow" style="margin-top: var(--space-7);">
+        <div class="phone-col">
+          <div class="cap"><span class="pip pip--light"></span> Mobile · Light</div>
+          <div class="phone" data-frame="light"><div class="phone__notch"></div><div class="phone__screen" data-mobile="screens/mobile-energy.html?theme=light"></div></div>
+        </div>
+        <div class="phone-col">
+          <div class="cap"><span class="pip pip--dark"></span> Mobile · Dark</div>
+          <div class="phone" data-frame="dark"><div class="phone__notch"></div><div class="phone__screen" data-mobile="screens/mobile-energy.html?theme=dark"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REMINDERS -->
+    <section class="bsec">
+      <div class="bsec__head">
+        <div class="bsec__icon"><i class="ph ph-bell-simple-ringing"></i></div>
+        <div>
+          <h2>Gentle reminders</h2>
+          <p>Soft nudges to eat — dismissable without guilt, easy to set, never naggy</p>
+        </div>
+      </div>
+      <div class="phonerow">
+        <div class="phone-col">
+          <div class="cap"><span class="pip pip--dark"></span> Lock-screen nudge</div>
+          <div class="phone" data-frame="dark"><div class="phone__notch"></div><div class="phone__screen" data-mobile="screens/mobile-reminder.html"></div></div>
+        </div>
+        <div class="phone-col">
+          <div class="cap"><span class="pip pip--light"></span> Setup · Light</div>
+          <div class="phone" data-frame="light"><div class="phone__notch"></div><div class="phone__screen" data-mobile="screens/mobile-reminder-setup.html?theme=light"></div></div>
+        </div>
+        <div class="phone-col">
+          <div class="cap"><span class="pip pip--dark"></span> Setup · Dark</div>
+          <div class="phone" data-frame="dark"><div class="phone__notch"></div><div class="phone__screen" data-mobile="screens/mobile-reminder-setup.html?theme=dark"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= TABLET ========================= -->
+    <div class="group">
+      <span class="group__tag"><b>Tablet</b> · The kitchen-counter view</span>
+      <span class="group__line"></span>
+      <span class="group__note">Icon rail · roomy grid · big touch targets</span>
+    </div>
+
+    <section class="bsec">
+      <div class="bsec__head">
+        <div class="bsec__icon"><i class="ph ph-device-tablet"></i></div>
+        <div>
+          <h2>Tablet — iPad landscape</h2>
+          <p>The same system at an in-between size: a compact icon rail replaces the sidebar, with touch-friendly spacing for counter use</p>
+        </div>
+      </div>
+      <div class="tabletrow">
+        <div class="tablet-col">
+          <div class="cap"><span class="pip pip--light"></span> Plan · Light</div>
+          <div class="tablet" data-frame="light"><div class="tablet__cam"></div><div class="tablet__screen" data-tablet="screens/tablet-calendar.html?theme=light"></div></div>
+        </div>
+        <div class="tablet-col">
+          <div class="cap"><span class="pip pip--dark"></span> Plan · Dark</div>
+          <div class="tablet" data-frame="dark"><div class="tablet__cam"></div><div class="tablet__screen" data-tablet="screens/tablet-calendar.html?theme=dark"></div></div>
+        </div>
+        <div class="tablet-col">
+          <div class="cap"><span class="pip pip--light"></span> Today · Light</div>
+          <div class="tablet" data-frame="light"><div class="tablet__cam"></div><div class="tablet__screen" data-tablet="screens/tablet-today.html?theme=light"></div></div>
+        </div>
+        <div class="tablet-col">
+          <div class="cap"><span class="pip pip--dark"></span> Meal prep · Dark</div>
+          <div class="tablet" data-frame="dark"><div class="tablet__cam"></div><div class="tablet__screen" data-tablet="screens/tablet-prep.html?theme=dark"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COOKING MODE — portrait tablet -->
+    <section class="bsec">
+      <div class="bsec__head">
+        <div class="bsec__icon"><i class="ph ph-cooking-pot"></i></div>
+        <div>
+          <h2>Cooking mode — iPad portrait</h2>
+          <p>Counter-ready: huge text, screen stays awake, one step at a time, big timers, and an energy-aware "simpler steps" option</p>
+        </div>
+      </div>
+      <div class="cookrow">
+        <div>
+          <div class="cap"><span class="pip pip--light"></span> Prep checklist · Light</div>
+          <div class="tablet-p" data-frame="light"><div class="tablet-p__cam"></div><div class="tablet-p__screen" data-tablet-p="screens/tablet-cook-checklist.html?theme=light"></div></div>
+        </div>
+        <div>
+          <div class="cap"><span class="pip pip--light"></span> Step view · Light</div>
+          <div class="tablet-p" data-frame="light"><div class="tablet-p__cam"></div><div class="tablet-p__screen" data-tablet-p="screens/tablet-cook-step.html?theme=light"></div></div>
+        </div>
+        <div>
+          <div class="cap"><span class="pip pip--dark"></span> Step view · Dark</div>
+          <div class="tablet-p" data-frame="dark"><div class="tablet-p__cam"></div><div class="tablet-p__screen" data-tablet-p="screens/tablet-cook-step.html?theme=dark"></div></div>
+        </div>
+        <div>
+          <div class="cap"><span class="pip pip--light"></span> Simpler steps · Light</div>
+          <div class="tablet-p" data-frame="light"><div class="tablet-p__cam"></div><div class="tablet-p__screen" data-tablet-p="screens/tablet-cook-simpler.html?theme=light"></div></div>
+        </div>
+      </div>
+      <div class="legend">
+        <span class="note-pill"><i class="ph ph-eye" style="color:var(--primary-text)"></i> Screen stays awake while cooking</span>
+        <span class="note-pill"><i class="ph ph-list-checks" style="color:var(--primary-text)"></i> "Need simpler steps?" breaks a step into tiny actions</span>
+        <span class="note-pill"><i class="ph ph-timer" style="color:var(--clay-500)"></i> Inline timers, never lost</span>
+      </div>
+    </section>
+  </div>
+
+<script>
+  // Web frames: render iframe at native size, scale to fit container width.
+  const WEB_W = 1320, WEB_H = 856;
+  document.querySelectorAll('[data-web]').forEach(view => {
+    const src = view.getAttribute('data-web');
+    const f = document.createElement('iframe');
+    f.src = src; f.width = WEB_W; f.height = WEB_H;
+    f.setAttribute('scrolling','no');
+    view.appendChild(f);
+    const fit = () => {
+      const s = view.clientWidth / WEB_W;
+      f.style.transform = `scale(${s})`;
+      view.style.height = (WEB_H * s) + 'px';
+    };
+    fit();
+    new ResizeObserver(fit).observe(view);
+  });
+
+  // Mobile frames: native 390 x 844, scale down for the board.
+  const PH_W = 390, PH_H = 844, PH_SCALE = 0.82;
+  document.querySelectorAll('[data-mobile]').forEach(scr => {
+    const src = scr.getAttribute('data-mobile');
+    const f = document.createElement('iframe');
+    f.src = src; f.width = PH_W; f.height = PH_H;
+    f.setAttribute('scrolling','no');
+    f.style.transformOrigin = 'top left';
+    f.style.transform = `scale(${PH_SCALE})`;
+    scr.appendChild(f);
+    scr.style.width = (PH_W * PH_SCALE) + 'px';
+    scr.style.height = (PH_H * PH_SCALE) + 'px';
+  });
+  // Tablet frames: native 1194 x 834 (iPad landscape), scale to fit container width.
+  const TAB_W = 1194, TAB_H = 834;
+  document.querySelectorAll('[data-tablet]').forEach(scr => {
+    const src = scr.getAttribute('data-tablet');
+    const f = document.createElement('iframe');
+    f.src = src; f.width = TAB_W; f.height = TAB_H;
+    f.setAttribute('scrolling','no');
+    scr.appendChild(f);
+    const fit = () => {
+      const s = scr.clientWidth / TAB_W;
+      f.style.transform = `scale(${s})`;
+      scr.style.height = (TAB_H * s) + 'px';
+    };
+    fit();
+    new ResizeObserver(fit).observe(scr);
+  });
+  // Portrait tablet frames: native 834 x 1194 (iPad portrait), fixed scale.
+  const TP_W = 834, TP_H = 1194, TP_SCALE = 0.46;
+  document.querySelectorAll('[data-tablet-p]').forEach(scr => {
+    const src = scr.getAttribute('data-tablet-p');
+    const f = document.createElement('iframe');
+    f.src = src; f.width = TP_W; f.height = TP_H;
+    f.setAttribute('scrolling','no');
+    f.style.transform = `scale(${TP_SCALE})`;
+    scr.appendChild(f);
+    scr.style.width = (TP_W * TP_SCALE) + 'px';
+    scr.style.height = (TP_H * TP_SCALE) + 'px';
+  });
+</script>
+</body>
+</html>

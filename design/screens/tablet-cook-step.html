@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cooking Mode · Step</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<style>
+  html, body { height: 100%; }
+  body { background: var(--bg); display: flex; flex-direction: column; overflow: hidden; font-size: 20px; }
+
+  /* top bar */
+  .cook-top { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5) var(--space-6); flex: none; }
+  .cook-top__exit { display: inline-flex; align-items: center; gap: var(--space-2); height: 52px; padding: 0 var(--space-4); border-radius: var(--radius-pill); border: 1.5px solid var(--border-strong); background: var(--surface); color: var(--text); font-weight: 600; font-size: var(--text-base); font-family: var(--font-sans); }
+  .cook-top__title { flex: 1; text-align: center; }
+  .cook-top__title b { font-family: var(--font-display); font-size: var(--text-xl); display: block; }
+  .cook-top__title span { font-size: var(--text-sm); color: var(--text-muted); }
+  .awake { display: inline-flex; align-items: center; gap: var(--space-2); height: 52px; padding: 0 var(--space-4); border-radius: var(--radius-pill); background: var(--primary-soft); color: var(--primary-text); font-weight: 600; font-size: var(--text-sm); }
+
+  /* progress */
+  .pbar { margin: 0 var(--space-6); flex: none; }
+  .pbar__meta { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-3); }
+  .pbar__step { font-family: var(--font-display); font-weight: 700; font-size: var(--text-lg); }
+  .pbar__count { font-size: var(--text-base); color: var(--text-muted); font-weight: 600; }
+  .pbar__track { height: 12px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+  .pbar__fill { height: 100%; width: 33%; background: var(--energy-4); border-radius: 999px; }
+
+  /* main step */
+  .step { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: var(--space-6) var(--space-8); min-height: 0; }
+  .step__text { font-family: var(--font-display); font-weight: 600; font-size: clamp(2rem, 5.4vw, 3.1rem); line-height: 1.16; letter-spacing: -0.02em; text-wrap: balance; }
+  .step__time { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-7); }
+  .step__time-chip { display: inline-flex; align-items: center; gap: var(--space-2); height: 54px; padding: 0 var(--space-5); border-radius: var(--radius-pill); background: var(--energy-4-soft); color: var(--energy-4); font-weight: 700; font-size: var(--text-lg); }
+  .timer-btn { display: inline-flex; align-items: center; gap: var(--space-2); height: 54px; padding: 0 var(--space-5); border-radius: var(--radius-pill); border: 1.5px solid var(--border-strong); background: var(--surface); color: var(--text); font-weight: 600; font-size: var(--text-base); font-family: var(--font-sans); }
+  .timer-btn i { font-size: 1.3em; }
+
+  /* simpler steps prompt */
+  .simpler { margin: var(--space-6) var(--space-8) 0; }
+  .simpler__btn { width: 100%; display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5); border-radius: var(--radius-lg); border: 1.5px dashed color-mix(in oklab, var(--primary) 40%, var(--border-strong)); background: var(--primary-soft); color: var(--primary-text); font-family: var(--font-sans); text-align: left; }
+  .simpler__ic { width: 50px; height: 50px; border-radius: 50%; background: var(--surface); color: var(--primary-text); display: grid; place-items: center; font-size: 26px; flex: none; }
+  .simpler__btn b { font-size: var(--text-lg); font-family: var(--font-display); }
+  .simpler__btn p { font-size: var(--text-sm); opacity: 0.85; margin-top: 2px; }
+  .simpler__btn .arr { margin-left: auto; font-size: 1.6em; }
+
+  /* nav */
+  .cook-nav { display: flex; gap: var(--space-4); padding: var(--space-6) var(--space-6) var(--space-4); flex: none; }
+  .navbtn { height: 72px; border-radius: var(--radius-lg); border: none; font-family: var(--font-sans); font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-3); }
+  .navbtn--prev { flex: 0 0 130px; background: var(--surface-2); color: var(--text); font-size: var(--text-lg); border: 1px solid var(--border); }
+  .navbtn--next { flex: 1; background: var(--primary); color: var(--text-on-accent); font-size: var(--text-xl); box-shadow: var(--shadow-md); }
+  .navbtn--next i { font-size: 1.1em; }
+
+  /* active timer */
+  .timers { flex: none; display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4) var(--space-6) var(--space-6); }
+  .timer-pill { display: inline-flex; align-items: center; gap: var(--space-3); height: 56px; padding: 0 var(--space-5) 0 var(--space-3); border-radius: var(--radius-pill); background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+  .timer-pill__ic { width: 38px; height: 38px; border-radius: 50%; background: var(--clay-100); color: var(--clay-600); display: grid; place-items: center; font-size: 19px; }
+  .timer-pill__name { font-size: var(--text-base); font-weight: 600; }
+  .timer-pill__time { font-family: var(--font-display); font-weight: 700; font-size: var(--text-xl); font-variant-numeric: tabular-nums; color: var(--clay-600); margin-left: var(--space-2); }
+  .timer-pill__x { color: var(--text-muted); font-size: 1.3em; margin-left: var(--space-2); }
+</style>
+</head>
+<body data-theme="light">
+  <div class="cook-top">
+    <button class="cook-top__exit"><i class="ph ph-x"></i> Exit</button>
+    <div class="cook-top__title"><b>Chicken Curry</b><span>6 servings · Energy 3</span></div>
+    <div class="awake"><i class="ph-fill ph-eye"></i> Screen stays awake</div>
+  </div>
+
+  <div class="pbar">
+    <div class="pbar__meta"><div class="pbar__step">Step 2 of 6</div><div class="pbar__count">Brown the chicken</div></div>
+    <div class="pbar__track"><div class="pbar__fill"></div></div>
+  </div>
+
+  <div class="step">
+    <div class="step__text">Heat oil in a large pan over medium-high heat. Add the chicken pieces and cook until browned on all sides.</div>
+    <div class="step__time">
+      <span class="step__time-chip"><i class="ph ph-clock"></i> ~8 minutes</span>
+      <button class="timer-btn"><i class="ph ph-timer"></i> Set 8-min timer</button>
+    </div>
+  </div>
+
+  <div class="simpler">
+    <button class="simpler__btn">
+      <div class="simpler__ic"><i class="ph ph-list-checks"></i></div>
+      <div>
+        <b>Need simpler steps?</b>
+        <p>Break this into smaller, one-at-a-time actions.</p>
+      </div>
+      <i class="ph ph-caret-right arr"></i>
+    </button>
+  </div>
+
+  <div class="cook-nav">
+    <button class="navbtn navbtn--prev"><i class="ph ph-arrow-left"></i> Prev</button>
+    <button class="navbtn navbtn--next"><i class="ph ph-check"></i> Mark done &amp; next</button>
+  </div>
+
+  <div class="timers">
+    <div class="timer-pill">
+      <div class="timer-pill__ic"><i class="ph-fill ph-bell-ringing"></i></div>
+      <span class="timer-pill__name">Brown chicken</span>
+      <span class="timer-pill__time">5:32</span>
+      <i class="ph ph-x timer-pill__x"></i>
+    </div>
+  </div>
+<script>
+  const theme = new URLSearchParams(location.search).get('theme');
+  if (theme === 'dark') document.body.setAttribute('data-theme','dark');
+</script>
+</body>
+</html>

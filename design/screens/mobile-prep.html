@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meal Prep · Mobile</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<style>
+  html, body { height: 100%; }
+  body { background: var(--bg); display: flex; flex-direction: column; overflow: hidden; font-size: 16px; }
+
+  .statusbar { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-6); flex: none; }
+  .statusbar b { font-weight: 700; font-size: 15px; }
+  .statusbar__right { display: flex; gap: 6px; align-items: center; font-size: 15px; }
+
+  .screen { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
+  /* nav bar */
+  .navbar { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-4) var(--space-3); flex: none; }
+  .navbar__back { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--text); display: grid; place-items: center; font-size: 1.2em; flex: none; }
+  .navbar__title { font-weight: 700; font-size: var(--text-base); }
+  .navbar__title span { display: block; font-size: var(--text-xs); color: var(--text-muted); font-weight: 600; }
+  .navbar__close { margin-left: auto; color: var(--text-muted); font-size: 1.6em; }
+
+  /* progress dots */
+  .prog { display: flex; align-items: center; gap: 6px; padding: 0 var(--space-5) var(--space-3); flex: none; }
+  .prog__seg { flex: 1; height: 6px; border-radius: 3px; background: var(--border); }
+  .prog__seg--done { background: var(--primary); }
+  .prog__seg--active { background: var(--primary); opacity: 0.45; }
+
+  .body { flex: 1; overflow-y: auto; padding: var(--space-3) var(--space-5) var(--space-6); }
+  .body h1 { font-size: var(--text-2xl); }
+  .body > p { color: var(--text-secondary); font-size: var(--text-base); margin-top: var(--space-2); margin-bottom: var(--space-5); }
+
+  .qcard { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-4); box-shadow: var(--shadow-sm); margin-bottom: var(--space-4); }
+  .qcard__top { display: flex; align-items: center; gap: var(--space-3); }
+  .qcard__tile { width: 48px; height: 48px; border-radius: var(--radius-md); display: grid; place-items: center; font-size: 24px; flex: none; }
+  .qcard__name { font-family: var(--font-display); font-weight: 700; font-size: var(--text-lg); }
+  .qcard__sub { font-size: var(--text-xs); color: var(--text-muted); margin-top: 1px; }
+
+  .field { margin-top: var(--space-4); }
+  .field__label { font-size: var(--text-2xs); font-weight: 700; letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--text-muted); margin-bottom: var(--space-2); display: flex; align-items: center; gap: var(--space-2); }
+  .field__label .mult { margin-left: auto; color: var(--primary-text); letter-spacing: 0; text-transform: none; font-size: var(--text-xs); }
+  .stepper-num { display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border-strong); border-radius: var(--radius-pill); padding: 5px; }
+  .stepper-num button { width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--surface-2); color: var(--text); font-size: 1.2em; display: grid; place-items: center; }
+  .stepper-num b { font-size: var(--text-xl); font-variant-numeric: tabular-nums; }
+  .stepper-num b small { font-size: var(--text-sm); color: var(--text-muted); font-weight: 600; }
+  .segmented { display: flex; background: var(--surface-2); border-radius: var(--radius-pill); padding: 5px; gap: 4px; margin-top: var(--space-2); }
+  .segmented button { flex: 1; border: none; background: transparent; padding: 11px 0; border-radius: var(--radius-pill); font-weight: 600; font-size: var(--text-sm); color: var(--text-secondary); font-family: var(--font-sans); display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .segmented button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+
+  /* sticky summary footer */
+  .foot { flex: none; border-top: 1px solid var(--border); background: var(--surface); padding: var(--space-4) var(--space-5) var(--space-3); }
+  .foot__sum { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); background: var(--primary-soft); border-radius: var(--radius-md); margin-bottom: var(--space-3); }
+  .foot__sum i { font-size: 1.6em; color: var(--primary-text); }
+  .foot__sum b { font-family: var(--font-display); font-size: var(--text-xl); color: var(--primary-text); }
+  .foot__sum span { font-size: var(--text-sm); color: var(--primary-text); }
+  .foot__btns { display: flex; gap: var(--space-3); }
+  .homebar { height: 5px; width: 134px; background: var(--text); opacity: 0.28; border-radius: 3px; margin: 8px auto 6px; }
+</style>
+</head>
+<body data-theme="light">
+  <div class="statusbar">
+    <b>9:41</b>
+    <div class="statusbar__right"><i class="ph-fill ph-cell-signal-full"></i> <i class="ph-fill ph-wifi-high"></i> <i class="ph-fill ph-battery-high"></i></div>
+  </div>
+
+  <div class="screen">
+    <div class="navbar">
+      <button class="navbar__back"><i class="ph ph-arrow-left"></i></button>
+      <div class="navbar__title">New prep session<span>Step 2 of 5 · Quantities</span></div>
+      <i class="ph ph-x navbar__close"></i>
+    </div>
+    <div class="prog">
+      <div class="prog__seg prog__seg--done"></div>
+      <div class="prog__seg prog__seg--active"></div>
+      <div class="prog__seg"></div>
+      <div class="prog__seg"></div>
+      <div class="prog__seg"></div>
+    </div>
+
+    <div class="body nk-scroll">
+      <h1>How many of each?</h1>
+      <p>Set servings and where each batch will live. No rush.</p>
+
+      <div class="qcard">
+        <div class="qcard__top">
+          <div class="qcard__tile" style="background:var(--energy-5-soft);color:var(--energy-5)"><i class="ph ph-cooking-pot"></i></div>
+          <div>
+            <div class="qcard__name">Marinara Sauce</div>
+            <div class="qcard__sub">Recipe makes 10 · ~40 min</div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field__label">Servings to prep</div>
+          <div class="stepper-num">
+            <button aria-label="Fewer"><i class="ph ph-minus"></i></button>
+            <b>8</b>
+            <button aria-label="More"><i class="ph ph-plus"></i></button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field__label">Store in</div>
+          <div class="segmented">
+            <button aria-pressed="true"><i class="ph ph-snowflake"></i> Freezer</button>
+            <button aria-pressed="false"><i class="ph ph-thermometer-cold"></i> Fridge</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="qcard">
+        <div class="qcard__top">
+          <div class="qcard__tile" style="background:var(--energy-3-soft);color:var(--energy-3)"><i class="ph ph-bowl-food"></i></div>
+          <div>
+            <div class="qcard__name">Black Bean Soup</div>
+            <div class="qcard__sub">Recipe makes 6 · ~45 min</div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field__label">Servings to prep <span class="mult">2× recipe</span></div>
+          <div class="stepper-num">
+            <button aria-label="Fewer"><i class="ph ph-minus"></i></button>
+            <b>12</b>
+            <button aria-label="More"><i class="ph ph-plus"></i></button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field__label">Store in</div>
+          <div class="segmented">
+            <button aria-pressed="false"><i class="ph ph-snowflake"></i> Freezer</button>
+            <button aria-pressed="true"><i class="ph ph-thermometer-cold"></i> Fridge</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <div class="foot__sum">
+        <i class="ph ph-calendar-check"></i>
+        <div><b>33 portions</b> <span>— about 8 days of meals</span></div>
+      </div>
+      <div class="foot__btns">
+        <button class="nk-btn nk-btn--secondary" aria-label="Back"><i class="ph ph-arrow-left"></i></button>
+        <button class="nk-btn nk-btn--primary nk-btn--block">Next: Schedule <i class="ph ph-arrow-right"></i></button>
+      </div>
+    </div>
+    <div class="homebar"></div>
+  </div>
+
+<script>
+  const theme = new URLSearchParams(location.search).get('theme');
+  if (theme === 'dark') document.body.setAttribute('data-theme','dark');
+</script>
+</body>
+</html>

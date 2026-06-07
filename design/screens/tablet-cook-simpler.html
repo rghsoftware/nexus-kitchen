@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cooking Mode · Simpler Steps</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+<style>
+  html, body { height: 100%; }
+  body { background: var(--bg); display: flex; flex-direction: column; overflow: hidden; font-size: 20px; }
+  .cook-top { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5) var(--space-6); flex: none; }
+  .cook-top__back { display: inline-flex; align-items: center; gap: var(--space-2); height: 52px; padding: 0 var(--space-4); border-radius: var(--radius-pill); border: 1.5px solid var(--border-strong); background: var(--surface); color: var(--text); font-weight: 600; font-size: var(--text-base); font-family: var(--font-sans); }
+  .cook-top__title { flex: 1; text-align: center; }
+  .cook-top__title b { font-family: var(--font-display); font-size: var(--text-xl); display: block; }
+  .cook-top__title span { font-size: var(--text-sm); color: var(--text-muted); }
+  .awake { display: inline-flex; align-items: center; gap: var(--space-2); height: 52px; padding: 0 var(--space-4); border-radius: var(--radius-pill); background: var(--primary-soft); color: var(--primary-text); font-weight: 600; font-size: var(--text-sm); }
+
+  .intro { display: flex; align-items: center; gap: var(--space-4); margin: var(--space-3) var(--space-6) 0; padding: var(--space-4) var(--space-5); border-radius: var(--radius-lg); background: var(--energy-3-soft); border: 1px solid color-mix(in oklab, var(--energy-3) 30%, transparent); flex: none; }
+  .intro i { font-size: 1.8em; color: var(--energy-3); flex: none; }
+  .intro b { font-family: var(--font-display); font-size: var(--text-lg); }
+  .intro p { font-size: var(--text-sm); color: var(--text-secondary); }
+
+  .list { flex: 1; overflow-y: auto; padding: var(--space-5) var(--space-6) var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); }
+  .sub { display: flex; align-items: flex-start; gap: var(--space-4); padding: var(--space-5); border-radius: var(--radius-lg); border: 1.5px solid var(--border); background: var(--surface); box-shadow: var(--shadow-sm); }
+  .sub__key { width: 46px; height: 46px; border-radius: 12px; background: var(--surface-2); color: var(--text-secondary); display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: var(--text-lg); flex: none; }
+  .sub__body { flex: 1; min-width: 0; }
+  .sub__text { font-size: var(--text-xl); font-weight: 500; line-height: 1.32; }
+  .sub__hint { color: var(--text-muted); font-size: var(--text-base); }
+  .sub__timer { display: inline-flex; align-items: center; gap: var(--space-2); height: 44px; padding: 0 var(--space-4); border-radius: var(--radius-pill); border: 1.5px solid var(--border-strong); background: var(--surface); color: var(--text); font-weight: 600; font-size: var(--text-sm); font-family: var(--font-sans); margin-top: var(--space-3); }
+  .sub__box { width: 44px; height: 44px; border-radius: 12px; border: 2.5px solid var(--border-strong); flex: none; display: grid; place-items: center; color: transparent; font-size: 22px; }
+  .sub--done { background: var(--fresh-soft); border-color: color-mix(in oklab, var(--primary) 32%, transparent); }
+  .sub--done .sub__key { background: var(--primary); color: var(--text-on-accent); }
+  .sub--done .sub__box { background: var(--primary); border-color: var(--primary); color: var(--text-on-accent); }
+  .sub--done .sub__text { color: var(--text-muted); text-decoration: line-through; text-decoration-color: var(--oat-400); }
+
+  .foot { flex: none; padding: var(--space-5) var(--space-6) var(--space-7); border-top: 1px solid var(--border); display: flex; gap: var(--space-4); }
+  .navbtn { height: 72px; border-radius: var(--radius-lg); border: none; font-family: var(--font-sans); font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-3); }
+  .navbtn--full { flex: 0 0 180px; background: var(--surface-2); color: var(--text); font-size: var(--text-base); border: 1px solid var(--border); }
+  .navbtn--next { flex: 1; background: var(--primary); color: var(--text-on-accent); font-size: var(--text-xl); box-shadow: var(--shadow-md); }
+</style>
+</head>
+<body data-theme="light">
+  <div class="cook-top">
+    <button class="cook-top__back"><i class="ph ph-arrow-left"></i> Full step</button>
+    <div class="cook-top__title"><b>Step 2 · broken down</b><span>Brown the chicken</span></div>
+    <div class="awake"><i class="ph-fill ph-eye"></i> Screen stays awake</div>
+  </div>
+
+  <div class="intro">
+    <i class="ph ph-sparkle"></i>
+    <div>
+      <b>Here's the same step, smaller.</b>
+      <p>One little action at a time. Check them off as you go — switch back whenever you like.</p>
+    </div>
+  </div>
+
+  <div class="list nk-scroll">
+    <div class="sub sub--done">
+      <div class="sub__key">2a</div>
+      <div class="sub__body"><div class="sub__text">Add 2 tablespoons of oil to your large pan.</div></div>
+      <div class="sub__box"><i class="ph-bold ph-check"></i></div>
+    </div>
+    <div class="sub sub--done">
+      <div class="sub__key">2b</div>
+      <div class="sub__body"><div class="sub__text">Turn heat to medium-high <span class="sub__hint">(dial to 7–8 out of 10).</span></div></div>
+      <div class="sub__box"><i class="ph-bold ph-check"></i></div>
+    </div>
+    <div class="sub">
+      <div class="sub__key">2c</div>
+      <div class="sub__body"><div class="sub__text">Wait 1–2 minutes until the oil shimmers <span class="sub__hint">(not smoking!).</span></div></div>
+      <div class="sub__box"><i class="ph-bold ph-check"></i></div>
+    </div>
+    <div class="sub">
+      <div class="sub__key">2d</div>
+      <div class="sub__body"><div class="sub__text">Add chicken pieces in a single layer <span class="sub__hint">— don't crowd the pan.</span></div></div>
+      <div class="sub__box"><i class="ph-bold ph-check"></i></div>
+    </div>
+    <div class="sub">
+      <div class="sub__key">2e</div>
+      <div class="sub__body"><div class="sub__text">Let chicken sit until the bottom is golden.</div><button class="sub__timer"><i class="ph ph-timer"></i> Set 3-min timer</button></div>
+      <div class="sub__box"><i class="ph-bold ph-check"></i></div>
+    </div>
+    <div class="sub">
+      <div class="sub__key">2f</div>
+      <div class="sub__body"><div class="sub__text">Flip and repeat on the other side.</div><button class="sub__timer"><i class="ph ph-timer"></i> Set 3-min timer</button></div>
+      <div class="sub__box"><i class="ph-bold ph-check"></i></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <button class="navbtn navbtn--full"><i class="ph ph-arrows-in-simple"></i> Back to full step</button>
+    <button class="navbtn navbtn--next"><i class="ph ph-check"></i> Done with step 2</button>
+  </div>
+<script>
+  const theme = new URLSearchParams(location.search).get('theme');
+  if (theme === 'dark') document.body.setAttribute('data-theme','dark');
+</script>
+</body>
+</html>
