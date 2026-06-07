@@ -7,3 +7,11 @@ bun.lockb
 
 # Miscellaneous
 /static/
+
+# Reference material & generated/local files (not hand-edited source)
+/design/
+/docs/
+/supabase/.temp/
+/.agents/
+/.claude/skills/
+skills-lock.json
