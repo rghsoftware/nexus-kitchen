@@ -1,0 +1,20 @@
+{
+	"active": true,
+	"feature_description": "recipes",
+	"feature_num": "001",
+	"parent_branch": "worktree-feat+recipes",
+	"branch_name": "001-recipes",
+	"session_id": "build-20260607-173555-001",
+	"started_at": "2026-06-07T17:35:55-05:00",
+	"current_phase": "specify",
+	"phases_complete": [],
+	"quality_threshold": 80,
+	"run_validate": false,
+	"background_mode": false,
+	"notify_on_complete": false,
+	"orchestrate_flag": "",
+	"run_analyze": false,
+	"run_checklist": false,
+	"quick_mode": false,
+	"use_orchestration": false
+}

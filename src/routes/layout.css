@@ -1,3 +1,12 @@
 @import 'tailwindcss';
+
+/* Nexus Kitchen design system — tokens first, then base component classes.
+   Components MUST use these var(--token) / .nk-* primitives (CLAUDE.md, constitution P4). */
+@import '../lib/styles/fonts.css';
+@import '../lib/styles/colors.css';
+@import '../lib/styles/spacing.css';
+@import '../lib/styles/typography.css';
+@import '../lib/styles/base.css';
+
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';

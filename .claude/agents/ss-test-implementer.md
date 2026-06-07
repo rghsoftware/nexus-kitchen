@@ -30,6 +30,7 @@ Write tests using the project's existing test framework, mirroring existing test
 ## Output
 
 When done, summarize for the dispatcher:
+
 - Files created/modified (with line counts)
 - Any deviations from the task description and why
 - Open questions or assumptions you made
