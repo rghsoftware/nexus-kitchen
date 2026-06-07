@@ -1,4 +1,4 @@
-# Nexus Kitchen — Project Invariants
+# Nexus Kitchen - Project Invariants
 
 **Document Version:** 1.0  
 **Date:** June 4, 2026  
@@ -66,7 +66,7 @@ These invariants define the rules that must always hold true within the business
 | INV-INV-003 | Expiration date must not be in distant past when created | ∀ p ∈ PantryItems where p.expirationDate ≠ null: p.expirationDate ≥ p.createdAt - 30 days |
 | INV-INV-004 | Portion ledger must not produce negative remaining portions | ∀ pm ∈ PreppedMeals: pm.originalPortions + Σ e.deltaPortions (for e where e.preppedMealId = pm.id) ≥ 0 |
 | INV-INV-005 | Prepped meal portions must be non-negative | ∀ pm ∈ PreppedMeals: pm.portionsRemaining ≥ 0.0 |
-| INV-INV-006 | Prepped meal must reference valid recipe | ∀ pm ∈ PreppedMeals: ∃ r ∈ Recipes : r.id = pm.recipeId |
+| INV-INV-006 | Prepped meal recipe reference, when present, is valid | ∀ pm ∈ PreppedMeals where pm.recipeId ≠ null: ∃ r ∈ Recipes : r.id = pm.recipeId. recipeId is null for DIRECT_ENTRY / STORE_BOUGHT origins. |
 | INV-INV-007 | Freezer items must be marked FROZEN | ∀ pm ∈ PreppedMeals: (pm.storageLocation = FREEZER ↔ pm.defrostState = FROZEN) |
 | INV-INV-008 | DEFROSTING items must be in FRIDGE with defrost start | ∀ pm ∈ PreppedMeals where pm.defrostState = DEFROSTING: pm.storageLocation = FRIDGE ∧ pm.defrostStartedAt ≠ null |
 | INV-INV-009 | Prepped meal expiration must be after preparation date | ∀ pm ∈ PreppedMeals: pm.expirationDate > pm.preparedDate |
@@ -79,7 +79,7 @@ These invariants define the rules that must always hold true within the business
 |----|-----------|-------------------|
 | INV-PL-001 | Meal plan end date must be on or after start date | ∀ mp ∈ MealPlans: mp.endDate ≥ mp.startDate |
 | INV-PL-002 | Planned meal date must be within meal plan range | ∀ mp ∈ MealPlans, pm ∈ mp.plannedMeals: mp.startDate ≤ pm.date ≤ mp.endDate |
-| INV-PL-003 | Planned meal must have exactly one source | (source = RECIPE ∧ recipeId ≠ null) ∨ (source = PREPPED ∧ preppedMealId ≠ null) ∨ (source = QUICK ∧ quickMealName ≠ null) |
+| INV-PL-003 | Planned meal must have exactly one source | exactly one reference set matching source: (RECIPE ∧ recipeId) ∨ (PREPPED ∧ preppedMealId) ∨ (STORE_BOUGHT ∧ storeBoughtName) ∨ (QUICK ∧ quickMealName) |
 | INV-PL-004 | Planned meal servings must be positive | ∀ pm ∈ PlannedMeals: pm.servings > 0.0 |
 | INV-PL-005 | Logged meals must have logged timestamp | ∀ pm ∈ PlannedMeals where pm.status = LOGGED: pm.loggedAt ≠ null |
 | INV-PL-006 | Meal prep session must have at least one recipe | ∀ mps ∈ MealPrepSessions: \|mps.recipes\| ≥ 1 |
@@ -90,10 +90,11 @@ These invariants define the rules that must always hold true within the business
 | INV-PL-011 | Enabled reminder must have at least one day selected | ∀ mr ∈ MealReminders where mr.isEnabled = true: \|mr.daysOfWeek\| ≥ 1 |
 
 | INV-PL-012 | Planned meal sort order unique within a (date, slot) group | ∀ pm1, pm2 in the same (date, mealSlot) where pm1.id ≠ pm2.id: pm1.sortOrder ≠ pm2.sortOrder. Unslotted (mealSlot = null) meals form their own per-date group; a group may hold any number of meals. |
-| INV-PL-013 | Meal schedule rule must have exactly one source | (source = RECIPE ∧ recipeId ≠ null ∧ quickMealName = null) ∨ (source = QUICK ∧ quickMealName ≠ null ∧ recipeId = null) |
+| INV-PL-013 | Meal schedule rule must have exactly one source | exactly one reference matching source: (RECIPE ∧ recipeId) ∨ (STORE_BOUGHT ∧ storeBoughtName) ∨ (QUICK ∧ quickMealName); PREPPED excluded |
 | INV-PL-014 | Enabled meal schedule rule must have at least one day selected | ∀ msr ∈ MealScheduleRules where msr.isEnabled = true: \|msr.daysOfWeek\| ≥ 1 |
 | INV-PL-015 | Meal schedule rule effective range valid | effectiveTo ≥ effectiveFrom when both set |
 | INV-PL-016 | Meal suggestion feedback must reference exactly one target | exactly one of recipeId / preppedMealId / quickMealName set, matching target |
+| INV-PL-017 | Fulfillment state is derived, never stored | HAVE_IT / CAN_MAKE_IT / MUST_ACQUIRE is computed per PlannedMeal from current inventory + plan; never persisted |
 
 > **Note:** Planning invariants are defined authoritatively in Domain Specification §3.4.
 
@@ -109,17 +110,7 @@ These invariants define the rules that must always hold true within the business
 | INV-SH-006 | Only one default store layout per user | ∀ u ∈ Users: \|{sl ∈ StoreLayouts : sl.userId = u.id ∧ sl.isDefault = true}\| ≤ 1 |
 | INV-SH-007 | Assigned user must be household member if list is shared | ∀ sl ∈ ShoppingLists, i ∈ sl.items where sl.householdId ≠ null ∧ i.assignedToUserId ≠ null: ∃ m ∈ HouseholdMembers : m.householdId = sl.householdId ∧ m.userId = i.assignedToUserId |
 
-### 1.6 Energy Invariants
-
-| ID | Invariant | Formal Expression |
-|----|-----------|-------------------|
-| INV-EN-001 | Energy level must be 1-5 | ∀ el ∈ EnergyLogs: 1 ≤ el.energyLevel ≤ 5 |
-| INV-EN-002 | Energy pattern average must be within range | ∀ ep ∈ EnergyPatterns: 1.0 ≤ ep.averageEnergy ≤ 5.0 |
-| INV-EN-003 | Energy pattern confidence must be 0-1 | ∀ ep ∈ EnergyPatterns: 0.0 ≤ ep.confidence ≤ 1.0 |
-| INV-EN-004 | Energy pattern sample count must be positive | ∀ ep ∈ EnergyPatterns: ep.sampleCount > 0 |
-| INV-EN-005 | One pattern per user per time slot per day | ∀ ep1, ep2 ∈ EnergyPatterns where ep1.userId = ep2.userId: ep1.id ≠ ep2.id → (ep1.timeOfDay ≠ ep2.timeOfDay ∨ ep1.dayOfWeek ≠ ep2.dayOfWeek) |
-
-### 1.7 Nutrition Invariants
+### 1.6 Nutrition Invariants
 
 | ID | Invariant | Formal Expression |
 |----|-----------|-------------------|
@@ -128,7 +119,7 @@ These invariants define the rules that must always hold true within the business
 | INV-NT-003 | Goal effective period must be valid | ∀ ng ∈ NutritionGoals where ng.effectiveTo ≠ null: ng.effectiveTo ≥ ng.effectiveFrom |
 | INV-NT-004 | Only one active goal per user at a time | ∀ u ∈ Users, d ∈ Dates: \|{ng ∈ NutritionGoals : ng.userId = u.id ∧ ng.effectiveFrom ≤ d ∧ (ng.effectiveTo = null ∨ ng.effectiveTo ≥ d)}\| ≤ 1 |
 
-### 1.8 Variety Invariants
+### 1.7 Variety Invariants
 
 | ID | Invariant | Formal Expression |
 |----|-----------|-------------------|
@@ -139,7 +130,7 @@ These invariants define the rules that must always hold true within the business
 | INV-VR-005 | Chain suggestion must not suggest same food | ∀ cs ∈ ChainSuggestions: cs.currentFoodName ≠ cs.suggestedFoodName |
 | INV-VR-006 | Tried suggestions must have liked feedback | ∀ cs ∈ ChainSuggestions where cs.status = TRIED: cs.wasLiked ≠ null |
 
-### 1.9 Cross-Domain Invariants
+### 1.8 Cross-Domain Invariants
 
 | ID | Invariant | Formal Expression |
 |----|-----------|-------------------|
@@ -174,7 +165,6 @@ These invariants define consistency boundaries within a single PostgreSQL databa
 | Planning | `MealPlan`, `PlannedMeal`, `MealPrepSession`, `MealReminder`, `MealLog`, `MealScheduleRule`, `MealSuggestionFeedback` |
 | Shopping | `ShoppingList`, `ShoppingListItem`, `StoreLayout`, `StoreSection` |
 | Nutrition | `NutritionGoal` (write), `DailyNutritionSummary` (projection) |
-| Energy | `EnergyLog` (write), `EnergyPattern` (projection) |
 | Variety | `FoodProfile`, `FoodHyperfixation`, `ChainSuggestion`, `VariationIdea` |
 
 ### 2.3 Transactions & Reactions
@@ -183,7 +173,7 @@ These invariants define consistency boundaries within a single PostgreSQL databa
 |----|-----------|-------------|
 | INV-CON-001 | Single-DB strong consistency | All writes occur in one PostgreSQL database; multi-row changes within an aggregate use a single transaction. |
 | INV-CON-002 | Aggregate-root transactions | Modifications to entities within an aggregate go through the aggregate root in one transaction. |
-| INV-CON-003 | Cross-aggregate reactions | Reactions spanning aggregates (e.g., `MealLogged` → decrement `PreppedMeal` portions) run as a Postgres trigger, a Supabase Edge Function, or transactional client logic — chosen per case. |
+| INV-CON-003 | Cross-aggregate reactions | Reactions spanning aggregates (e.g., `MealLogged` → decrement `PreppedMeal` portions) run as a Postgres trigger, a Supabase Edge Function, or transactional client logic - chosen per case. |
 | INV-CON-004 | No async event bus | There is no message broker or transactional outbox. "Domain events" (Appendix A) are a conceptual reaction catalog, not infrastructure. |
 
 ---
@@ -197,7 +187,7 @@ The app is **online-first**: clients keep a read cache and apply optimistic upda
 | INV-CC-001 | Server authoritative | The Supabase Postgres database is the single source of truth; client caches are a disposable working set. |
 | INV-CC-002 | Optimistic updates reconcile | Optimistic client updates must reconcile against the server response and roll back on rejection. |
 | INV-CC-003 | Last-write-wins default | Concurrent edits to the same row resolve last-write-wins at row/field granularity. |
-| INV-CC-004 | Append-only records never overwritten | `MealLog`, `EnergyLog`, and `PortionEvent` are append-only and are never overwritten by LWW. |
+| INV-CC-004 | Append-only records never overwritten | `MealLog` and `PortionEvent` are append-only and are never overwritten by LWW. |
 | INV-CC-005 | Realtime is best-effort | Supabase Realtime delivery to household members is best-effort; correctness never depends on receiving a realtime event (clients can re-fetch). |
 | INV-CC-006 | Portions via ledger | `PreppedMeal` portion changes are recorded as append-only `PortionEvent` rows; remaining portions are derived, never blind-overwritten (see INV-INV-004). |
 
@@ -235,7 +225,7 @@ The app is **online-first**: clients keep a read cache and apply optimistic upda
 
 ## 5. Data Access & API Invariants
 
-Data access is Supabase: **PostgREST** for CRUD, **Realtime** for subscriptions, **Edge Functions** for server-side logic — all governed by RLS.
+Data access is Supabase: **PostgREST** for CRUD, **Realtime** for subscriptions, **Edge Functions** for server-side logic - all governed by RLS.
 
 | ID | Invariant | Description |
 |----|-----------|-------------|
@@ -272,7 +262,7 @@ Authentication and credential handling are **delegated to Supabase Auth**; autho
 
 | ID | Invariant | Description |
 |----|-----------|-------------|
-| INV-SEC-007 | TLS everywhere | All traffic uses TLS — the Supabase API, and Caddy's automatic HTTPS for the web app. |
+| INV-SEC-007 | TLS everywhere | All traffic uses TLS - the Supabase API, and Caddy's automatic HTTPS for the web app. |
 | INV-SEC-008 | No PII in logs | Logs never contain passwords, tokens, emails, or PII-laden request bodies. |
 | INV-SEC-009 | Injection-safe | Data access uses PostgREST/parameterized queries; no string-built SQL in Edge Functions. |
 | INV-SEC-010 | XSS-safe | Rely on Svelte output escaping; never render unsanitized HTML (no unchecked `{@html}`). |
@@ -329,8 +319,8 @@ User data resides in a managed cloud (Supabase). User-control guarantees are ret
 
 | ID | Invariant | Description |
 |----|-----------|-------------|
-| INV-FT-001 | Passive features default ON | Passive features (energy filtering, expiration awareness) default ON, individually toggleable. |
-| INV-FT-002 | Active tracking default OFF | Active tracking (energy logging, nutrition tracking, variety tracking) default OFF, opt-in only. |
+| INV-FT-001 | Passive features default ON | Passive features (rating-aware suggestions, expiration awareness) default ON, individually toggleable. |
+| INV-FT-002 | Active tracking default OFF | Active tracking (nutrition tracking, variety tracking) default OFF, opt-in only. |
 | INV-FT-003 | Feature-gated data isolated | Data for disabled features is not collected or processed. |
 
 ### 9.4 Accessibility
@@ -354,7 +344,7 @@ User data resides in a managed cloud (Supabase). User-control guarantees are ret
 ## Appendix A: Invariant Testing Checklist
 
 ### Domain Invariants
-- [ ] Unit tests for each INV-ID-*, INV-RC-*, INV-INV-*, INV-PL-*, INV-SH-*, INV-EN-*, INV-NT-*, INV-VR-* invariant
+- [ ] Unit tests for each INV-ID-*, INV-RC-*, INV-INV-*, INV-PL-*, INV-SH-*, INV-NT-*, INV-VR-* invariant
 - [ ] Property-based tests for range constraints (ratings, levels, percentages)
 
 ### RLS & Security
@@ -373,10 +363,10 @@ User data resides in a managed cloud (Supabase). User-control guarantees are ret
 
 ## Appendix B: Invariant Violation Handling
 
-1. **DB constraint / RLS violation** — the operation is rejected; the client shows a friendly message and preserves input.
-2. **Optimistic update rejected by server** — roll back the optimistic change and re-fetch authoritative state.
-3. **Reaction failure (trigger / Edge Function)** — log with context; the owning write should fail atomically, or the reaction must be safely retryable (idempotent).
-4. **Data anomaly** — log with context, alert, preserve original data.
+1. **DB constraint / RLS violation** - the operation is rejected; the client shows a friendly message and preserves input.
+2. **Optimistic update rejected by server** - roll back the optimistic change and re-fetch authoritative state.
+3. **Reaction failure (trigger / Edge Function)** - log with context; the owning write should fail atomically, or the reaction must be safely retryable (idempotent).
+4. **Data anomaly** - log with context, alert, preserve original data.
 
 ---
 

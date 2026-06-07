@@ -1,10 +1,10 @@
-# Nexus Kitchen — Logical Architecture
+# Nexus Kitchen - Logical Architecture
 
 **Document Version:** 1.0  
 **Date:** June 4, 2026  
 **Purpose:** System design for the resolved Supabase-native stack, derived from the domain specification and requirements.
 
-> **Stack.** A responsive **SvelteKit SPA** (`adapter-static`, client-rendered) that runs in the browser on every device — no native apps. **Supabase** is the backend: PostgreSQL + Row-Level Security, Auth, Realtime, Storage, Edge Functions, and Cron. The static build is **served by Caddy** on self-hosted infrastructure (the backend stays managed Supabase). **Reminders** are server-side (Supabase Cron → Pushover). The app is **online-first** with local read caching. The SPA build is kept so a **Tauri** wrapper stays a future option if a native need arises.
+> **Stack.** A responsive **SvelteKit SPA** (`adapter-static`, client-rendered) that runs in the browser on every device - no native apps. **Supabase** is the backend: PostgreSQL + Row-Level Security, Auth, Realtime, Storage, Edge Functions, and Cron. The static build is **served by Caddy** on self-hosted infrastructure (the backend stays managed Supabase). **Reminders** are server-side (Supabase Cron → Pushover). The app is **online-first** with local read caching. The SPA build is kept so a **Tauri** wrapper stays a future option if a native need arises.
 
 ---
 
@@ -29,7 +29,7 @@
 ```
         ┌───────────────────────────── CLIENTS ──────────────────────────────┐
         │   Desktop browser              Mobile browser                       │
-        │   one responsive Svelte SPA — the same web app on every device       │
+        │   one responsive Svelte SPA - the same web app on every device       │
         └───────────────────────────────┬────────────────────────────────────┘
                                          │ HTTPS + WSS (supabase-js)
                                          ▼
@@ -96,7 +96,7 @@
 
 | Component | Responsibility |
 |-----------|----------------|
-| **Svelte UI** | Components built on the **design system** (warm palette, 1–5 energy scale, Phosphor icons, `.nk-*` classes); shame-free, ADHD-friendly flows; light + dark |
+| **Svelte UI** | Components built on the **design system** (warm palette, Phosphor icons, `.nk-*` classes); shame-free, ADHD-friendly flows; light + dark |
 | **State / stores** | Client state, optimistic updates, reconciliation against server |
 | **Read cache** | Keep recent recipes / current plan / active list responsive; reduce refetches |
 | **supabase-js** | Auth session, PostgREST CRUD, Realtime subscriptions, Storage |
@@ -110,7 +110,7 @@
 
 ## 3. Bounded Contexts as Modules
 
-Bounded contexts are retained as a **code-organization and ownership** concept, realized as PostgreSQL schema/table groups, matching client modules, and RLS policies — not as separately deployed services.
+Bounded contexts are retained as a **code-organization and ownership** concept, realized as PostgreSQL schema/table groups, matching client modules, and RLS policies - not as separately deployed services.
 
 ### 3.1 Context → Module Mapping
 
@@ -122,13 +122,12 @@ Bounded contexts are retained as a **code-organization and ownership** concept, 
 | Planning | meal_plans, planned_meals, meal_prep_sessions, meal_reminders, meal_logs, meal_schedule_rules, meal_suggestion_feedback | `planning/` |
 | Shopping | shopping_lists, shopping_list_items, store_layouts, store_sections | `shopping/` |
 | Nutrition | nutrition_goals, daily_nutrition_summary (view/table) | `nutrition/` |
-| Energy | energy_logs, energy_patterns (projection) | `energy/` |
 | Variety | food_profiles, food_hyperfixations, chain_suggestions, variation_ideas | `variety/` |
 
 ### 3.2 Cross-Context Interaction
 
 - **Reads:** other modules read via foreign-key references and Postgres views.
-- **Reactions:** cross-aggregate effects (e.g., `MealLogged` → decrement prepped portions) are implemented as a **Postgres trigger**, a **Supabase Edge Function**, or **transactional client logic** — chosen per case and kept idempotent where retried.
+- **Reactions:** cross-aggregate effects (e.g., `MealLogged` → decrement prepped portions) are implemented as a **Postgres trigger**, a **Supabase Edge Function**, or **transactional client logic** - chosen per case and kept idempotent where retried.
 - **No** message broker, outbox, or inter-service calls.
 
 ---
@@ -174,7 +173,7 @@ A capability router selects a provider by capability (vision/text), user configu
 |---------|--------------|----------------|
 | Recipe URL Import | AI extracts structured data | Fallback to JSON-LD/schema.org parsing, then manual entry |
 | Recipe Photo Import | AI parses image | Feature unavailable, manual entry only |
-| Meal Suggestions | AI-enhanced personalization | Rule-based (favorites, expiring items, energy match) |
+| Meal Suggestions | AI-enhanced personalization | Rule-based (favorites, expiring items, meal ratings) |
 | Step Breakdown | AI generates sub-steps | Show original steps only |
 | Food Recognition | AI identifies items | Manual entry only |
 
@@ -198,7 +197,7 @@ A capability router selects a provider by capability (vision/text), user configu
 
 ### 7.2 Data Protection
 - Auth tokens are kept in the Supabase client's browser session storage.
-- TLS everywhere — Supabase for the API, Caddy's automatic HTTPS for the web app.
+- TLS everywhere - Supabase for the API, Caddy's automatic HTTPS for the web app.
 - The Supabase **anon key is public**; security rests on RLS + Auth. The **service-role key** lives only in Edge Functions / server env.
 - No PII in logs.
 
@@ -230,8 +229,8 @@ Key technology decisions:
 
 | Question | Decision |
 |----------|----------|
-| Frontend | SvelteKit SPA (`adapter-static`, client-rendered) — responsive web, all devices |
-| Packaging | None — responsive web in the browser; static SPA build kept so Tauri stays a future drop-in option |
+| Frontend | SvelteKit SPA (`adapter-static`, client-rendered) - responsive web, all devices |
+| Packaging | None - responsive web in the browser; static SPA build kept so Tauri stays a future drop-in option |
 | Backend | Supabase (managed) |
 | Database | PostgreSQL (single DB) |
 | API style | PostgREST (auto CRUD) + Edge Functions for server logic |
@@ -244,13 +243,13 @@ Key technology decisions:
 
 **Smaller open items:** client cache/library choice; Pushover vs. a self-hosted shoutrrr relay for delivery; image handling pipeline in Supabase Storage; Caddy SPA-fallback config.
 
-**Ruled out (for MVP):** native apps and app-store distribution (Play closed-testing wall, age-verification laws); React/React Native/Expo; JS/Node/Deno as the primary backend; offline-first sync engine; self-hosting the Supabase backend. **Tauri is deferred, not ruled out** — the static SPA keeps it a drop-in option.
+**Ruled out (for MVP):** native apps and app-store distribution (Play closed-testing wall, age-verification laws); React/React Native/Expo; JS/Node/Deno as the primary backend; offline-first sync engine; self-hosting the Supabase backend. **Tauri is deferred, not ruled out** - the static SPA keeps it a drop-in option.
 
 ---
 
 ## Appendix A: Domain Event Flow Summary
 
-> **Note.** These are a *conceptual* reaction catalog. "Service" below means the owning **module**; each reaction is implemented with the simplest fit — a Postgres trigger, a Supabase Edge Function, or transactional client logic — not an async event bus.
+> **Note.** These are a *conceptual* reaction catalog. "Service" below means the owning **module**; each reaction is implemented with the simplest fit - a Postgres trigger, a Supabase Edge Function, or transactional client logic - not an async event bus.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -275,9 +274,6 @@ PreppedMealExpired             │ • Remove from available inventory
                                │ • Update affected MealPlan items
                                │ • Notify user (optional)
 ───────────────────────────────┼──────────────────────────────────────────────
-EnergyLevelLogged              │ • Update EnergyPattern statistics
-                               │ • Recalculate predictions
-───────────────────────────────┼──────────────────────────────────────────────
 HouseholdMemberAdded           │ • Grant access to shared resources
                                │ • Notify existing members
 ───────────────────────────────┼──────────────────────────────────────────────
@@ -296,7 +292,6 @@ Based on the ADHD Feature Priority Matrix from requirements:
 **Priority 1 (Must Have for MVP):**
 - Meal reminders
 - One-tap meal logging
-- Energy-based meal filtering
 - Basic recipe management
 - Basic meal planning
 

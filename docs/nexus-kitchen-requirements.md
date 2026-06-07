@@ -1,8 +1,8 @@
-# Meal Planning Application — Software Requirements Specification
+# Meal Planning Application - Software Requirements Specification
 
 **Document Version:** 1.0  
 **Date:** June 4, 2026  
-**Project:** Nexus Kitchen — Meal Planning Application with ADHD Accommodations
+**Project:** Nexus Kitchen - Meal Planning Application with ADHD Accommodations
 
 ---
 
@@ -10,7 +10,7 @@
 
 ### 1.1 Purpose
 
-This document defines the comprehensive requirements for a meal planning application designed to address both general meal management needs and specific challenges faced by individuals with ADHD. The application will provide meal planning, nutrition tracking, recipe management, inventory management, and shopping list functionality—all built with principles that reduce cognitive load and support executive function challenges.
+This document defines the comprehensive requirements for a meal planning application designed to address both general meal management needs and specific challenges faced by individuals with ADHD. The application will provide meal planning, nutrition tracking, recipe management, inventory management, and shopping list functionality-all built with principles that reduce cognitive load and support executive function challenges.
 
 ### 1.2 Scope
 
@@ -29,6 +29,8 @@ The application encompasses:
 ### 1.3 Design Philosophy
 
 The application is guided by a core principle: **"Good enough nutrition maintained consistently beats perfect nutrition attempted sporadically."** All features must work with ADHD brain patterns rather than forcing neurotypical productivity models.
+
+The product's organizing thesis is **inventory and operations management for meals**: a planned meal is a *requirement* to be moved to "have it" (on hand, makeable, or to-acquire) by its date, and pantry, prep, and shopping are the operations that close those gaps. This thesis governs the whole document set (see **nexus-kitchen-differentiator.md**); capture and logging exist only to feed that loop, never as the point.
 
 ---
 
@@ -69,8 +71,12 @@ The application is guided by a core principle: **"Good enough nutrition maintain
 - REQ-MP-006: The system shall suggest meals based on available pantry ingredients
 - REQ-MP-007: The system shall prioritize ingredients approaching expiration in meal suggestions
 - REQ-MP-008: The system shall learn user preferences over time and incorporate them into suggestions
-- REQ-MP-009: The system shall factor in user-reported energy levels when suggesting meals
+- REQ-MP-009: The system shall factor in past meal ratings when suggesting meals, favoring liked and loved meals and steering off hated ones
 - REQ-MP-010: The system shall avoid suggesting meals containing user-specified disliked ingredients or allergens
+
+#### 3.1.3 Sources & Fulfillment
+- REQ-MP-011: Users shall be able to place a store-bought (ready-made) meal on a day as a meal to acquire by buying
+- REQ-MP-012: For each planned meal, the system shall derive and display its fulfillment state: already on hand (a prepped portion exists), makeable (recipe ingredients are in the pantry), or must-acquire (to be cooked or bought) by its date
 
 ### 3.2 Recipe Management
 
@@ -92,10 +98,8 @@ The application is guided by a core principle: **"Good enough nutrition maintain
 - REQ-RC-011: The system shall adjust ingredient quantities proportionally when scaling
 - REQ-RC-012: The system shall support unit conversion for ingredients
 
-#### 3.2.4 Energy-Based Classification
-- REQ-RC-013: Recipes shall be classified by preparation energy required (1-5 scale from minimal effort to complex)
+#### 3.2.4 Time Classification
 - REQ-RC-014: Recipes shall track both total time and active hands-on time separately
-- REQ-RC-015: Users shall be able to filter recipes by energy level required
 
 ### 3.3 Nutrition Tracking
 
@@ -171,7 +175,7 @@ The application is guided by a core principle: **"Good enough nutrition maintain
 
 #### 3.6.2 Quick Logging
 - REQ-MR-006: Users shall be able to log meals with one tap (minimal friction)
-- REQ-MR-007: Users shall be able to log current energy level (1-5 scale) alongside meals
+- REQ-MR-007: Users shall be able to rate a meal (hated, ok, liked, loved) when logging it
 - REQ-MR-008: The system shall support quick-add from favorites or recent meals
 - REQ-MR-009: The system shall support logging "something" without specifying what (acknowledgment without detail)
 
@@ -180,84 +184,71 @@ The application is guided by a core principle: **"Good enough nutrition maintain
 - REQ-MR-011: The timeline shall show gaps without negative framing
 - REQ-MR-012: The system shall recognize and celebrate streaks without penalizing breaks
 
-### 3.7 Energy-Aware Features (ADHD-Specific)
+### 3.7 Food Variety and Rotation (ADHD-Specific)
 
-#### 3.7.1 Energy Tracking
-- REQ-EA-001: Users shall be able to report current energy level (1-5 scale)
-- REQ-EA-002: The system shall learn typical energy patterns by time of day and day of week
-- REQ-EA-003: The system shall use historical patterns to predict energy levels
-
-#### 3.7.2 Energy-Based Filtering
-- REQ-EA-004: Users shall be able to filter all suggestions by current energy level
-- REQ-EA-005: When energy is low, the system shall prioritize simple meals, premade options, and delivery
-- REQ-EA-006: The system shall surface "no-cook" options when energy is very low
-- REQ-EA-007: The system shall never suggest complex meals when user reports low energy
-
-### 3.8 Food Variety and Rotation (ADHD-Specific)
-
-#### 3.8.1 Hyperfixation Awareness
+#### 3.7.1 Hyperfixation Awareness
 - REQ-FV-001: The system shall track food frequency patterns (non-judgmentally)
 - REQ-FV-002: The system shall identify when a user may be in a food hyperfixation period
 - REQ-FV-003: Hyperfixation tracking shall be informational only, never shaming
 - REQ-FV-004: The system shall respect hyperfixations as valid eating patterns
 
-#### 3.8.2 Gentle Variety Suggestions
-- REQ-FV-005: The system shall offer "safe food rotation" suggestions—variations on current favorites
-- REQ-FV-006: The system shall support "food chaining"—introducing new foods similar to current favorites
+#### 3.7.2 Gentle Variety Suggestions
+- REQ-FV-005: The system shall offer "safe food rotation" suggestions-variations on current favorites
+- REQ-FV-006: The system shall support "food chaining"-introducing new foods similar to current favorites
 - REQ-FV-007: Variety suggestions shall be optional and never pushy
 - REQ-FV-008: The system shall suggest variations on familiar foods (different sauces, toppings, preparations)
 
-#### 3.8.3 Food Profiles
+#### 3.7.3 Food Profiles
 - REQ-FV-009: The system shall track food characteristics (texture, temperature, flavor profile, complexity)
 - REQ-FV-010: The system shall use food profiles to suggest similar new foods based on preferred characteristics
 
-### 3.9 Cooking Assistance (ADHD-Specific)
+### 3.8 Cooking Assistance (ADHD-Specific)
 
-#### 3.9.1 Adaptive Recipe Instructions
+#### 3.8.1 Adaptive Recipe Instructions
 - REQ-CA-001: Users shall be able to view recipes in a step-by-step cooking mode
 - REQ-CA-002: Users shall be able to request more detailed breakdown of recipe steps (adjustable granularity)
 - REQ-CA-003: The system shall provide intelligent step breakdown using AI when requested
 - REQ-CA-004: Instructions shall use imperative, action-focused language
 
-#### 3.9.2 Timer Management
+#### 3.8.2 Timer Management
 - REQ-CA-005: Users shall be able to set multiple named timers from within recipes
 - REQ-CA-006: The system shall automatically detect time references in recipe steps and offer to set timers
 - REQ-CA-007: Timers shall provide visual countdown with progress indicators
 - REQ-CA-008: Timers shall support audio and haptic notifications
 
-#### 3.9.3 Progress Tracking
+#### 3.8.3 Progress Tracking
 - REQ-CA-009: Users shall be able to track progress through recipe steps with visual indicators
 - REQ-CA-010: Users shall be able to check off completed steps
 - REQ-CA-011: Users shall be able to check off gathered ingredients
 
-#### 3.9.4 Kitchen Display Mode
+#### 3.8.4 Kitchen Display Mode
 - REQ-CA-012: The application shall provide a kitchen display mode optimized for countertop use
 - REQ-CA-013: Kitchen mode shall use large touch targets suitable for messy hands
 - REQ-CA-014: Kitchen mode shall keep the screen awake during active cooking
 - REQ-CA-015: Kitchen mode shall support hands-free progression (optional voice control as stretch goal)
 
-### 3.10 Household and Sharing
+### 3.9 Household and Sharing
 
-#### 3.10.1 Household Management
+#### 3.9.1 Household Management
 - REQ-HH-001: Users shall be able to create and join households
 - REQ-HH-002: Households shall support multiple members with role-based permissions (admin, member, viewer)
 - REQ-HH-003: Users shall be able to invite others to households via email or link
 
-#### 3.10.2 Shared Resources
+#### 3.9.2 Shared Resources
 - REQ-HH-004: Households shall share pantry inventory
 - REQ-HH-005: Households shall share shopping lists
 - REQ-HH-006: Households shall share meal plans
 - REQ-HH-007: Users shall be able to designate recipes as household-shared or personal
 - REQ-HH-008: Changes to shared resources shall sync in real-time across household members
 
-#### 3.10.3 Collaboration
+#### 3.9.3 Collaboration
 - REQ-HH-009: Shopping list items shall support assignment to specific household members
 - REQ-HH-010: Users shall be able to mark items as purchased with attribution
 - REQ-HH-011: The system shall provide notifications for shared list changes (configurable)
 
-### 3.11 Meal Prep Support
+### 3.10 Meal Prep Support
 
-#### 3.11.1 Meal Prep Session Planning
+#### 3.10.1 Meal Prep Session Planning
 - REQ-PP-001: Users shall be able to select one or more recipes to batch cook in a meal prep session
 - REQ-PP-002: Users shall be able to specify the number of servings to prepare for each selected recipe
 - REQ-PP-003: The system shall suggest a meal prep day, defaulting to common prep days (e.g., weekends)
@@ -268,9 +259,9 @@ The application is guided by a core principle: **"Good enough nutrition maintain
 - REQ-PP-008: Users shall be able to regenerate meal distribution ("replan") with a single action
 - REQ-PP-009: Users shall be able to manually adjust the generated meal assignments
 
-#### 3.11.2 Prepped Meal Inventory
+#### 3.10.2 Prepped Meal Inventory
 - REQ-PP-010: Prepped meals shall be tracked in inventory as individual portions/servings
-- REQ-PP-011: Each prepped meal portion shall track: recipe source, preparation date, storage location (fridge/freezer), and expiration date
+- REQ-PP-011: Each prepped meal portion shall track: a display name, its origin (prep session, direct entry, or store-bought), an optional recipe source, preparation/acquisition date, storage location (fridge/freezer), and expiration date
 - REQ-PP-012: The system shall apply different default shelf lives based on storage location (fridge vs. freezer)
 - REQ-PP-013: Users shall be able to adjust shelf life estimates for individual items
 - REQ-PP-014: The system shall visually indicate prepped meals approaching expiration
@@ -279,38 +270,36 @@ The application is guided by a core principle: **"Good enough nutrition maintain
 - REQ-PP-017: The system shall track defrost time and adjust "ready to eat" status accordingly
 - REQ-PP-018: Users shall be able to consume/remove prepped meal portions from inventory
 
-#### 3.11.3 Meal Prep Integration with Shopping
+#### 3.10.3 Meal Prep Integration with Shopping
 - REQ-PP-019: When planning a meal prep session, the system shall calculate required ingredients across all selected recipes
 - REQ-PP-020: The system shall compare required ingredients against current pantry inventory
 - REQ-PP-021: The system shall generate a shopping list for missing ingredients
 - REQ-PP-022: The shopping list shall indicate which items are needed for which prep recipes
 
-#### 3.11.4 Meal Prep Integration with Meal Planning
+#### 3.10.4 Meal Prep Integration with Meal Planning
 - REQ-PP-023: Prepped meals in inventory shall be available as options when generating meal plans
 - REQ-PP-024: At the start of meal plan generation, users shall be prompted for their preference: prioritize prepped meals, prioritize fresh cooking, or no preference
 - REQ-PP-025: The preference prompt shall include a visual preview of prepped inventory (with expiration indicators) without overwhelming the user
 - REQ-PP-026: The user's preference shall be a suggestion that can be adjusted, never forced
 - REQ-PP-027: When prepped meals are selected for a day, the system shall automatically decrement from prepped inventory upon meal logging
 
-#### 3.11.5 Meal Prep Energy Integration (ADHD-Specific)
-- REQ-PP-028: When energy-aware planning is enabled, high-energy days shall default to suggesting fresh cooking or new meal prep sessions
-- REQ-PP-029: When energy-aware planning is enabled, low-energy days shall default to suggesting prepped meals or simple options
-- REQ-PP-030: Energy-based defaults shall always be overridable by the user
-- REQ-PP-031: The system shall never force meal choices based on energy levels
+#### 3.10.5 Direct Entry & Sources
+- REQ-PP-028: Users shall be able to add an existing ready-to-eat portion directly to inventory (name, portion count, date, storage location, expiration) without creating a meal prep session. A prep session is one optional way to produce prepped meals, never a prerequisite
+- REQ-PP-029: Ready-to-eat portions shall support origins of prep session, direct entry, and store-bought; directly-entered and store-bought portions need not reference a recipe
 
-### 3.12 Feature Configuration
+### 3.11 Feature Configuration
 
-#### 3.12.1 Feature Categorization
-- REQ-CFG-001: Passive enhancement features (energy-aware filtering, expiration-aware suggestions, prepped meal prioritization, smart defaults) shall be enabled by default and individually toggleable
-- REQ-CFG-002: Active tracking features (energy logging, energy pattern learning, nutrition tracking, variety tracking, hyperfixation awareness, food chaining suggestions) shall be disabled by default and require explicit opt-in
+#### 3.11.1 Feature Categorization
+- REQ-CFG-001: Passive enhancement features (rating-aware suggestions, expiration-aware suggestions, prepped meal prioritization, smart defaults) shall be enabled by default and individually toggleable
+- REQ-CFG-002: Active tracking features (nutrition tracking, variety tracking, hyperfixation awareness, food chaining suggestions) shall be disabled by default and require explicit opt-in
 - REQ-CFG-003: Design philosophy elements (shame-free language, minimal taps, visual feedback, graceful exit ramps) shall be embedded in all features and not configurable
 
-#### 3.12.2 Onboarding
+#### 3.11.2 Onboarding
 - REQ-CFG-004: Onboarding shall capture user preferences using relatable statements (e.g., "I sometimes forget to eat") rather than clinical or diagnostic labels
 - REQ-CFG-005: Onboarding selections shall set initial feature defaults, with all settings individually overridable in Settings
 - REQ-CFG-006: The system shall never surface "ADHD" terminology or other clinical labels in user-facing UI
 
-#### 3.12.3 Data Preservation
+#### 3.11.3 Data Preservation
 - REQ-CFG-007: Disabling an active tracking feature shall not delete historical data collected while the feature was enabled
 - REQ-CFG-008: Users shall be able to explicitly delete tracking data for any feature independently of disabling the feature
 
@@ -340,7 +329,7 @@ The application is guided by a core principle: **"Good enough nutrition maintain
 
 #### 4.2.2 Realtime Household Sync
 - REQ-CN-006: Changes to shared household resources shall propagate to other online members in near-real-time via Supabase Realtime.
-- REQ-CN-007: Concurrent edits shall resolve last-write-wins at row/field granularity; append-only records (meal logs, energy logs, prepped-portion events) shall never be overwritten.
+- REQ-CN-007: Concurrent edits shall resolve last-write-wins at row/field granularity; append-only records (meal logs, prepped-portion events) shall never be overwritten.
 
 ### 4.3 Performance
 
@@ -481,7 +470,7 @@ The application is guided by a core principle: **"Good enough nutrition maintain
 - REQ-VD-004: Icons shall be accompanied by text labels for clarity
 - REQ-VD-005: The system shall use consistent visual language throughout
 
-> The visual language realizing these requirements — the "Warm Kitchen, Calm Mind" palette, the 1–5 energy scale, type, spacing, component vocabulary, and light/dark — is specified in **nexus-kitchen-design-system.md** (built from the Claude Design mockup).
+> The visual language realizing these requirements - the "Warm Kitchen, Calm Mind" palette, type, spacing, component vocabulary, and light/dark - is specified in **nexus-kitchen-design-system.md** (built from the Claude Design mockup).
 
 ### 6.3 Error Handling
 
@@ -516,15 +505,15 @@ The application is guided by a core principle: **"Good enough nutrition maintain
 
 | Term | Definition |
 |------|------------|
-| Energy Level | A user-reported scale (1-5) indicating current cognitive/physical capacity for tasks |
 | Food Chaining | A therapeutic technique that introduces new foods by starting with accepted foods and making small, systematic changes |
 | Food Hyperfixation | An ADHD-related pattern where a person eats the same food(s) repeatedly for an extended period |
 | Household | A group of users who share resources (pantry, meal plans, shopping lists) |
 | Kitchen Display Mode | A specialized UI mode optimized for viewing recipes while cooking, with large text and touch targets |
 | Meal Prep Session | A planned batch cooking event where users prepare multiple servings of one or more recipes for future consumption |
+| Meal Rating | A four-level verdict recorded after eating a meal (hated, ok, liked, loved), used to bias future suggestions |
 | Planning Horizon | The number of days into the future that a meal plan covers |
-| Prepped Meal | A portion of a previously prepared recipe stored for future consumption |
-| Safe Food | Foods that a person can reliably eat regardless of sensory or energy state |
+| Prepped Meal | A ready-to-eat portion stored for future consumption, whatever its origin: cooked from a recipe, entered directly, or store-bought |
+| Safe Food | Foods that a person can reliably eat regardless of sensory state |
 | Shame-Free Design | Design approach that presents information neutrally without judgment or guilt-inducing language |
 
 ---
@@ -541,38 +530,38 @@ The application is guided by a core principle: **"Good enough nutrition maintain
 
 Based on research into ADHD-specific food management challenges, features are prioritized by their impact on addressing core executive function difficulties:
 
-### Priority 1 — MVP (Must Have)
+### Priority 1 - MVP (Must Have)
 These features address the most fundamental ADHD challenges:
 
-1. **Meal Reminders** — Addresses forgetting to eat due to impaired interoception
-2. **One-Tap Meal Logging** — Removes friction that prevents tracking
-3. **Energy-Based Meal Filtering** — Respects variable executive function capacity
+1. **Meal Reminders** - Addresses forgetting to eat due to impaired interoception
+2. **One-Tap Meal Logging** - Removes friction that prevents tracking
+3. **Meal Ratings** - Learns which meals you liked so good options resurface without re-deciding
 
-### Priority 2 — High Impact
+### Priority 2 - High Impact
 These features significantly reduce cognitive load:
 
-1. **Meal Prep Session Planning** — Batches decision-making to high-energy times, provides low-friction options for low-energy days
-2. **Prepped Meal Inventory** — Tracks ready-to-eat options with expiration awareness
-3. **Visual Shopping Lists** — Addresses "out of sight, out of mind"
-4. **Store Section Organization** — Reduces wandering and forgotten items
-5. **Household Sharing** — Distributes executive function burden
+1. **Meal Prep Session Planning** - Batches decision-making into one session and stocks low-friction ready-to-eat options for later
+2. **Prepped Meal Inventory** - Tracks ready-to-eat options with expiration awareness
+3. **Visual Shopping Lists** - Addresses "out of sight, out of mind"
+4. **Store Section Organization** - Reduces wandering and forgotten items
+5. **Household Sharing** - Distributes executive function burden
 
-### Priority 3 — Enhanced Experience
+### Priority 3 - Enhanced Experience
 These features provide meaningful quality of life improvements:
 
-1. **AI Recipe Step Breakdown** — Reduces overwhelm from complex recipes
-2. **Multi-Timer Management** — Supports working memory limitations
-3. **Kitchen Display Mode** — Reduces friction during cooking
-4. **Favorite Meals** — Provides quick access to reliable options
-5. **Defrost Tracking** — Removes "did I take that out?" uncertainty
+1. **AI Recipe Step Breakdown** - Reduces overwhelm from complex recipes
+2. **Multi-Timer Management** - Supports working memory limitations
+3. **Kitchen Display Mode** - Reduces friction during cooking
+4. **Favorite Meals** - Provides quick access to reliable options
+5. **Defrost Tracking** - Removes "did I take that out?" uncertainty
 
-### Priority 4 — Advanced Features
+### Priority 4 - Advanced Features
 These features provide additional support but are not essential:
 
-1. **Food Variety Rotation** — Gently addresses hyperfixation patterns
-2. **Food Chaining Suggestions** — Supports expanding food acceptance
-3. **Hyperfixation Tracking** — Provides pattern awareness
-4. **Compassionate Nutrition Insights** — Optional, shame-free nutrition awareness
+1. **Food Variety Rotation** - Gently addresses hyperfixation patterns
+2. **Food Chaining Suggestions** - Supports expanding food acceptance
+3. **Hyperfixation Tracking** - Provides pattern awareness
+4. **Compassionate Nutrition Insights** - Optional, shame-free nutrition awareness
 
 ---
 
@@ -589,7 +578,7 @@ The application's success should be measured by adoption and engagement metrics 
 - Prepped meal utilization rate (prepped meals consumed vs. expired/discarded)
 
 ### Quality Metrics
-- User-reported satisfaction with energy-based filtering accuracy
+- User-reported satisfaction with meal suggestion relevance
 - Time to complete common tasks (recipe search, meal logging, shopping list creation)
 - Realtime sync reliability (successful household updates delivered to online members)
 - Meal prep planning horizon accuracy (did suggested days match user needs)
