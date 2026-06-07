@@ -50,6 +50,22 @@
   --energy-4-soft: oklch(0.95 0.05 128);
   --energy-5-soft: oklch(0.95 0.055 80);
 
+  /* --- Requirement fulfillment — THE OPERATIONAL CORE -------------
+     Every planned meal is a requirement in one of three states. The whole
+     product exists to move each one to "Have it" before its day. This is a
+     calm distance-from-done ramp (have = 0 actions, make = cook, get = shop),
+     NEVER alarm-red and NEVER good/bad green. Color is paired with an icon +
+     label everywhere it appears (a11y: color is never the only signal). */
+  --have:         var(--herb-500);   /* a ready-to-eat portion exists */
+  --have-soft:    var(--herb-50);
+  --have-text:    var(--herb-700);
+  --make:         var(--info);       /* recipe, ingredients on hand — just cook */
+  --make-soft:    var(--info-soft);
+  --make-text:    oklch(0.45 0.085 240);
+  --acquire:      var(--clay-500);   /* missing ingredients / store-bought — shop */
+  --acquire-soft: var(--clay-100);
+  --acquire-text: var(--clay-600);
+
   /* --- Status (calm, non-alarming) -------------------------------- */
   --attention:       oklch(0.7 0.12 62);   /* "expires soon" — warm ochre, not red */
   --attention-soft:  oklch(0.95 0.045 70);
@@ -57,6 +73,17 @@
   --fresh-soft:      var(--herb-50);
   --info:            oklch(0.62 0.08 235);
   --info-soft:       oklch(0.95 0.03 235);
+
+  /* --- Meal verdict (RETROSPECTIVE — enjoyment / keep-or-not) ------
+     A different signal from energy: energy is how YOU feel right now;
+     the verdict is how the MEAL was, remembered so you don't re-cook
+     duds or forget winners. "Keeper" = warm clay; "Resting" reuses the
+     restful periwinkle of energy-1 — set aside, never rejected. Neutral
+     ("it was fine") has no color: it stays quiet. Never thumbs-down red. */
+  --verdict-keep:      var(--clay-500);
+  --verdict-keep-soft: var(--clay-100);
+  --verdict-rest:      oklch(0.6 0.05 268);   /* muted periwinkle, legible as text */
+  --verdict-rest-soft: var(--energy-1-soft);
 
   /* ============================================================
      SEMANTIC ALIASES — light mode (default)
@@ -121,6 +148,16 @@
 
   --attention:      oklch(0.78 0.12 66);
   --attention-soft: oklch(0.33 0.05 66);
+
+  --have:         var(--herb-400);
+  --have-soft:    oklch(0.32 0.05 150);
+  --have-text:    var(--herb-200);
+  --make:         oklch(0.7 0.09 235);
+  --make-soft:    oklch(0.32 0.045 235);
+  --make-text:    oklch(0.82 0.06 235);
+  --acquire:      var(--clay-400);
+  --acquire-soft: oklch(0.34 0.05 46);
+  --acquire-text: var(--clay-200);
   --fresh-soft:     oklch(0.32 0.05 150);
   --info:           oklch(0.7 0.09 235);
   --info-soft:      oklch(0.32 0.045 235);
@@ -130,6 +167,11 @@
   --energy-3-soft: oklch(0.32 0.05 175);
   --energy-4-soft: oklch(0.33 0.055 128);
   --energy-5-soft: oklch(0.34 0.06 80);
+
+  --verdict-keep:      var(--clay-400);
+  --verdict-keep-soft: oklch(0.34 0.05 46);
+  --verdict-rest:      oklch(0.74 0.055 268);
+  --verdict-rest-soft: oklch(0.32 0.04 268);
 
   --focus-ring:    var(--herb-300);
 

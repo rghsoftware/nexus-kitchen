@@ -48,18 +48,13 @@
   .something b { font-size: var(--text-base); }
   .something span { display: block; font-size: var(--text-xs); color: var(--text-muted); margin-top: 1px; }
 
-  /* energy footer (optional) */
+  /* verdict footer (retrospective — "how was it?") */
   .efoot { flex: none; border-top: 1px solid var(--border); padding: var(--space-4) var(--space-5) var(--space-3); background: var(--surface); }
-  .efoot__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
-  .efoot__label { font-size: var(--text-sm); color: var(--text-secondary); font-weight: 600; }
-  .efoot__label span { display: block; font-size: var(--text-2xs); color: var(--text-muted); font-weight: 500; }
-  .eopts { display: flex; gap: 6px; }
-  .edot { width: 34px; height: 34px; border-radius: 50%; border: 2px solid transparent; display: grid; place-items: center; }
-  .edot[data-e="1"]{background:var(--energy-1-soft)} .edot[data-e="2"]{background:var(--energy-2-soft)} .edot[data-e="3"]{background:var(--energy-3-soft)} .edot[data-e="4"]{background:var(--energy-4-soft)} .edot[data-e="5"]{background:var(--energy-5-soft)}
-  .edot__c { width: 12px; height: 12px; border-radius: 50%; }
-  .edot[data-e="1"] .edot__c{background:var(--energy-1)} .edot[data-e="2"] .edot__c{background:var(--energy-2)} .edot[data-e="3"] .edot__c{background:var(--energy-3)} .edot[data-e="4"] .edot__c{background:var(--energy-4)} .edot[data-e="5"] .edot__c{background:var(--energy-5)}
-  .edot--sel { border-color: var(--energy-4); }
-  .efoot__skip { font-size: var(--text-2xs); color: var(--text-muted); text-align: center; margin-top: var(--space-2); }
+  .efoot__q { font-size: var(--text-sm); color: var(--text-secondary); font-weight: 600; margin-bottom: var(--space-3); }
+  .efoot__q span { color: var(--text-muted); font-weight: 500; }
+  .efoot__verdict { display: flex; gap: var(--space-2); }
+  .efoot__verdict .nk-verdict__opt { flex: 1; justify-content: center; padding: 0 var(--space-2); gap: 6px; }
+  .efoot__skip { font-size: var(--text-2xs); color: var(--text-muted); text-align: center; margin-top: var(--space-3); }
   .homebar { height: 5px; width: 134px; background: var(--text); opacity: 0.28; border-radius: 3px; margin: var(--space-2) auto var(--space-2); }
 </style>
 </head>
@@ -95,43 +90,39 @@
 
       <div class="grp-label"><i class="ph ph-snowflake" style="color:var(--info)"></i> From your prepped meals</div>
       <button class="opt">
-        <div class="opt__tile" style="background:var(--info-soft);color:var(--info)"><i class="ph ph-cooking-pot"></i></div>
+        <div class="opt__tile nk-tile--have"><i class="ph ph-cooking-pot"></i></div>
         <div class="opt__body"><div class="opt__name">Marinara pasta</div><div class="opt__meta"><span class="tag"><i class="ph ph-snowflake"></i> Prepped</span> 3 portions left</div></div>
         <div class="opt__add"><i class="ph ph-plus"></i></div>
       </button>
 
       <div class="grp-label"><i class="ph ph-clock-counter-clockwise"></i> Recent</div>
       <button class="opt">
-        <div class="opt__tile" style="background:var(--energy-2-soft);color:var(--energy-2)"><i class="ph ph-leaf"></i></div>
-        <div class="opt__body"><div class="opt__name">Greek salad jar</div><div class="opt__meta">Yesterday · lunch</div></div>
+        <div class="opt__tile nk-tile--make"><i class="ph ph-leaf"></i></div>
+        <div class="opt__body"><div class="opt__name">Greek salad jar</div><div class="opt__meta"><span class="nk-verdict-mark nk-verdict-mark--keep"><i class="ph-fill ph-heart"></i> Keeper</span> Yesterday · lunch</div></div>
         <div class="opt__add"><i class="ph ph-plus"></i></div>
       </button>
       <button class="opt">
-        <div class="opt__tile" style="background:var(--clay-100);color:var(--clay-600)"><i class="ph ph-moped"></i></div>
-        <div class="opt__body"><div class="opt__name">Takeout</div><div class="opt__meta">Sun · dinner</div></div>
+        <div class="opt__tile nk-tile--acquire"><i class="ph ph-moped"></i></div>
+        <div class="opt__body"><div class="opt__name">Takeout</div><div class="opt__meta"><span class="nk-verdict-mark nk-verdict-mark--rest"><i class="ph ph-moon"></i> You set this aside</span> Sun · dinner</div></div>
         <div class="opt__add"><i class="ph ph-plus"></i></div>
       </button>
 
-      <div class="grp-label"><i class="ph-fill ph-star" style="color:var(--clay-500)"></i> Favorites</div>
+      <div class="grp-label"><i class="ph-fill ph-heart" style="color:var(--verdict-keep)"></i> Keepers · meals you'd make again</div>
       <button class="opt">
-        <div class="opt__tile" style="background:var(--energy-4-soft);color:var(--energy-4)"><i class="ph ph-fork-knife"></i></div>
-        <div class="opt__body"><div class="opt__name">Chicken stir fry</div><div class="opt__meta">Logged 12 times</div></div>
+        <div class="opt__tile nk-tile--make"><i class="ph ph-fork-knife"></i></div>
+        <div class="opt__body"><div class="opt__name">Chicken stir fry</div><div class="opt__meta"><span class="nk-verdict-mark nk-verdict-mark--keep"><i class="ph-fill ph-heart"></i> Keeper</span> made 12 times</div></div>
         <div class="opt__add"><i class="ph ph-plus"></i></div>
       </button>
     </div>
 
     <div class="efoot">
-      <div class="efoot__row">
-        <div class="efoot__label">Energy right now? <span>Optional — helps suggestions later</span></div>
-        <div class="eopts">
-          <div class="edot" data-e="1"><div class="edot__c"></div></div>
-          <div class="edot" data-e="2"><div class="edot__c"></div></div>
-          <div class="edot" data-e="3"><div class="edot__c"></div></div>
-          <div class="edot edot--sel" data-e="4"><div class="edot__c"></div></div>
-          <div class="edot" data-e="5"><div class="edot__c"></div></div>
-        </div>
+      <div class="efoot__q">How was it? <span>— optional, so you remember next time</span></div>
+      <div class="nk-verdict efoot__verdict">
+        <button class="nk-verdict__opt" data-v="keep" aria-pressed="false"><i class="ph-fill ph-heart"></i> Again</button>
+        <button class="nk-verdict__opt" data-v="fine" aria-pressed="false"><i class="ph ph-equals"></i> It was fine</button>
+        <button class="nk-verdict__opt" data-v="rest" aria-pressed="false"><i class="ph ph-moon"></i> Not for me</button>
       </div>
-      <div class="efoot__skip">Skip this anytime — it's never required.</div>
+      <div class="efoot__skip">No rush — you can set this anytime later too.</div>
     </div>
     <div class="homebar"></div>
   </div>
@@ -139,6 +130,17 @@
 <script>
   const theme = new URLSearchParams(location.search).get('theme');
   if (theme === 'dark') document.body.setAttribute('data-theme','dark');
+
+  // Verdict capture is single-select and de-selectable — never required.
+  document.querySelectorAll('.nk-verdict').forEach(group => {
+    group.querySelectorAll('.nk-verdict__opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const was = btn.getAttribute('aria-pressed') === 'true';
+        group.querySelectorAll('.nk-verdict__opt').forEach(b => b.setAttribute('aria-pressed', 'false'));
+        btn.setAttribute('aria-pressed', was ? 'false' : 'true');
+      });
+    });
+  });
 </script>
 </body>
 </html>

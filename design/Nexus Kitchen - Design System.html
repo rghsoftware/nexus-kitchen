@@ -77,6 +77,15 @@
   .energy-cell__t { font-weight: 600; font-size: var(--text-sm); margin-top: 2px; }
   .energy-cell__d { font-size: var(--text-xs); color: var(--text-secondary); margin-top: var(--space-1); }
 
+  /* Requirement-state scale (3 states) */
+  .state-scale { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+
+  /* Verdict scale */
+  .verdict-scale { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+  .verdict-cell { border-radius: var(--radius-md); padding: var(--space-4); border: 1px solid var(--border); }
+  .verdict-cell__t { font-weight: 600; font-size: var(--text-sm); margin-top: var(--space-3); }
+  .verdict-cell__d { font-size: var(--text-xs); color: var(--text-secondary); margin-top: var(--space-1); text-wrap: pretty; }
+
   /* Type specimens */
   .type-row { display: flex; align-items: baseline; gap: var(--space-5); padding: var(--space-4) 0; border-bottom: 1px dashed var(--border); }
   .type-row:last-child { border-bottom: 0; }
@@ -141,7 +150,7 @@
 
   @media (max-width: 720px) {
     .ds-modes, .voice-grid { grid-template-columns: 1fr; }
-    .energy-scale { grid-template-columns: repeat(2, 1fr); }
+    .energy-scale, .state-scale { grid-template-columns: repeat(2, 1fr); }
     .ds-wrap { padding: var(--space-6) var(--space-4) var(--space-10); }
   }
 </style>
@@ -155,12 +164,12 @@
         <div class="ds-logo__mark"><i class="ph-fill ph-cooking-pot"></i></div>
         <div class="ds-logo__name">Nexus <span>Kitchen</span></div>
       </div>
-      <h1>A calm, shame-free kitchen companion.</h1>
-      <p>The design system for an energy-aware meal planner. Built for low cognitive load: one clear action per screen, neutral language, and color that supports — never judges. Light &amp; dark, web &amp; mobile.</p>
+      <h1>Inventory &amp; operations for meals.</h1>
+      <p>The design system for Nexus Kitchen. Every planned meal is a <strong>requirement to fulfill</strong> — and the system stays calm doing it: one clear action per screen, neutral language, and color that supports, never judges. Light &amp; dark, web &amp; mobile.</p>
       <div class="ds-principles">
+        <span class="nk-chip"><i class="ph ph-target"></i> Requirement-driven</span>
         <span class="nk-chip"><i class="ph ph-hand-heart"></i> Shame-free language</span>
         <span class="nk-chip"><i class="ph ph-cursor-click"></i> Minimal taps</span>
-        <span class="nk-chip"><i class="ph ph-battery-medium"></i> Energy-aware</span>
         <span class="nk-chip"><i class="ph ph-eye"></i> Visual scaffolding</span>
         <span class="nk-chip"><i class="ph ph-door-open"></i> Graceful exit ramps</span>
       </div>
@@ -211,27 +220,55 @@
       </div>
     </section>
 
-    <!-- ENERGY SCALE -->
+    <!-- STATE + VERDICT: TWO SIGNALS -->
     <section class="ds-sec">
       <div class="ds-sec__head">
-        <h2><span class="ds-num">02</span>The energy scale</h2>
-        <p>The heart of the system. A calm cool→warm ramp from 1–5. Low energy reads as <em>rest</em>, not failure — there is no red, no green "good vs. bad".</p>
+        <h2><span class="ds-num">02</span>Two signals: state &amp; verdict</h2>
+        <p>The system keeps two signals deliberately apart. <strong>State</strong> is where a meal sits in the supply chain <em>right now</em> — have it, can make it, or need to get; it's derived from inventory and drives every operation. <strong>Verdict</strong> is how the <em>meal</em> was — a retrospective signal that travels with the dish so you remember winners and don't re-cook duds.</p>
       </div>
       <div class="ds-panel">
-        <div class="energy-scale">
-          <div class="energy-cell"><div class="energy-cell__swatch" style="background:var(--energy-1)"></div><div class="energy-cell__n">1</div><div class="energy-cell__t">Running low</div><div class="energy-cell__d">No-cook, premade, delivery</div></div>
-          <div class="energy-cell"><div class="energy-cell__swatch" style="background:var(--energy-2)"></div><div class="energy-cell__n">2</div><div class="energy-cell__t">Low</div><div class="energy-cell__d">Simple, ≤15 min, prepped</div></div>
-          <div class="energy-cell"><div class="energy-cell__swatch" style="background:var(--energy-3)"></div><div class="energy-cell__n">3</div><div class="energy-cell__t">Steady</div><div class="energy-cell__d">Everyday cooking</div></div>
-          <div class="energy-cell"><div class="energy-cell__swatch" style="background:var(--energy-4)"></div><div class="energy-cell__n">4</div><div class="energy-cell__t">Good</div><div class="energy-cell__d">Multi-step recipes</div></div>
-          <div class="energy-cell"><div class="energy-cell__swatch" style="background:var(--energy-5)"></div><div class="energy-cell__n">5</div><div class="energy-cell__t">Energized</div><div class="energy-cell__d">Fresh cook, batch prep</div></div>
+        <div class="nk-eyebrow" style="margin-bottom: var(--space-4);">Signal 1 · State — “Where is this meal in the supply chain?”</div>
+        <div class="state-scale">
+          <div class="energy-cell"><div class="energy-cell__swatch" style="background:var(--have)"></div><div class="energy-cell__t">Have it</div><div class="energy-cell__d">A ready-to-eat portion already exists. Zero steps — just eat.</div></div>
+          <div class="energy-cell"><div class="energy-cell__swatch" style="background:var(--make)"></div><div class="energy-cell__t">Can make it</div><div class="energy-cell__d">A recipe whose ingredients are all on hand. One step — cook it.</div></div>
+          <div class="energy-cell"><div class="energy-cell__swatch" style="background:var(--acquire)"></div><div class="energy-cell__t">Need to get</div><div class="energy-cell__d">Missing ingredients, or a store-bought to buy. Shop, then it moves up.</div></div>
         </div>
         <div class="comp-row" style="margin-top: var(--space-6);">
-          <span class="nk-energy nk-energy--1"><span class="nk-energy__dots"><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot"></span><span class="nk-energy__dot"></span><span class="nk-energy__dot"></span><span class="nk-energy__dot"></span></span> Running low</span>
-          <span class="nk-energy nk-energy--2"><span class="nk-energy__dots"><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot"></span><span class="nk-energy__dot"></span><span class="nk-energy__dot"></span></span> Low</span>
-          <span class="nk-energy nk-energy--3"><span class="nk-energy__dots"><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot"></span><span class="nk-energy__dot"></span></span> Steady</span>
-          <span class="nk-energy nk-energy--4"><span class="nk-energy__dots"><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot"></span></span> Good</span>
-          <span class="nk-energy nk-energy--5"><span class="nk-energy__dots"><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span><span class="nk-energy__dot nk-energy__dot--on"></span></span> Energized</span>
+          <span class="nk-req nk-req--have"><i class="ph ph-check-circle"></i> Have it</span>
+          <span class="nk-req nk-req--make"><i class="ph ph-cooking-pot"></i> Can make it</span>
+          <span class="nk-req nk-req--acquire"><i class="ph ph-shopping-cart-simple"></i> Need to get</span>
         </div>
+        <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-4); display:flex; gap: var(--space-2); align-items:center;"><i class="ph ph-target" style="color:var(--primary-text)"></i> The whole product exists to move every requirement to “Have it” before its day. State is derived, never stored — and shown with an icon + label, never color alone.</p>
+      </div>
+
+      <div class="ds-panel" style="margin-top: var(--space-5);">
+        <div class="nk-eyebrow" style="margin-bottom: var(--space-4);">Signal 2 · Verdict — “How was the meal?”</div>
+        <div class="verdict-scale">
+          <div class="verdict-cell">
+            <span class="nk-verdict-mark nk-verdict-mark--keep"><i class="ph-fill ph-heart"></i> Keeper</span>
+            <div class="verdict-cell__t">“Again, please”</div>
+            <div class="verdict-cell__d">You'd happily repeat it. Surfaces first in suggestions; repeat keepers fill your Keepers list.</div>
+          </div>
+          <div class="verdict-cell">
+            <span class="nk-verdict-mark" style="background:var(--surface-3);color:var(--text-secondary)"><i class="ph ph-equals"></i> It was fine</span>
+            <div class="verdict-cell__t">Neutral — stays quiet</div>
+            <div class="verdict-cell__d">No mark travels with the meal. Fine to plan again; nothing is flagged either way.</div>
+          </div>
+          <div class="verdict-cell">
+            <span class="nk-verdict-mark nk-verdict-mark--rest"><i class="ph ph-moon"></i> Set aside</span>
+            <div class="verdict-cell__t">“Not for me”</div>
+            <div class="verdict-cell__d">Quietly drops out of suggestions — never deleted. Resting, never rejected; reuses energy-1's periwinkle.</div>
+          </div>
+        </div>
+        <div class="comp-row" style="margin-top: var(--space-6); align-items: center;">
+          <span style="font-size: var(--text-sm); color: var(--text-secondary); font-weight: 600;">The capture — calm, optional, retrospective:</span>
+          <div class="nk-verdict">
+            <button class="nk-verdict__opt" data-v="keep" aria-pressed="true"><i class="ph-fill ph-heart"></i> Again</button>
+            <button class="nk-verdict__opt" data-v="fine" aria-pressed="false"><i class="ph ph-equals"></i> It was fine</button>
+            <button class="nk-verdict__opt" data-v="rest" aria-pressed="false"><i class="ph ph-moon"></i> Not for me</button>
+          </div>
+        </div>
+        <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-4); display:flex; gap: var(--space-2); align-items:center;"><i class="ph ph-info" style="color:var(--primary-text)"></i> Asked once after a meal is logged — never required, editable anytime. Like state: icon + word, never color alone; no thumbs-down red.</p>
       </div>
     </section>
 
@@ -316,26 +353,27 @@
           </div>
         </div>
         <div class="comp-block">
-          <span class="ds-label">Chips &amp; food tiles</span>
+          <span class="ds-label">Requirement state · chips &amp; food tiles</span>
           <div class="comp-row">
-            <span class="nk-chip"><i class="ph ph-clock"></i> 15 min</span>
+            <span class="nk-req nk-req--have"><i class="ph ph-check-circle"></i> Have it</span>
+            <span class="nk-req nk-req--make"><i class="ph ph-cooking-pot"></i> Can make it</span>
+            <span class="nk-req nk-req--acquire"><i class="ph ph-shopping-cart-simple"></i> Need to get</span>
             <span class="nk-chip"><i class="ph ph-snowflake"></i> Freezer</span>
-            <span class="nk-chip"><i class="ph ph-bowl-food"></i> Serves 6</span>
             <span class="nk-note"><i class="ph ph-warning-circle"></i> Expires in 2 days</span>
-            <span class="nk-tile" style="width:48px; background:var(--energy-3-soft)"><i class="ph ph-bowl-food" style="color:var(--energy-3)"></i></span>
-            <span class="nk-tile" style="width:48px; background:var(--clay-100)"><i class="ph ph-cooking-pot" style="color:var(--clay-600)"></i></span>
-            <span class="nk-tile" style="width:48px; background:var(--energy-5-soft)"><i class="ph ph-egg" style="color:var(--energy-5)"></i></span>
+            <span class="nk-tile nk-tile--have" style="width:48px"><i class="ph ph-bowl-food"></i></span>
+            <span class="nk-tile nk-tile--make" style="width:48px"><i class="ph ph-cooking-pot"></i></span>
+            <span class="nk-tile nk-tile--acquire" style="width:48px"><i class="ph ph-fish"></i></span>
           </div>
         </div>
         <div class="comp-block">
           <span class="ds-label">Feature toggles — calm, with helper text</span>
           <div class="toggle-row">
-            <div class="tl"><b>Use my energy patterns</b><span>Simpler meals on typically low-energy times. You can change this anytime.</span></div>
-            <button class="nk-toggle" aria-pressed="true" aria-label="Use my energy patterns"></button>
+            <div class="tl"><b>Prioritize what I already have</b><span>Plans lean on prepped portions and ingredients on hand first. Change anytime.</span></div>
+            <button class="nk-toggle" aria-pressed="true" aria-label="Prioritize what I already have"></button>
           </div>
           <div class="toggle-row" style="border-top:1px solid var(--border)">
-            <div class="tl"><b>Track energy with meals</b><span>Off by default. Adds a quick 1–5 tap when you log.</span></div>
-            <button class="nk-toggle" aria-pressed="false" aria-label="Track energy with meals"></button>
+            <div class="tl"><b>Track nutrition</b><span>Off by default. Adds calorie &amp; macro info when you log.</span></div>
+            <button class="nk-toggle" aria-pressed="false" aria-label="Track nutrition"></button>
           </div>
         </div>
       </div>
@@ -369,9 +407,9 @@
     <div class="ds-foot">
       <div class="grow">
         <h3>See it in the product</h3>
-        <p>The full system applied to the two priority flows — meal planning calendar and meal prep sessions — across web and mobile, in light and dark.</p>
+        <p>The full system applied across planning, today, meal prep, and cooking mode — web, tablet, and mobile, in light and dark.</p>
       </div>
-      <a class="nk-btn nk-btn--primary nk-btn--lg" href="Nexus Kitchen — Mockups.html"><i class="ph ph-squares-four"></i> View mockups</a>
+      <a class="nk-btn nk-btn--primary nk-btn--lg" href="Nexus Kitchen - Mockups.html"><i class="ph ph-squares-four"></i> View mockups</a>
     </div>
   </div>
 

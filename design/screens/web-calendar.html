@@ -42,32 +42,24 @@
   .icon-btn:hover { background: var(--surface-2); color: var(--text); }
   .spacer { flex: 1; }
 
-  /* energy selector in header */
-  .energy-now { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-pill); background: var(--surface); }
-  .energy-now__label { font-size: var(--text-sm); color: var(--text-secondary); font-weight: 600; }
-  .energy-now__opts { display: flex; gap: 4px; }
-  .energy-dot { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; display: grid; place-items: center; transition: transform var(--transition); }
-  .energy-dot:hover { transform: scale(1.12); }
-  .energy-dot[data-e="1"] { background: var(--energy-1-soft); }
-  .energy-dot[data-e="2"] { background: var(--energy-2-soft); }
-  .energy-dot[data-e="3"] { background: var(--energy-3-soft); }
-  .energy-dot[data-e="4"] { background: var(--energy-4-soft); }
-  .energy-dot[data-e="5"] { background: var(--energy-5-soft); }
-  .energy-dot--sel { border-color: currentColor; }
-  .energy-dot[data-e="1"].energy-dot--sel { color: var(--energy-1); }
-  .energy-dot[data-e="3"].energy-dot--sel { color: var(--energy-3); }
-  .energy-dot__core { width: 11px; height: 11px; border-radius: 50%; }
-  .energy-dot[data-e="1"] .energy-dot__core { background: var(--energy-1); }
-  .energy-dot[data-e="2"] .energy-dot__core { background: var(--energy-2); }
-  .energy-dot[data-e="3"] .energy-dot__core { background: var(--energy-3); }
-  .energy-dot[data-e="4"] .energy-dot__core { background: var(--energy-4); }
-  .energy-dot[data-e="5"] .energy-dot__core { background: var(--energy-5); }
-
-  /* assist strip */
-  .assist { display: flex; align-items: center; gap: var(--space-3); margin: var(--space-4) var(--space-7) 0; padding: var(--space-3) var(--space-4); background: var(--primary-soft); border: 1px solid color-mix(in oklab, var(--primary) 22%, transparent); border-radius: var(--radius-md); font-size: var(--text-sm); color: var(--primary-text); }
-  .assist i { font-size: 1.2em; }
-  .assist b { font-weight: 700; }
-  .assist a { margin-left: auto; color: var(--primary-text); font-weight: 700; text-decoration: none; white-space: nowrap; }
+  /* operations summary — the requirement breakdown for the week */
+  .ops { margin: var(--space-4) var(--space-7) 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: var(--space-4) var(--space-5); display: flex; align-items: center; gap: var(--space-6); flex-wrap: wrap; }
+  .ops__counts { display: flex; gap: var(--space-5); }
+  .ops__count { display: flex; flex-direction: column; gap: 3px; position: relative; padding-left: 16px; }
+  .ops__count::before { content:""; position:absolute; left:0; top:7px; width:9px; height:9px; border-radius:50%; }
+  .ops__count--have::before { background: var(--have); }
+  .ops__count--make::before { background: var(--make); }
+  .ops__count--acquire::before { background: var(--acquire); }
+  .ops__count b { font-family: var(--font-display); font-size: var(--text-2xl); line-height: 1; font-variant-numeric: tabular-nums; }
+  .ops__count span { font-size: var(--text-xs); color: var(--text-secondary); font-weight: 600; }
+  .ops__bar { flex: 1; min-width: 150px; height: 12px; border-radius: 999px; overflow: hidden; display: flex; gap: 2px; background: var(--surface-2); }
+  .ops__bar i { height: 100%; display: block; }
+  .ops__bar .seg--have { background: var(--have); }
+  .ops__bar .seg--make { background: var(--make); }
+  .ops__bar .seg--acquire { background: var(--acquire); }
+  .ops__gap { display: flex; align-items: center; gap: var(--space-4); margin-left: auto; }
+  .ops__gap p { font-size: var(--text-sm); color: var(--text-secondary); max-width: 28ch; }
+  .ops__gap b { color: var(--acquire-text); font-weight: 700; }
 
   /* ---------- Calendar ---------- */
   .cal-scroll { flex: 1; overflow: auto; padding: var(--space-5) var(--space-7) var(--space-8); }
@@ -90,19 +82,17 @@
 
   .meal { display: flex; gap: var(--space-2); padding: var(--space-2); border-radius: var(--radius-sm); background: var(--surface-2); border: 1px solid var(--border); cursor: grab; align-items: flex-start; }
   .meal:hover { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
-  .meal__tile { width: 30px; height: 30px; flex: none; border-radius: 8px; display: grid; place-items: center; font-size: 16px; }
+  .meal__tile { width: 30px; height: 30px; flex: none; border-radius: 8px; display: grid; place-items: center; font-size: 16px; position: relative; }
+  .meal__tile .keep { position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); color: var(--verdict-keep); display: grid; place-items: center; font-size: 10px; box-shadow: var(--shadow-sm); }
   .meal__body { min-width: 0; flex: 1; }
   .meal__name { font-size: var(--text-sm); font-weight: 600; line-height: 1.2; }
   .meal__meta { display: flex; align-items: center; gap: 5px; margin-top: 4px; flex-wrap: wrap; }
   .tag { display: inline-flex; align-items: center; gap: 3px; font-size: var(--text-2xs); font-weight: 700; padding: 2px 6px; border-radius: 999px; letter-spacing: 0.01em; }
   .tag--prepped { background: var(--info-soft); color: var(--info); }
   .tag--exp { background: var(--attention-soft); color: var(--attention); }
-  .tag--e1 { background: var(--energy-1-soft); color: var(--energy-1); }
-  .tag--e2 { background: var(--energy-2-soft); color: var(--energy-2); }
-  .tag--e3 { background: var(--energy-3-soft); color: var(--energy-3); }
-  .tag--e4 { background: var(--energy-4-soft); color: var(--energy-4); }
-  .tag--e5 { background: var(--energy-5-soft); color: var(--energy-5); }
-  [data-theme="dark"] .tag { filter: brightness(1.08); }
+  .tag--keep { background: var(--verdict-keep-soft); color: var(--verdict-keep); }
+  .tag--rest { background: var(--verdict-rest-soft); color: var(--verdict-rest); }
+  [data-theme="dark"] .tag, [data-theme="dark"] .nk-req { filter: brightness(1.08); }
 
   .meal--takeout { background: var(--clay-50); border-color: color-mix(in oklab, var(--clay-500) 24%, transparent); }
 </style>
@@ -138,7 +128,7 @@
       <header class="topbar">
         <div class="topbar__title">
           <h1>Plan</h1>
-          <p>Tap any slot to add a meal — drag to move it.</p>
+          <p>Each meal you add becomes a requirement — we track what's covered and what's left.</p>
         </div>
         <div class="weeknav">
           <button class="icon-btn" aria-label="Previous week"><i class="ph ph-caret-left"></i></button>
@@ -147,24 +137,11 @@
         </div>
         <button class="nk-btn nk-btn--secondary nk-btn--sm">Today</button>
         <div class="spacer"></div>
-        <div class="energy-now">
-          <span class="energy-now__label">Today I feel</span>
-          <div class="energy-now__opts">
-            <div class="energy-dot" data-e="1"><div class="energy-dot__core"></div></div>
-            <div class="energy-dot" data-e="2"><div class="energy-dot__core"></div></div>
-            <div class="energy-dot energy-dot--sel" data-e="3"><div class="energy-dot__core"></div></div>
-            <div class="energy-dot" data-e="4"><div class="energy-dot__core"></div></div>
-            <div class="energy-dot" data-e="5"><div class="energy-dot__core"></div></div>
-          </div>
-        </div>
+        <button class="nk-btn nk-btn--secondary"><i class="ph ph-shopping-cart-simple"></i> Build shopping list</button>
         <button class="nk-btn nk-btn--primary"><i class="ph ph-sparkle"></i> Generate plan</button>
       </header>
 
-      <div class="assist">
-        <i class="ph ph-battery-medium"></i>
-        <span><b>Energy-aware planning is on.</b> Simpler meals show up on your typically lower-energy days. Always yours to change.</span>
-        <a href="#">Adjust</a>
-      </div>
+      <div class="ops" id="ops"></div>
 
       <div class="cal-scroll nk-scroll">
         <div class="cal" id="cal"></div>
@@ -187,51 +164,59 @@
     { key:'Dinner', icon:'ph-fork-knife' },
     { key:'Snack', icon:'ph-cookie' },
   ];
+  // Each meal carries a derived fulfillment STATE — the operational core:
+  //   have    = a ready-to-eat portion exists (eat it)
+  //   make    = recipe whose ingredients are on hand (cook it)
+  //   acquire = missing ingredients, or a store-bought to buy (shop for it)
   // meals[slot][dayIndex] = meal | null
-  const E = (n)=>`tag--e${n}`;
   const meals = {
     Breakfast: [
-      {n:'Overnight oats', icon:'ph-bowl-food', tile:5, tags:[['e',2]]},
-      {n:'Eggs & toast', icon:'ph-egg', tile:5, tags:[['e',2]]},
+      {n:'Overnight oats', icon:'ph-bowl-food', state:'make', keeper:true},
+      {n:'Eggs & toast', icon:'ph-egg', state:'make'},
       null,
-      {n:'Berry smoothie', icon:'ph-blueprint', tile:4, tags:[['e',1]]},
-      {n:'Overnight oats', icon:'ph-bowl-food', tile:5, tags:[['e',2]]},
+      {n:'Berry smoothie', icon:'ph-blueprint', state:'acquire', need:'berries'},
+      {n:'Overnight oats', icon:'ph-bowl-food', state:'make'},
       null,
-      {n:'Pancakes', icon:'ph-stack', tile:5, tags:[['e',4]]},
+      {n:'Pancakes', icon:'ph-stack', state:'acquire', need:'buttermilk'},
     ],
     Lunch: [
-      {n:'Black bean soup', icon:'ph-bowl-food', tile:3, tags:[['prepped'],['exp']]},
-      {n:'Greek salad jar', icon:'ph-leaf', tile:3, tags:[['e',2]]},
+      {n:'Black bean soup', icon:'ph-bowl-food', state:'have', prepped:true, exp:'2 days'},
+      {n:'Greek salad jar', icon:'ph-leaf', state:'make', keeper:true},
       null,
-      {n:'Marinara pasta', icon:'ph-cooking-pot', tile:5, tags:[['prepped']]},
-      {n:'Leftovers', icon:'ph-arrow-counter-clockwise', tile:2, tags:[['e',1]]},
-      {n:'Burrito bowl', icon:'ph-bowl-food', tile:4, tags:[['prepped']]},
+      {n:'Marinara pasta', icon:'ph-cooking-pot', state:'have', prepped:true},
+      {n:'Leftovers', icon:'ph-arrow-counter-clockwise', state:'have'},
+      {n:'Burrito bowl', icon:'ph-bowl-food', state:'have', prepped:true},
       null,
     ],
     Dinner: [
-      {n:'Chicken stir fry', icon:'ph-fork-knife', tile:4, tags:[['e',4]]},
-      {n:'Marinara pasta', icon:'ph-cooking-pot', tile:5, tags:[['prepped']]},
+      {n:'Chicken stir fry', icon:'ph-fork-knife', state:'make', keeper:true},
+      {n:'Takeout', icon:'ph-moped', state:'acquire', store:true, rest:true},
       null,
-      {n:'Takeout', icon:'ph-moped', takeout:true, tags:[['e',1]]},
-      {n:'Black bean soup', icon:'ph-bowl-food', tile:3, tags:[['prepped']]},
-      {n:'Sheet-pan salmon', icon:'ph-fish', tile:4, tags:[['e',4]]},
-      {n:'Burrito bowl', icon:'ph-bowl-food', tile:4, tags:[['prepped']]},
+      {n:'Sheet-pan salmon', icon:'ph-fish', state:'acquire', need:'salmon'},
+      {n:'Black bean soup', icon:'ph-bowl-food', state:'have', prepped:true},
+      {n:'Chicken stir fry', icon:'ph-fork-knife', state:'make', keeper:true},
+      {n:'Burrito bowl', icon:'ph-bowl-food', state:'have', prepped:true},
     ],
     Snack: [
-      null, {n:'Yogurt & fruit', icon:'ph-bowl-food', tile:4, tags:[['e',1]]}, null, null,
-      null, {n:'Hummus & pita', icon:'ph-circle-half', tile:3, tags:[['e',1]]}, null,
+      null, {n:'Yogurt & fruit', icon:'ph-bowl-food', state:'make'}, null, null,
+      null, {n:'Hummus & pita', icon:'ph-circle-half', state:'make'}, null,
     ],
   };
 
+  const STATE = {
+    have:    { label:'Have it',     icon:'ph-check-circle' },
+    make:    { label:'Can make it', icon:'ph-cooking-pot' },
+    acquire: { label:'Need to get', icon:'ph-shopping-cart-simple' },
+  };
+
   const cal = document.getElementById('cal');
-  // header row
   cal.appendChild(el('div','cal__corner'));
   days.forEach(d => {
     const c = el('div','cal__day' + (d.today?' cal__day--today':''));
     c.innerHTML = `<span>${d.dow}</span><b>${d.d}</b>`;
     cal.appendChild(c);
   });
-  // slot rows
+  const tally = { have:0, make:0, acquire:0 };
   slots.forEach(s => {
     const lab = el('div','cal__slot');
     lab.innerHTML = `<span>${s.key}</span><i class="ph ${s.icon}"></i>`;
@@ -242,30 +227,54 @@
       if (!m) {
         cell.innerHTML = `<button class="cell__add"><i class="ph ph-plus"></i> Add</button>`;
       } else {
+        tally[m.state]++;
         cell.appendChild(mealEl(m));
       }
       cal.appendChild(cell);
     });
   });
+  renderOps();
 
   function mealEl(m){
-    const wrap = el('div','meal' + (m.takeout?' meal--takeout':''));
-    const tileColor = m.takeout ? 'var(--clay-100)' : `var(--energy-${m.tile}-soft)`;
-    const iconColor = m.takeout ? 'var(--clay-600)' : `var(--energy-${m.tile})`;
-    let tagsHtml = '';
-    (m.tags||[]).forEach(t => {
-      if (t[0]==='prepped') tagsHtml += `<span class="tag tag--prepped"><i class="ph ph-snowflake"></i> Prepped</span>`;
-      else if (t[0]==='exp') tagsHtml += `<span class="tag tag--exp"><i class="ph ph-warning-circle"></i> 2 days</span>`;
-      else if (t[0]==='e') tagsHtml += `<span class="tag tag--e${t[1]}">${['','Low','Low','Steady','Good','Hi'][t[1]]}</span>`;
-    });
+    const wrap = el('div','meal meal--' + m.state);
+    let detail = '';
+    if (m.exp)     detail += `<span class="tag tag--exp"><i class="ph ph-warning-circle"></i> ${m.exp}</span>`;
+    else if (m.prepped) detail += `<span class="tag tag--prepped"><i class="ph ph-snowflake"></i> Prepped</span>`;
+    if (m.rest)    detail += `<span class="tag tag--rest"><i class="ph ph-moon"></i> Set aside</span>`;
+    const st = STATE[m.state];
+    const keep = m.keeper ? `<span class="keep"><i class="ph-fill ph-heart"></i></span>` : '';
     wrap.innerHTML = `
-      <div class="meal__tile" style="background:${tileColor};color:${iconColor}"><i class="ph ${m.icon}"></i></div>
+      <div class="meal__tile nk-tile--${m.state}"><i class="ph ${m.icon}"></i>${keep}</div>
       <div class="meal__body">
         <div class="meal__name">${m.n}</div>
-        <div class="meal__meta">${tagsHtml}</div>
+        <div class="meal__meta">
+          <span class="nk-req nk-req--${m.state}"><i class="ph ${st.icon}"></i> ${st.label}</span>
+          ${detail}
+        </div>
       </div>`;
     return wrap;
   }
+
+  function renderOps(){
+    const total = tally.have + tally.make + tally.acquire;
+    const pct = k => (tally[k] / total * 100).toFixed(1) + '%';
+    document.getElementById('ops').innerHTML = `
+      <div class="ops__counts">
+        <div class="ops__count ops__count--have"><b>${tally.have}</b><span>Have it</span></div>
+        <div class="ops__count ops__count--make"><b>${tally.make}</b><span>Can make it</span></div>
+        <div class="ops__count ops__count--acquire"><b>${tally.acquire}</b><span>Need to get</span></div>
+      </div>
+      <div class="ops__bar">
+        <i class="seg--have" style="width:${pct('have')}"></i>
+        <i class="seg--make" style="width:${pct('make')}"></i>
+        <i class="seg--acquire" style="width:${pct('acquire')}"></i>
+      </div>
+      <div class="ops__gap">
+        <p><b>${tally.acquire} meals</b> still need a shop — 5 items will close them.</p>
+        <button class="nk-btn nk-btn--primary nk-btn--sm"><i class="ph ph-shopping-cart-simple"></i> Build list</button>
+      </div>`;
+  }
+
   function el(tag, cls){ const e = document.createElement(tag); if(cls) e.className = cls; return e; }
 </script>
 </body>

@@ -133,6 +133,70 @@ p { margin: 0; text-wrap: pretty; }
 /* energy text needs to be legible — darken the label */
 [data-theme="dark"] .nk-energy { filter: brightness(1.08); }
 
+/* --- Meal verdict (retrospective) -------------------------------- */
+/* Capture control: a calm 3-way "How was it?" — never a star-rating grind. */
+.nk-verdict { display: inline-flex; gap: var(--space-2); flex-wrap: wrap; }
+.nk-verdict__opt {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  min-height: 40px; padding: 0 var(--space-4);
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: var(--font-sans); font-weight: var(--weight-semibold); font-size: var(--text-sm);
+  letter-spacing: var(--tracking-snug); cursor: pointer;
+  transition: background var(--transition), border-color var(--transition),
+              color var(--transition), transform var(--transition);
+}
+.nk-verdict__opt i { font-size: 1.15em; }
+.nk-verdict__opt:hover { background: var(--surface-2); }
+.nk-verdict__opt:active { transform: translateY(1px) scale(0.99); }
+.nk-verdict__opt[aria-pressed="true"][data-v="keep"] { background: var(--verdict-keep-soft); border-color: var(--verdict-keep); color: var(--verdict-keep); }
+.nk-verdict__opt[aria-pressed="true"][data-v="fine"] { background: var(--surface-3); border-color: var(--border-strong); color: var(--text); }
+.nk-verdict__opt[aria-pressed="true"][data-v="rest"] { background: var(--verdict-rest-soft); border-color: var(--verdict-rest); color: var(--verdict-rest); }
+
+/* Remembered mark: shows the saved verdict on a meal anywhere it appears.
+   "Fine" is intentionally quiet (no mark). Pairs icon + word — never color alone. */
+.nk-verdict-mark {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: var(--text-2xs); font-weight: var(--weight-bold);
+  padding: 2px 7px; border-radius: var(--radius-pill);
+}
+.nk-verdict-mark--keep { background: var(--verdict-keep-soft); color: var(--verdict-keep); }
+.nk-verdict-mark--rest { background: var(--verdict-rest-soft); color: var(--verdict-rest); }
+[data-theme="dark"] .nk-verdict-mark { filter: brightness(1.08); }
+
+/* Tiny corner heart for the keepers — sits on a food tile, no text needed beside it
+   because the tile already names the dish. Decorative reinforcement only. */
+.nk-tile-keep {
+  position: absolute; top: 4px; right: 4px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--surface); color: var(--verdict-keep);
+  display: grid; place-items: center; font-size: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- Requirement state (the operational core) -------------------- */
+/* A planned meal is a requirement in one of three states. These chips name
+   the state in plain words + an icon, so color is never the only signal.
+   have = ready to eat · make = ingredients on hand, cook it · get = shop for it. */
+.nk-req {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: var(--text-2xs); font-weight: var(--weight-bold);
+  padding: 3px 8px; border-radius: var(--radius-pill);
+  letter-spacing: 0.01em; white-space: nowrap;
+}
+.nk-req i { font-size: 1.05em; }
+.nk-req--have    { background: var(--have-soft);    color: var(--have-text); }
+.nk-req--make    { background: var(--make-soft);    color: var(--make-text); }
+.nk-req--acquire { background: var(--acquire-soft); color: var(--acquire-text); }
+[data-theme="dark"] .nk-req { filter: brightness(1.06); }
+
+/* Tile tint by requirement state — pairs with the chip above. */
+.nk-tile--have    { background: var(--have-soft);    color: var(--have); }
+.nk-tile--make    { background: var(--make-soft);    color: var(--make); }
+.nk-tile--acquire { background: var(--acquire-soft); color: var(--acquire); }
+
 /* --- Food tile (no-photo illustrated swatch) --------------------- */
 .nk-tile {
   display: grid;

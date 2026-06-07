@@ -25,13 +25,13 @@
   .pbar__step { font-family: var(--font-display); font-weight: 700; font-size: var(--text-lg); }
   .pbar__count { font-size: var(--text-base); color: var(--text-muted); font-weight: 600; }
   .pbar__track { height: 12px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
-  .pbar__fill { height: 100%; width: 33%; background: var(--energy-4); border-radius: 999px; }
+  .pbar__fill { height: 100%; width: 33%; background: var(--primary); border-radius: 999px; }
 
   /* main step */
   .step { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: var(--space-6) var(--space-8); min-height: 0; }
   .step__text { font-family: var(--font-display); font-weight: 600; font-size: clamp(2rem, 5.4vw, 3.1rem); line-height: 1.16; letter-spacing: -0.02em; text-wrap: balance; }
   .step__time { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-7); }
-  .step__time-chip { display: inline-flex; align-items: center; gap: var(--space-2); height: 54px; padding: 0 var(--space-5); border-radius: var(--radius-pill); background: var(--energy-4-soft); color: var(--energy-4); font-weight: 700; font-size: var(--text-lg); }
+  .step__time-chip { display: inline-flex; align-items: center; gap: var(--space-2); height: 54px; padding: 0 var(--space-5); border-radius: var(--radius-pill); background: var(--primary-soft); color: var(--primary-text); font-weight: 700; font-size: var(--text-lg); }
   .timer-btn { display: inline-flex; align-items: center; gap: var(--space-2); height: 54px; padding: 0 var(--space-5); border-radius: var(--radius-pill); border: 1.5px solid var(--border-strong); background: var(--surface); color: var(--text); font-weight: 600; font-size: var(--text-base); font-family: var(--font-sans); }
   .timer-btn i { font-size: 1.3em; }
 
@@ -62,7 +62,7 @@
 <body data-theme="light">
   <div class="cook-top">
     <button class="cook-top__exit"><i class="ph ph-x"></i> Exit</button>
-    <div class="cook-top__title"><b>Chicken Curry</b><span>6 servings · Energy 3</span></div>
+    <div class="cook-top__title"><b>Chicken Curry</b><span>6 servings · ~45 min</span></div>
     <div class="awake"><i class="ph-fill ph-eye"></i> Screen stays awake</div>
   </div>
 

@@ -1,6 +1,6 @@
 # Nexus Kitchen — Design System
 
-A calm, shame-free design system for an **energy-aware meal-planning app**. Built for low cognitive load: one clear action per screen, neutral language, and color that supports — never judges. Ships **light + dark**, **web/desktop + mobile**.
+A calm, shame-free design system for **Nexus Kitchen** — **inventory &amp; operations management for meals**. A planned meal is a *requirement* in one of three states (have it / can make it / need to get), and every surface exists to move it to “have it” before it's due. Built for low cognitive load: one clear action per screen, neutral language, and color that supports — never judges. Ships **light + dark**, **web/desktop + mobile**.
 
 > Sources: product specs in `uploads/nk/` — requirements (SRS), domain specification (entities, flows, ASCII mockups), logical architecture, and invariants. The app is a shared SvelteKit SPA delivered to web, desktop (Tauri), and mobile.
 
@@ -12,7 +12,7 @@ A calm, shame-free design system for an **energy-aware meal-planning app**. Buil
 |---|---|
 | `styles.css` | Entry point — links fonts + all tokens + base classes. Consumers link this. |
 | `tokens/fonts.css` | `@font-face` / Google Fonts import (Bricolage Grotesque, Hanken Grotesk) |
-| `tokens/colors.css` | Color tokens + semantic aliases + **energy scale** + dark mode |
+| `tokens/colors.css` | Color tokens + semantic aliases + **requirement-state** (have/make/acquire) + **meal-verdict** tokens + dark mode |
 | `tokens/typography.css` | Type families, scale, weights, leading, tracking |
 | `tokens/spacing.css` | Spacing, radii, hit-target, transitions |
 | `tokens/base.css` | Shared component classes (`.nk-btn`, `.nk-card`, `.nk-chip`, `.nk-energy`, …) |
@@ -44,7 +44,8 @@ See the Voice & tone section of the showcase for a do/don't table.
 ## Visual foundations
 
 - **Palette — "Warm Kitchen, Calm Mind":** warm oat/cream paper, a calm **garden-sage** primary (`--primary`), a **clay/terracotta** accent (`--secondary`). Warm-tinted neutrals throughout (oat ramp), never cold grey.
-- **The energy scale (1–5)** is the signature: a deliberately **calm cool→warm ramp** — restful periwinkle at 1 → warm amber at 5. **No red, no green good-vs-bad.** Low energy reads as *rest*, not failure. Tokens `--energy-1…5` + soft backgrounds `--energy-*-soft`.
+- **The requirement states (have it / can make it / need to get)** are the signature: a calm distance-from-done ramp — **sage** when a portion's ready, calm **blue** when ingredients are on hand, warm **clay** when you still need to shop. **No red, no green good-vs-bad** — a gap reads as a next step, not a failure. Tokens `--have` / `--make` / `--acquire` (+ `*-soft`, `*-text`); component `.nk-req`, tile tints `.nk-tile--have/make/acquire`. Always paired with an icon + label — color is never the only signal.
+- **The meal verdict** is a *separate, retrospective* signal — state is where the meal sits in the supply chain; the verdict is how the *meal* was. A calm 3-way "How was it?" (**Again, please → Keeper** in clay · **It was fine** → quiet/neutral · **Not for me → Set aside**, in a restful periwinkle). It travels with the dish so you remember winners and don't re-cook duds. Asked once after logging, editable anytime, never required. Tokens `--verdict-keep` / `--verdict-rest`; components `.nk-verdict`, `.nk-verdict-mark`.
 - **Status is calm:** "expires soon" uses a warm ochre `--attention`, **never alarm-red**, and always pairs with an icon + text (color is never the only signal — REQ-VD-004 / accessibility).
 - **Type:** Bricolage Grotesque (700/600) for warm, confident headings; Hanken Grotesk (400–700) for body & UI. Minimum 16px body in product; large, kitchen-readable.
 - **Shape:** generous, soft radii (cards 14–20px, **pill** buttons). 4px spacing rhythm with lots of breathing room.
@@ -58,7 +59,7 @@ See the Voice & tone section of the showcase for a do/don't table.
 
 - **Phosphor Icons** (regular + fill), loaded from CDN — clean, calm, consistent line set with a matching fill weight for active/emphasis states.
 - **Icons always pair with a text label** in product UI (REQ-VD-004). Standalone icon buttons get `aria-label`.
-- Energy is shown as **dots/cores filled 1–5** plus a word ("Steady", "Low"), never color alone.
+- A meal's **requirement state** is shown as a colored tile + a worded chip (“Have it”, “Can make it”, “Need to get”), never color alone.
 - No emoji in the UI. *(The source ASCII mockups used emoji as shorthand; production replaces them with the Phosphor set + colored food tiles.)*
 - **No-photo resilience:** food is represented by **colored tiles** (energy-tinted backgrounds + a food glyph), so the app looks complete before any user photography exists.
 
@@ -68,4 +69,4 @@ See the Voice & tone section of the showcase for a do/don't table.
 
 - **Fonts** are Google Fonts (Bricolage Grotesque, Hanken Grotesk) loaded via CDN — no binaries are vendored. Swap to self-hosted woff2 for production/offline.
 - **Icons** are Phosphor via CDN (substituted, not from a codebase — there was no existing UI). Easy to self-host or swap.
-- Mockups cover the **two priority flows you chose** (meal planning calendar + meal prep session). Other surfaces (Today, Recipes, Pantry, Shopping, onboarding) are scaffolded in the nav but not yet designed.
+- Mockups cover the priority surfaces (planning calendar, Today, meal prep session, one-tap log, reminders, cooking mode) across web, tablet, and mobile. Other surfaces (Recipes, Pantry, Shopping, onboarding) are scaffolded in the nav but not yet designed.
