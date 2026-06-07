@@ -50,6 +50,11 @@ bun run test:e2e     # playwright install && playwright test
   `*.svelte.{test,spec}.{js,ts}`; _server_ runs in node over the rest. `src/lib/server/**`
   is excluded from the client project — put server-only code there. `expect.requireAssertions`
   is **on**: every test must make an assertion.
+- **Design tokens first:** styles in `src/lib/styles/` (`colors.css`, `spacing.css`,
+  `typography.css`, `fonts.css`, `base.css`) MUST be used before any custom value. Reach for
+  the existing `var(--token)` / `.nk-*` primitives — prefer semantic aliases (`var(--primary)`,
+  not `var(--herb-500)`) — before writing a raw color/spacing/radius/font-size/shadow. Add a
+  new raw value only when no suitable token exists.
 - **Prettier:** tabs, single quotes, no trailing comma, `printWidth` 100. Run `bun run format`.
 - **Data rules (when the backend exists):** UUID PKs; timestamps `timestamptz` in UTC;
   RLS enabled default-deny before any table is exposed; schema changes are Supabase CLI

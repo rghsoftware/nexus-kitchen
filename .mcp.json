@@ -3,6 +3,24 @@
 		"svelte": {
 			"type": "http",
 			"url": "https://mcp.svelte.dev/mcp"
+		},
+		"context7": {
+			"type": "stdio",
+			"command": "bunx",
+			"args": ["-y", "@upstash/context7-mcp"]
+		},
+		"supabase": {
+			"type": "stdio",
+			"command": "bunx",
+			"args": [
+				"-y",
+				"@supabase/mcp-server-supabase@latest",
+				"--read-only",
+				"--project-ref=yqwpuemnhaqevrxkmjky"
+			],
+			"env": {
+				"SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}"
+			}
 		}
 	}
 }
