@@ -275,7 +275,12 @@ export function setRating(recipeId: string, rating: number | null): Promise<User
 	return upsertMeta(recipeId, { rating });
 }
 
-/** Upload one primary image to the owner-prefixed Storage path; returns its public URL path. */
+/**
+ * Upload one primary image to the owner-prefixed Storage path and return the stored object
+ * PATH (e.g. `{uid}/{recipeId}/primary.jpg`). The bucket is private, so callers render images
+ * via `signImageUrl(path)` rather than a public URL. The path is what gets stored in
+ * `recipes.image_url`.
+ */
 export async function uploadRecipeImage(recipeId: string, file: File): Promise<string> {
 	const user = await ensureSession();
 	if (!user) throw new RecipeError('We couldn’t start a session to upload your photo.');
@@ -287,11 +292,23 @@ export async function uploadRecipeImage(recipeId: string, file: File): Promise<s
 		.upload(path, file, { upsert: true, contentType: file.type || undefined });
 	if (error) throw toRecipeError(error);
 
-	const { data } = supabase.storage.from('recipe-images').getPublicUrl(path);
-	return data.publicUrl;
+	return path;
 }
 
-/** Patch only a recipe's image_url (used after an image upload). */
+/**
+ * Resolve a stored image PATH to a short-lived signed URL for display (private bucket).
+ * Returns null if the path is empty or signing fails — callers fall back to the food tile.
+ */
+export async function signImageUrl(path: string | null, expiresIn = 3600): Promise<string | null> {
+	if (!path) return null;
+	const { data, error } = await supabase.storage
+		.from('recipe-images')
+		.createSignedUrl(path, expiresIn);
+	if (error || !data) return null;
+	return data.signedUrl;
+}
+
+/** Patch only a recipe's image path (used after an image upload). */
 export async function setImageUrl(id: string, imageUrl: string | null): Promise<void> {
 	await ensureSession();
 	const { error } = await supabase.from('recipes').update({ image_url: imageUrl }).eq('id', id);

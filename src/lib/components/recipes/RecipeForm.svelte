@@ -2,6 +2,7 @@
 	import { untrack } from 'svelte';
 	import IngredientEditor from './IngredientEditor.svelte';
 	import StepEditor from './StepEditor.svelte';
+	import { signImageUrl } from '$lib/recipes/recipesRepository';
 	import { validateRecipeInput, type ValidationError } from '$lib/recipes/recipeValidation';
 	import type {
 		RecipeWithDetail,
@@ -89,7 +90,22 @@
 	let newTagCategory = $state<TagCategory>('CUSTOM');
 
 	let imageFile = $state<File | null>(null);
-	let imagePreview = $state<string | null>(seed?.imageUrl ?? null);
+	let imagePreview = $state<string | null>(null);
+
+	// Resolve the existing image (a private-bucket path) to a signed URL for preview, unless the
+	// user has already picked a new file (whose blob preview takes precedence).
+	$effect(() => {
+		if (imageFile) return;
+		const path = seed?.imageUrl ?? null;
+		if (!path) return;
+		let active = true;
+		signImageUrl(path).then((url) => {
+			if (active && !imageFile) imagePreview = url;
+		});
+		return () => {
+			active = false;
+		};
+	});
 
 	let errors = $state<ValidationError[]>([]);
 	let submitting = $state(false);

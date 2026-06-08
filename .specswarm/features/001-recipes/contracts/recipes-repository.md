@@ -103,7 +103,8 @@ type RecipeInput = Omit<
 | `deleteRecipe`      | `(id: string) => Promise<void>`                               | Deletes recipe; children cascade.                                                                                                 | recipes_delete; INV-DB-008                          |
 | `setFavorite`       | `(recipeId, isFavorite) => Promise<UserRecipeMeta>`           | Upserts `user_recipe_meta` on `(user_id, recipe_id)`.                                                                             | urm_all; INV-RC-012                                 |
 | `setRating`         | `(recipeId, rating: 1..5 \| null) => Promise<UserRecipeMeta>` | Upserts rating.                                                                                                                   | urm_all; INV-RC-009                                 |
-| `uploadRecipeImage` | `(recipeId, file: File) => Promise<string>`                   | Uploads to `recipe-images/{uid}/{recipeId}/...`; returns public/signed URL; caller sets `recipes.image_url`.                      | Storage RLS owner-prefix                            |
+| `uploadRecipeImage` | `(recipeId, file: File) => Promise<string>`                   | Uploads to `recipe-images/{uid}/{recipeId}/...`; returns the stored object PATH; caller sets `recipes.image_url` to it.           | Storage RLS owner-prefix                            |
+| `signImageUrl`      | `(path, expiresIn?) => Promise<string \| null>`               | Private bucket: resolves a stored image PATH to a short-lived signed URL for display; null on failure → UI falls back to tile.    | Storage RLS owner-prefix                            |
 
 ### Atomicity note
 

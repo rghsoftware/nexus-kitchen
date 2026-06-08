@@ -10,6 +10,7 @@
 		setRating,
 		deleteRecipe
 	} from '$lib/recipes/recipesStore.svelte';
+	import { signImageUrl } from '$lib/recipes/recipesRepository';
 	import { scaleIngredients } from '$lib/recipes/recipeScaling';
 	import type { RecipeWithDetail, UserRecipeMeta } from '$lib/recipes/types';
 
@@ -17,6 +18,7 @@
 
 	let recipe = $state<RecipeWithDetail | null>(null);
 	let meta = $state<UserRecipeMeta | null>(null);
+	let heroSrc = $state<string | null>(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 	let actionError = $state<string | null>(null);
@@ -24,6 +26,22 @@
 	let targetServings = $state(1);
 	let confirmingDelete = $state(false);
 	let deleting = $state(false);
+
+	// Resolve a signed URL for the hero image (private bucket; image_url holds a path).
+	$effect(() => {
+		const path = recipe?.imageUrl ?? null;
+		if (!path) {
+			heroSrc = null;
+			return;
+		}
+		let active = true;
+		signImageUrl(path).then((url) => {
+			if (active) heroSrc = url;
+		});
+		return () => {
+			active = false;
+		};
+	});
 
 	// Load (and reload when the id changes).
 	$effect(() => {
@@ -120,8 +138,8 @@
 	{:else if recipe}
 		<article class="nk-stack detail">
 			<header class="hero nk-card">
-				{#if recipe.imageUrl}
-					<img class="hero-img" src={recipe.imageUrl} alt="" />
+				{#if heroSrc}
+					<img class="hero-img" src={heroSrc} alt="" />
 				{/if}
 				<div class="hero-body nk-stack">
 					<div class="title-row">

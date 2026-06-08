@@ -1,8 +1,26 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { signImageUrl } from '$lib/recipes/recipesRepository';
 	import type { RecipeSummary } from '$lib/recipes/types';
 
 	let { recipe }: { recipe: RecipeSummary } = $props();
+
+	// image_url holds a private-bucket object path; resolve a signed URL for display.
+	let displaySrc = $state<string | null>(null);
+	$effect(() => {
+		const path = recipe.imageUrl;
+		if (!path) {
+			displaySrc = null;
+			return;
+		}
+		let active = true;
+		signImageUrl(path).then((url) => {
+			if (active) displaySrc = url;
+		});
+		return () => {
+			active = false;
+		};
+	});
 
 	// Assign a calm tile hue for visual variety (no judgment) from the id — stable per recipe.
 	const tileHue = $derived(
@@ -21,8 +39,8 @@
 	aria-label={recipe.title}
 >
 	<div class="media">
-		{#if recipe.imageUrl}
-			<img src={recipe.imageUrl} alt="" loading="lazy" />
+		{#if displaySrc}
+			<img src={displaySrc} alt="" loading="lazy" />
 		{:else}
 			<div
 				class="nk-tile"

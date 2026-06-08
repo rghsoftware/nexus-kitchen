@@ -175,6 +175,11 @@ CREATE POLICY urm_all ON user_recipe_meta FOR ALL
 
 ### Storage: bucket `recipe-images` (private)
 
+> Because the bucket is **private**, `recipes.image_url` stores the object **path** (not a URL).
+> Display resolves a short-lived **signed URL** at render time (`signImageUrl`); `getPublicUrl`
+> is not used. The migration's UPDATE policy includes `WITH CHECK` so a rename cannot move a file
+> into another user's prefix.
+
 ```sql
 -- Files stored under '{auth.uid()}/...'; access scoped to owner prefix.
 CREATE POLICY recipe_images_rw ON storage.objects FOR ALL
