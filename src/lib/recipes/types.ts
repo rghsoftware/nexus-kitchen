@@ -1,17 +1,25 @@
 // Domain types for the recipes feature. These are camelCase application shapes mapped from the
 // snake_case database rows in `$lib/database.types`. Repository functions return these.
 
-import type {
-	RecipeRow,
-	RecipeIngredientRow,
-	RecipeStepRow,
-	RecipeTagRow,
-	UserRecipeMetaRow,
-	NutritionSource,
-	TagCategory
-} from '$lib/database.types';
+import type { Tables, TablesInsert } from '$lib/database.types';
 
-export type { NutritionSource, TagCategory };
+// App-level unions that refine the DB's CHECK-constrained text columns. `supabase gen types`
+// emits these as `string` (the schema uses CHECK constraints, not Postgres enums), so the strict
+// option sets live here as the app's source of truth.
+export type NutritionSource = 'COMPUTED' | 'MANUAL' | 'EXTERNAL';
+export type TagCategory = 'DIETARY' | 'CUISINE' | 'MEAL_TYPE' | 'COOKING_METHOD' | 'CUSTOM';
+
+// Row/Insert aliases derived from the generated Database type so the rest of the app never
+// imports the generated file directly — `database.types.ts` stays a pure, re-generatable dump.
+export type RecipeRow = Tables<'recipes'>;
+export type RecipeIngredientRow = Tables<'recipe_ingredients'>;
+export type RecipeStepRow = Tables<'recipe_steps'>;
+export type RecipeTagRow = Tables<'recipe_tags'>;
+export type UserRecipeMetaRow = Tables<'user_recipe_meta'>;
+export type RecipeInsert = TablesInsert<'recipes'>;
+export type RecipeIngredientInsert = TablesInsert<'recipe_ingredients'>;
+export type RecipeStepInsert = TablesInsert<'recipe_steps'>;
+export type RecipeTagInsert = TablesInsert<'recipe_tags'>;
 
 export interface NutritionInfo {
 	calories: number;
@@ -166,14 +174,14 @@ export function mapRecipe(row: RecipeRow): Recipe {
 		prepTimeMinutes: row.prep_time_minutes,
 		cookTimeMinutes: row.cook_time_minutes,
 		activeTimeMinutes: row.active_time_minutes,
-		totalTimeMinutes: row.total_time_minutes,
+		totalTimeMinutes: row.total_time_minutes ?? 0, // generated col (gen types widens to nullable; formula never yields null)
 		cuisineType: row.cuisine_type,
 		mealTypes: row.meal_types,
 		notes: row.notes,
 		imageUrl: row.image_url,
 		sourceUrl: row.source_url,
 		nutritionPerServing: (row.nutrition_per_serving as NutritionInfo | null) ?? null,
-		nutritionSource: row.nutrition_source,
+		nutritionSource: row.nutrition_source as NutritionSource,
 		createdAt: row.created_at,
 		updatedAt: row.updated_at
 	};
@@ -208,7 +216,12 @@ export function mapStep(row: RecipeStepRow): RecipeStep {
 }
 
 export function mapTag(row: RecipeTagRow): RecipeTag {
-	return { id: row.id, recipeId: row.recipe_id, name: row.name, category: row.category };
+	return {
+		id: row.id,
+		recipeId: row.recipe_id,
+		name: row.name,
+		category: row.category as TagCategory
+	};
 }
 
 export function mapMeta(row: UserRecipeMetaRow): UserRecipeMeta {

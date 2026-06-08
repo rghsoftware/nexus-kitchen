@@ -31,7 +31,7 @@ import type {
 	RecipeIngredientInsert,
 	RecipeStepInsert,
 	RecipeTagInsert
-} from '$lib/database.types';
+} from './types';
 
 const RECIPE_DETAIL_SELECT =
 	'*, recipe_ingredients(*), recipe_steps(*), recipe_tags(*), user_recipe_meta(*)';
