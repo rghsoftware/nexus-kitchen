@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  web:
+    name: Web (typecheck, lint, unit, build)
+    runs-on: ubuntu-latest
+    env:
+      # Placeholder values: typecheck/build/unit only need $env/static/public to resolve;
+      # nothing connects to Supabase at this stage.
+      PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run check
+      - run: bun run lint
+      # Browser vitest project runs in a real Chromium — install it (works in CI, unlike sandboxes).
+      - run: bunx playwright install --with-deps chromium
+      - run: bun run test:unit -- --run
+      - run: bun run build
+
+  database:
+    name: Database (RLS tests, type drift)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      # `supabase start` applies all migrations to a throwaway local Postgres.
+      - run: supabase start
+      # pgTAP RLS isolation tests (supabase/tests/*.test.sql).
+      - run: supabase test db
+      # Fail if committed types drift from the schema. Regenerate from the local DB, format the
+      # same way the repo does (prettier), then diff — so only real schema changes fail the check.
+      - run: supabase gen types typescript --local > src/lib/database.types.ts
+      - run: bunx prettier --write src/lib/database.types.ts
+      - name: Check generated types are up to date
+        run: |
+          if ! git diff --quiet src/lib/database.types.ts; then
+            echo "::error::src/lib/database.types.ts is out of date. Run 'bun run db:types' and commit the result."
+            git diff src/lib/database.types.ts
+            exit 1
+          fi
