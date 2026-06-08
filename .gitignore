@@ -42,11 +42,20 @@ yarn-error.log*
 .vscode/*.local.json
 .history
 
-# Claude Code — keep shared config (settings.json, commands/, agents/),
-# ignore personal/runtime-local files
+# Claude Code — keep shared config (settings.json, commands/, agents/, skills/,
+# hooks/), ignore personal/runtime-local files and agent worktrees.
 .claude/settings.local.json
 .claude/*.local.json
 .claude/.credentials.json
+# Worktrees Claude Code creates for isolated agent work — transient checkouts of
+# this repo; never commit them (they also nest a .git pointer).
+.claude/worktrees/
+
+# SpecSwarm — keep shared foundation docs (constitution.md, tech-stack.md,
+# conventions.md, quality-standards.md, references.md) and generated agents/hooks;
+# ignore machine-generated runtime state.
+.specswarm/audit.jsonl
+.specswarm/**/*.local.*
 
 # OpenCode — keep opencode.json / svelte.json, ignore generated/local files
 # (lifted here so the rules survive a fresh clone; the nested .opencode/.gitignore
