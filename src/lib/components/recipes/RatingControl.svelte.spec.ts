@@ -25,10 +25,12 @@ describe('RatingControl.svelte', () => {
 		expect(onChange).toHaveBeenCalledWith(null);
 	});
 
-	it('does not call onChange when readonly', async () => {
+	it('disables the controls when readonly (so onChange cannot fire)', async () => {
 		const onChange = vi.fn();
 		render(RatingControl, { rating: 2, readonly: true, onChange });
-		await page.getByRole('button', { name: '5 out of 5' }).click();
+		// Readonly renders disabled buttons; a disabled button can't be clicked, so onChange
+		// can never fire. Assert the disabled state rather than attempting a (blocked) click.
+		await expect.element(page.getByRole('button', { name: '5 out of 5' })).toBeDisabled();
 		expect(onChange).not.toHaveBeenCalled();
 	});
 });

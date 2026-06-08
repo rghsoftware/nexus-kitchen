@@ -115,6 +115,10 @@
 		return errors.find((e) => e.field === field)?.message ?? null;
 	}
 
+	// Per-row errors (e.g. "ingredients.0.quantity") have no inline home in the editors, so they
+	// surface in a summary. Top-level field errors stay inline next to their field.
+	const rowErrors = $derived(errors.filter((e) => /\.\d+\./.test(e.field)));
+
 	function toggleMealType(mt: string) {
 		mealTypes = mealTypes.includes(mt) ? mealTypes.filter((m) => m !== mt) : [...mealTypes, mt];
 	}
@@ -294,6 +298,17 @@
 		</div>
 	</div>
 
+	{#if rowErrors.length > 0}
+		<div class="errors nk-note" role="alert">
+			<p>A couple of things to tweak before saving:</p>
+			<ul>
+				{#each rowErrors as err (err.field)}
+					<li>{err.message}</li>
+				{/each}
+			</ul>
+		</div>
+	{/if}
+
 	{#if submitError}
 		<p class="nk-note" role="alert">{submitError}</p>
 	{/if}
@@ -402,6 +417,16 @@
 		color: var(--attention);
 		font-size: var(--text-sm);
 		font-weight: var(--weight-medium);
+	}
+	.errors {
+		display: block;
+		color: var(--attention);
+		font-size: var(--text-sm);
+		font-weight: var(--weight-medium);
+	}
+	.errors ul {
+		margin: var(--space-1) 0 0;
+		padding-left: var(--space-5);
 	}
 	.actions {
 		margin-top: var(--space-2);

@@ -21,11 +21,12 @@ describe('RecipeFilters.svelte', () => {
 			activeTags: ['vegetarian'],
 			availableTags: ['vegetarian', 'quick']
 		});
+		// exact match: the "quick" tag would otherwise also match the "Quick · under 30 min" mode chip.
 		await expect
-			.element(page.getByRole('button', { name: 'vegetarian' }))
+			.element(page.getByRole('button', { name: 'vegetarian', exact: true }))
 			.toHaveAttribute('aria-pressed', 'true');
 		await expect
-			.element(page.getByRole('button', { name: 'quick' }))
+			.element(page.getByRole('button', { name: 'quick', exact: true }))
 			.toHaveAttribute('aria-pressed', 'false');
 	});
 
