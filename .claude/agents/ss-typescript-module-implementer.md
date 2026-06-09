@@ -30,6 +30,7 @@ Author strongly-typed TypeScript modules. Match tsconfig strictness, existing im
 ## Output
 
 When done, summarize for the dispatcher:
+
 - Files created/modified (with line counts)
 - Any deviations from the task description and why
 - Open questions or assumptions you made

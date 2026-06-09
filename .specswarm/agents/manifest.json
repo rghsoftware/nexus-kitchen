@@ -27,6 +27,13 @@
 			"trigger": "typescript module",
 			"task_type": "TypeScript module",
 			"generated_at": "2026-06-07T17:26:12-05:00"
+		},
+		{
+			"name": "ss-react-component-implementer",
+			"file": ".claude/agents/ss-react-component-implementer.md",
+			"trigger": "react component",
+			"task_type": "React component",
+			"generated_at": "2026-06-07T17:49:25-05:00"
 		}
 	]
 }

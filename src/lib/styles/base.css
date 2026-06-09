@@ -4,176 +4,284 @@
    and the product mockups. All reference semantic tokens.
    ============================================================ */
 
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
 
 body {
-  margin: 0;
-  font-family: var(--font-sans);
-  font-size: var(--text-md);
-  line-height: var(--leading-normal);
-  color: var(--text);
-  background: var(--bg);
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+	margin: 0;
+	font-family: var(--font-sans);
+	font-size: var(--text-md);
+	line-height: var(--leading-normal);
+	color: var(--text);
+	background: var(--bg);
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
 }
 
-h1, h2, h3, h4 {
-  font-family: var(--font-display);
-  font-weight: var(--weight-bold);
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-tight);
-  margin: 0;
-  color: var(--text);
+h1,
+h2,
+h3,
+h4 {
+	font-family: var(--font-display);
+	font-weight: var(--weight-bold);
+	line-height: var(--leading-tight);
+	letter-spacing: var(--tracking-tight);
+	margin: 0;
+	color: var(--text);
 }
 
-p { margin: 0; text-wrap: pretty; }
+p {
+	margin: 0;
+	text-wrap: pretty;
+}
 
 .nk-eyebrow {
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--tracking-caps);
-  text-transform: uppercase;
-  color: var(--text-muted);
+	font-size: var(--text-xs);
+	font-weight: var(--weight-semibold);
+	letter-spacing: var(--tracking-caps);
+	text-transform: uppercase;
+	color: var(--text-muted);
 }
 
 /* --- Buttons ----------------------------------------------------- */
 .nk-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  min-height: var(--tap-min);
-  padding: 0 var(--space-5);
-  font-family: var(--font-sans);
-  font-size: var(--text-base);
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--tracking-snug);
-  border-radius: var(--radius-pill);
-  border: 1.5px solid transparent;
-  cursor: pointer;
-  transition: background var(--transition), border-color var(--transition),
-              transform var(--transition), box-shadow var(--transition);
-  white-space: nowrap;
-  text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-2);
+	min-height: var(--tap-min);
+	padding: 0 var(--space-5);
+	font-family: var(--font-sans);
+	font-size: var(--text-base);
+	font-weight: var(--weight-semibold);
+	letter-spacing: var(--tracking-snug);
+	border-radius: var(--radius-pill);
+	border: 1.5px solid transparent;
+	cursor: pointer;
+	transition:
+		background var(--transition),
+		border-color var(--transition),
+		transform var(--transition),
+		box-shadow var(--transition);
+	white-space: nowrap;
+	text-decoration: none;
 }
-.nk-btn:active { transform: translateY(1px) scale(0.99); }
+.nk-btn:active {
+	transform: translateY(1px) scale(0.99);
+}
 .nk-btn:focus-visible {
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 2px;
+	outline: 3px solid var(--focus-ring);
+	outline-offset: 2px;
 }
 .nk-btn--primary {
-  background: var(--primary);
-  color: var(--text-on-accent);
-  box-shadow: var(--shadow-sm);
+	background: var(--primary);
+	color: var(--text-on-accent);
+	box-shadow: var(--shadow-sm);
 }
-.nk-btn--primary:hover { background: var(--primary-hover); }
+.nk-btn--primary:hover {
+	background: var(--primary-hover);
+}
 .nk-btn--secondary {
-  background: var(--surface);
-  color: var(--text);
-  border-color: var(--border-strong);
+	background: var(--surface);
+	color: var(--text);
+	border-color: var(--border-strong);
 }
-.nk-btn--secondary:hover { background: var(--surface-2); border-color: var(--text-muted); }
+.nk-btn--secondary:hover {
+	background: var(--surface-2);
+	border-color: var(--text-muted);
+}
 .nk-btn--ghost {
-  background: transparent;
-  color: var(--primary-text);
+	background: transparent;
+	color: var(--primary-text);
 }
-.nk-btn--ghost:hover { background: var(--primary-soft); }
-.nk-btn--lg { min-height: 56px; padding: 0 var(--space-7); font-size: var(--text-lg); }
-.nk-btn--sm { min-height: 36px; padding: 0 var(--space-4); font-size: var(--text-sm); }
-.nk-btn--block { display: flex; width: 100%; }
+.nk-btn--ghost:hover {
+	background: var(--primary-soft);
+}
+.nk-btn--lg {
+	min-height: 56px;
+	padding: 0 var(--space-7);
+	font-size: var(--text-lg);
+}
+.nk-btn--sm {
+	min-height: 36px;
+	padding: 0 var(--space-4);
+	font-size: var(--text-sm);
+}
+.nk-btn--block {
+	display: flex;
+	width: 100%;
+}
 
 /* --- Cards ------------------------------------------------------- */
 .nk-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-sm);
 }
 
 /* --- Chips / tags ------------------------------------------------ */
 .nk-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  height: 30px;
-  padding: 0 var(--space-3);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  border-radius: var(--radius-pill);
-  background: var(--surface-2);
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2);
+	height: 30px;
+	padding: 0 var(--space-3);
+	font-size: var(--text-sm);
+	font-weight: var(--weight-medium);
+	border-radius: var(--radius-pill);
+	background: var(--surface-2);
+	color: var(--text-secondary);
+	border: 1px solid var(--border);
 }
 
 /* --- Energy pill (shared) ---------------------------------------- */
 .nk-energy {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  height: 28px;
-  padding: 0 var(--space-3) 0 var(--space-2);
-  border-radius: var(--radius-pill);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--tracking-snug);
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2);
+	height: 28px;
+	padding: 0 var(--space-3) 0 var(--space-2);
+	border-radius: var(--radius-pill);
+	font-size: var(--text-sm);
+	font-weight: var(--weight-semibold);
+	letter-spacing: var(--tracking-snug);
 }
-.nk-energy__dots { display: inline-flex; gap: 2px; }
+.nk-energy__dots {
+	display: inline-flex;
+	gap: 2px;
+}
 .nk-energy__dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: currentColor; opacity: 0.32;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+	opacity: 0.32;
 }
-.nk-energy__dot--on { opacity: 1; }
+.nk-energy__dot--on {
+	opacity: 1;
+}
 
-.nk-energy--1 { background: var(--energy-1-soft); color: var(--energy-1); }
-.nk-energy--2 { background: var(--energy-2-soft); color: var(--energy-2); }
-.nk-energy--3 { background: var(--energy-3-soft); color: var(--energy-3); }
-.nk-energy--4 { background: var(--energy-4-soft); color: var(--energy-4); }
-.nk-energy--5 { background: var(--energy-5-soft); color: var(--energy-5); }
+.nk-energy--1 {
+	background: var(--energy-1-soft);
+	color: var(--energy-1);
+}
+.nk-energy--2 {
+	background: var(--energy-2-soft);
+	color: var(--energy-2);
+}
+.nk-energy--3 {
+	background: var(--energy-3-soft);
+	color: var(--energy-3);
+}
+.nk-energy--4 {
+	background: var(--energy-4-soft);
+	color: var(--energy-4);
+}
+.nk-energy--5 {
+	background: var(--energy-5-soft);
+	color: var(--energy-5);
+}
 
 /* energy text needs to be legible — darken the label */
-[data-theme="dark"] .nk-energy { filter: brightness(1.08); }
+[data-theme='dark'] .nk-energy {
+	filter: brightness(1.08);
+}
 
 /* --- Meal verdict (retrospective) -------------------------------- */
 /* Capture control: a calm 3-way "How was it?" — never a star-rating grind. */
-.nk-verdict { display: inline-flex; gap: var(--space-2); flex-wrap: wrap; }
-.nk-verdict__opt {
-  display: inline-flex; align-items: center; gap: var(--space-2);
-  min-height: 40px; padding: 0 var(--space-4);
-  border-radius: var(--radius-pill);
-  border: 1.5px solid var(--border);
-  background: var(--surface);
-  color: var(--text-secondary);
-  font-family: var(--font-sans); font-weight: var(--weight-semibold); font-size: var(--text-sm);
-  letter-spacing: var(--tracking-snug); cursor: pointer;
-  transition: background var(--transition), border-color var(--transition),
-              color var(--transition), transform var(--transition);
+.nk-verdict {
+	display: inline-flex;
+	gap: var(--space-2);
+	flex-wrap: wrap;
 }
-.nk-verdict__opt i { font-size: 1.15em; }
-.nk-verdict__opt:hover { background: var(--surface-2); }
-.nk-verdict__opt:active { transform: translateY(1px) scale(0.99); }
-.nk-verdict__opt[aria-pressed="true"][data-v="keep"] { background: var(--verdict-keep-soft); border-color: var(--verdict-keep); color: var(--verdict-keep); }
-.nk-verdict__opt[aria-pressed="true"][data-v="fine"] { background: var(--surface-3); border-color: var(--border-strong); color: var(--text); }
-.nk-verdict__opt[aria-pressed="true"][data-v="rest"] { background: var(--verdict-rest-soft); border-color: var(--verdict-rest); color: var(--verdict-rest); }
+.nk-verdict__opt {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2);
+	min-height: 40px;
+	padding: 0 var(--space-4);
+	border-radius: var(--radius-pill);
+	border: 1.5px solid var(--border);
+	background: var(--surface);
+	color: var(--text-secondary);
+	font-family: var(--font-sans);
+	font-weight: var(--weight-semibold);
+	font-size: var(--text-sm);
+	letter-spacing: var(--tracking-snug);
+	cursor: pointer;
+	transition:
+		background var(--transition),
+		border-color var(--transition),
+		color var(--transition),
+		transform var(--transition);
+}
+.nk-verdict__opt i {
+	font-size: 1.15em;
+}
+.nk-verdict__opt:hover {
+	background: var(--surface-2);
+}
+.nk-verdict__opt:active {
+	transform: translateY(1px) scale(0.99);
+}
+.nk-verdict__opt[aria-pressed='true'][data-v='keep'] {
+	background: var(--verdict-keep-soft);
+	border-color: var(--verdict-keep);
+	color: var(--verdict-keep);
+}
+.nk-verdict__opt[aria-pressed='true'][data-v='fine'] {
+	background: var(--surface-3);
+	border-color: var(--border-strong);
+	color: var(--text);
+}
+.nk-verdict__opt[aria-pressed='true'][data-v='rest'] {
+	background: var(--verdict-rest-soft);
+	border-color: var(--verdict-rest);
+	color: var(--verdict-rest);
+}
 
 /* Remembered mark: shows the saved verdict on a meal anywhere it appears.
    "Fine" is intentionally quiet (no mark). Pairs icon + word — never color alone. */
 .nk-verdict-mark {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: var(--text-2xs); font-weight: var(--weight-bold);
-  padding: 2px 7px; border-radius: var(--radius-pill);
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: var(--text-2xs);
+	font-weight: var(--weight-bold);
+	padding: 2px 7px;
+	border-radius: var(--radius-pill);
 }
-.nk-verdict-mark--keep { background: var(--verdict-keep-soft); color: var(--verdict-keep); }
-.nk-verdict-mark--rest { background: var(--verdict-rest-soft); color: var(--verdict-rest); }
-[data-theme="dark"] .nk-verdict-mark { filter: brightness(1.08); }
+.nk-verdict-mark--keep {
+	background: var(--verdict-keep-soft);
+	color: var(--verdict-keep);
+}
+.nk-verdict-mark--rest {
+	background: var(--verdict-rest-soft);
+	color: var(--verdict-rest);
+}
+[data-theme='dark'] .nk-verdict-mark {
+	filter: brightness(1.08);
+}
 
 /* Tiny corner heart for the keepers — sits on a food tile, no text needed beside it
    because the tile already names the dish. Decorative reinforcement only. */
 .nk-tile-keep {
-  position: absolute; top: 4px; right: 4px;
-  width: 20px; height: 20px; border-radius: 50%;
-  background: var(--surface); color: var(--verdict-keep);
-  display: grid; place-items: center; font-size: 12px;
-  box-shadow: var(--shadow-sm);
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: var(--surface);
+	color: var(--verdict-keep);
+	display: grid;
+	place-items: center;
+	font-size: 12px;
+	box-shadow: var(--shadow-sm);
 }
 
 /* --- Requirement state (the operational core) -------------------- */
@@ -181,55 +289,99 @@ p { margin: 0; text-wrap: pretty; }
    the state in plain words + an icon, so color is never the only signal.
    have = ready to eat · make = ingredients on hand, cook it · get = shop for it. */
 .nk-req {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: var(--text-2xs); font-weight: var(--weight-bold);
-  padding: 3px 8px; border-radius: var(--radius-pill);
-  letter-spacing: 0.01em; white-space: nowrap;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: var(--text-2xs);
+	font-weight: var(--weight-bold);
+	padding: 3px 8px;
+	border-radius: var(--radius-pill);
+	letter-spacing: 0.01em;
+	white-space: nowrap;
 }
-.nk-req i { font-size: 1.05em; }
-.nk-req--have    { background: var(--have-soft);    color: var(--have-text); }
-.nk-req--make    { background: var(--make-soft);    color: var(--make-text); }
-.nk-req--acquire { background: var(--acquire-soft); color: var(--acquire-text); }
-[data-theme="dark"] .nk-req { filter: brightness(1.06); }
+.nk-req i {
+	font-size: 1.05em;
+}
+.nk-req--have {
+	background: var(--have-soft);
+	color: var(--have-text);
+}
+.nk-req--make {
+	background: var(--make-soft);
+	color: var(--make-text);
+}
+.nk-req--acquire {
+	background: var(--acquire-soft);
+	color: var(--acquire-text);
+}
+[data-theme='dark'] .nk-req {
+	filter: brightness(1.06);
+}
 
 /* Tile tint by requirement state — pairs with the chip above. */
-.nk-tile--have    { background: var(--have-soft);    color: var(--have); }
-.nk-tile--make    { background: var(--make-soft);    color: var(--make); }
-.nk-tile--acquire { background: var(--acquire-soft); color: var(--acquire); }
+.nk-tile--have {
+	background: var(--have-soft);
+	color: var(--have);
+}
+.nk-tile--make {
+	background: var(--make-soft);
+	color: var(--make);
+}
+.nk-tile--acquire {
+	background: var(--acquire-soft);
+	color: var(--acquire);
+}
 
 /* --- Food tile (no-photo illustrated swatch) --------------------- */
 .nk-tile {
-  display: grid;
-  place-items: center;
-  border-radius: var(--radius-md);
-  background: var(--surface-2);
-  color: var(--text);
-  font-size: 1.4em;
-  aspect-ratio: 1;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid var(--border);
+	display: grid;
+	place-items: center;
+	border-radius: var(--radius-md);
+	background: var(--surface-2);
+	color: var(--text);
+	font-size: 1.4em;
+	aspect-ratio: 1;
+	position: relative;
+	overflow: hidden;
+	border: 1px solid var(--border);
 }
 .nk-tile::after {
-  content: "";
-  position: absolute; inset: 0;
-  background: radial-gradient(120% 120% at 30% 20%, oklch(1 0 0 / 0.25), transparent 60%);
-  pointer-events: none;
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: radial-gradient(120% 120% at 30% 20%, oklch(1 0 0 / 0.25), transparent 60%);
+	pointer-events: none;
 }
 
 /* --- Attention / status note ------------------------------------- */
 .nk-note {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--attention);
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2);
+	font-size: var(--text-sm);
+	font-weight: var(--weight-medium);
+	color: var(--attention);
 }
 
 /* --- Utility ----------------------------------------------------- */
-.nk-stack { display: flex; flex-direction: column; }
-.nk-row { display: flex; align-items: center; }
-.tabular { font-variant-numeric: tabular-nums; }
-.nk-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
-.nk-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; border: 3px solid transparent; background-clip: padding-box; }
+.nk-stack {
+	display: flex;
+	flex-direction: column;
+}
+.nk-row {
+	display: flex;
+	align-items: center;
+}
+.tabular {
+	font-variant-numeric: tabular-nums;
+}
+.nk-scroll::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+.nk-scroll::-webkit-scrollbar-thumb {
+	background: var(--border-strong);
+	border-radius: 999px;
+	border: 3px solid transparent;
+	background-clip: padding-box;
+}
