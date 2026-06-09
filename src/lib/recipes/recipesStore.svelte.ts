@@ -23,7 +23,7 @@ const state = $state<RecipesState>({
 
 const detailCache = new SvelteMap<string, RecipeWithDetail>();
 
-export const recipesState = state;
+export const recipesState: Readonly<RecipesState> = state;
 
 /** Load (or reload) the library list. */
 export async function loadLibrary(force = false): Promise<void> {
@@ -67,19 +67,23 @@ export async function createRecipe(
 	input: RecipeInput,
 	imageFile?: File | null
 ): Promise<RecipeWithDetail> {
-	try {
-		let created = await repo.createRecipe(input);
-		if (imageFile) {
+	let created = await repo.createRecipe(input);
+	if (imageFile) {
+		try {
 			const url = await repo.uploadRecipeImage(created.id, imageFile);
 			await repo.setImageUrl(created.id, url);
 			created = { ...created, imageUrl: url };
+		} catch (imgErr) {
+			console.error('[createRecipe] Image upload failed after successful recipe save', {
+				id: created.id,
+				cause: imgErr
+			});
+			state.error = "Recipe saved! The photo didn't upload — try adding it from Edit.";
 		}
-		detailCache.set(created.id, created);
-		state.library = [{ ...created, meta: created.meta }, ...state.library];
-		return created;
-	} catch (err) {
-		throw toRecipeError(err);
 	}
+	detailCache.set(created.id, created);
+	state.library = [{ ...created, meta: created.meta }, ...state.library];
+	return created;
 }
 
 /** Update a recipe; refresh caches. Optionally replace the primary image. */
@@ -155,8 +159,9 @@ export async function setFavorite(id: string, isFavorite: boolean): Promise<void
 		applyMeta(id, server);
 	} catch (err) {
 		applyMeta(id, prev); // rollback
-		state.error = toRecipeError(err).message;
-		throw toRecipeError(err);
+		const recipeErr = toRecipeError(err);
+		state.error = recipeErr.message;
+		throw recipeErr;
 	}
 }
 
@@ -169,8 +174,9 @@ export async function setRating(id: string, rating: number | null): Promise<void
 		applyMeta(id, server);
 	} catch (err) {
 		applyMeta(id, prev); // rollback
-		state.error = toRecipeError(err).message;
-		throw toRecipeError(err);
+		const recipeErr = toRecipeError(err);
+		state.error = recipeErr.message;
+		throw recipeErr;
 	}
 }
 

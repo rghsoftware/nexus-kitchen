@@ -37,7 +37,10 @@
 
 	async function handleSubmit(input: RecipeInput, imageFile: File | null) {
 		await updateRecipe(id, input, imageFile);
-		await goto(resolve('/recipes/[id]', { id }));
+		// Navigate separately — a goto failure must not surface as a recipe-save error.
+		goto(resolve('/recipes/[id]', { id })).catch(() => {
+			window.location.href = resolve('/recipes/[id]', { id });
+		});
 	}
 </script>
 

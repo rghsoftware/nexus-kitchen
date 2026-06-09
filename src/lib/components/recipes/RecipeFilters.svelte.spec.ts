@@ -37,4 +37,28 @@ describe('RecipeFilters.svelte', () => {
 			.element(page.getByRole('button', { name: 'Favorites' }))
 			.toHaveAttribute('aria-pressed', 'true');
 	});
+
+	it('activates a tag when its chip is clicked (add path)', async () => {
+		render(RecipeFilters, {
+			mode: 'all',
+			activeTags: [],
+			availableTags: ['vegetarian']
+		});
+		await page.getByRole('button', { name: 'vegetarian', exact: true }).click();
+		await expect
+			.element(page.getByRole('button', { name: 'vegetarian', exact: true }))
+			.toHaveAttribute('aria-pressed', 'true');
+	});
+
+	it('deactivates an active tag when its chip is clicked again (remove path)', async () => {
+		render(RecipeFilters, {
+			mode: 'all',
+			activeTags: ['vegetarian'],
+			availableTags: ['vegetarian']
+		});
+		await page.getByRole('button', { name: 'vegetarian', exact: true }).click();
+		await expect
+			.element(page.getByRole('button', { name: 'vegetarian', exact: true }))
+			.toHaveAttribute('aria-pressed', 'false');
+	});
 });

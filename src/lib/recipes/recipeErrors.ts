@@ -20,7 +20,8 @@ export function friendlyMessage(err: MaybePgError | null | undefined): string {
 	if (!err) return 'Something went wrong. Please try again.';
 
 	const code = err.code ?? '';
-	const detail = `${err.message ?? ''}`.toLowerCase();
+	// PostgREST may surface constraint specifics in details/hint rather than message.
+	const detail = `${err.message ?? ''} ${err.details ?? ''} ${err.hint ?? ''}`.toLowerCase();
 
 	// RLS denial / not authorized
 	if (

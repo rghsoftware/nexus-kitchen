@@ -9,7 +9,7 @@
 import { supabase } from '$lib/supabaseClient';
 import { ensureSession } from '$lib/session/session.svelte';
 import { RecipeError, toRecipeError } from './recipeErrors';
-import { validateRecipeInput } from './recipeValidation';
+import { validateRecipeInput, validateRating } from './recipeValidation';
 import {
 	mapRecipe,
 	mapIngredient,
@@ -32,6 +32,13 @@ import type {
 	RecipeStepInsert,
 	RecipeTagInsert
 } from './types';
+
+/** Ensure a session exists and return the user, throwing a RecipeError if sign-in failed. */
+async function requireSession() {
+	const user = await ensureSession();
+	if (!user) throw new RecipeError("We couldn't start a session. Try refreshing the page.");
+	return user;
+}
 
 const RECIPE_DETAIL_SELECT =
 	'*, recipe_ingredients(*), recipe_steps(*), recipe_tags(*), user_recipe_meta(*)';
@@ -63,7 +70,7 @@ function assembleDetail(row: RecipeRowWithChildren): RecipeWithDetail {
 
 /** List the caller's recipes for the library grid (newest first), with their per-user meta. */
 export async function listRecipes(): Promise<RecipeSummary[]> {
-	await ensureSession();
+	await requireSession();
 	const { data, error } = await supabase
 		.from('recipes')
 		.select('*, user_recipe_meta(*), recipe_tags(*)')
@@ -87,7 +94,7 @@ export async function listRecipes(): Promise<RecipeSummary[]> {
 
 /** Load a single recipe with ingredients, steps, tags, and the caller's meta. */
 export async function getRecipe(id: string): Promise<RecipeWithDetail> {
-	await ensureSession();
+	await requireSession();
 	const { data, error } = await supabase
 		.from('recipes')
 		.select(RECIPE_DETAIL_SELECT)
@@ -193,7 +200,7 @@ async function insertChildren(recipeId: string, input: RecipeInput): Promise<voi
 
 /** Create a recipe with its children. Validates invariants first; compensates on child failure. */
 export async function createRecipe(input: RecipeInput): Promise<RecipeWithDetail> {
-	await ensureSession();
+	await requireSession();
 
 	const errors = validateRecipeInput(input);
 	if (errors.length > 0) throw new RecipeError(errors[0].message);
@@ -210,7 +217,14 @@ export async function createRecipe(input: RecipeInput): Promise<RecipeWithDetail
 		await insertChildren(recipeId, input);
 	} catch (childErr) {
 		// Compensating delete — children cascade with the parent.
-		await supabase.from('recipes').delete().eq('id', recipeId);
+		const { error: deleteErr } = await supabase.from('recipes').delete().eq('id', recipeId);
+		if (deleteErr) {
+			console.error('[createRecipe] Compensating delete failed — orphaned recipe row', {
+				recipeId,
+				deleteError: deleteErr,
+				childError: childErr
+			});
+		}
 		throw toRecipeError(childErr);
 	}
 
@@ -219,7 +233,7 @@ export async function createRecipe(input: RecipeInput): Promise<RecipeWithDetail
 
 /** Update a recipe; replaces its children (add/remove/reorder) preserving unique sort orders. */
 export async function updateRecipe(id: string, input: RecipeInput): Promise<RecipeWithDetail> {
-	await ensureSession();
+	await requireSession();
 
 	const errors = validateRecipeInput(input);
 	if (errors.length > 0) throw new RecipeError(errors[0].message);
@@ -242,7 +256,7 @@ export async function updateRecipe(id: string, input: RecipeInput): Promise<Reci
 
 /** Delete a recipe; children cascade (INV-DB-008). */
 export async function deleteRecipe(id: string): Promise<void> {
-	await ensureSession();
+	await requireSession();
 	const { error } = await supabase.from('recipes').delete().eq('id', id);
 	if (error) throw toRecipeError(error);
 }
@@ -252,7 +266,7 @@ async function upsertMeta(
 	recipeId: string,
 	patch: { is_favorite?: boolean; rating?: number | null }
 ): Promise<UserRecipeMeta> {
-	await ensureSession();
+	await requireSession();
 	const { data, error } = await supabase
 		.from('user_recipe_meta')
 		.upsert({ recipe_id: recipeId, ...patch }, { onConflict: 'user_id,recipe_id' })
@@ -269,9 +283,8 @@ export function setFavorite(recipeId: string, isFavorite: boolean): Promise<User
 
 /** Set or clear a recipe rating 1–5 (FR-009, INV-RC-009). */
 export function setRating(recipeId: string, rating: number | null): Promise<UserRecipeMeta> {
-	if (rating != null && (!Number.isInteger(rating) || rating < 1 || rating > 5)) {
-		return Promise.reject(new RecipeError('Rating can be from 1 to 5.'));
-	}
+	const errs = validateRating(rating);
+	if (errs.length > 0) return Promise.reject(new RecipeError(errs[0].message));
 	return upsertMeta(recipeId, { rating });
 }
 
@@ -282,8 +295,7 @@ export function setRating(recipeId: string, rating: number | null): Promise<User
  * `recipes.image_url`.
  */
 export async function uploadRecipeImage(recipeId: string, file: File): Promise<string> {
-	const user = await ensureSession();
-	if (!user) throw new RecipeError('We couldn’t start a session to upload your photo.');
+	const user = await requireSession();
 
 	const ext = file.name.includes('.') ? file.name.split('.').pop() : 'jpg';
 	const path = `${user.id}/${recipeId}/primary.${ext}`;
@@ -304,13 +316,16 @@ export async function signImageUrl(path: string | null, expiresIn = 3600): Promi
 	const { data, error } = await supabase.storage
 		.from('recipe-images')
 		.createSignedUrl(path, expiresIn);
-	if (error || !data) return null;
+	if (error || !data) {
+		console.error('[signImageUrl] Failed to sign storage URL', { path, error });
+		return null;
+	}
 	return data.signedUrl;
 }
 
 /** Patch only a recipe's image path (used after an image upload). */
 export async function setImageUrl(id: string, imageUrl: string | null): Promise<void> {
-	await ensureSession();
+	await requireSession();
 	const { error } = await supabase.from('recipes').update({ image_url: imageUrl }).eq('id', id);
 	if (error) throw toRecipeError(error);
 }

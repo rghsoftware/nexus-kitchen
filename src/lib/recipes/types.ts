@@ -1,13 +1,33 @@
 // Domain types for the recipes feature. These are camelCase application shapes mapped from the
 // snake_case database rows in `$lib/database.types`. Repository functions return these.
 
-import type { Tables, TablesInsert } from '$lib/database.types';
+import type { Tables, TablesInsert, TablesUpdate } from '$lib/database.types';
 
 // App-level unions that refine the DB's CHECK-constrained text columns. `supabase gen types`
 // emits these as `string` (the schema uses CHECK constraints, not Postgres enums), so the strict
 // option sets live here as the app's source of truth.
+// SYNC REQUIRED: these members must match the CHECK constraints in supabase/migrations/0001_recipes.sql.
 export type NutritionSource = 'COMPUTED' | 'MANUAL' | 'EXTERNAL';
 export type TagCategory = 'DIETARY' | 'CUISINE' | 'MEAL_TYPE' | 'COOKING_METHOD' | 'CUSTOM';
+
+/** Narrow a raw DB string to NutritionSource; throws on unknown value rather than silently casting. */
+function toNutritionSource(v: string): NutritionSource {
+	if (v === 'COMPUTED' || v === 'MANUAL' || v === 'EXTERNAL') return v;
+	throw new Error(`Unknown nutrition_source value from DB: ${v}`);
+}
+
+/** Narrow a raw DB string to TagCategory; throws on unknown value rather than silently casting. */
+function toTagCategory(v: string): TagCategory {
+	if (
+		v === 'DIETARY' ||
+		v === 'CUISINE' ||
+		v === 'MEAL_TYPE' ||
+		v === 'COOKING_METHOD' ||
+		v === 'CUSTOM'
+	)
+		return v;
+	throw new Error(`Unknown tag category value from DB: ${v}`);
+}
 
 // Row/Insert aliases derived from the generated Database type so the rest of the app never
 // imports the generated file directly — `database.types.ts` stays a pure, re-generatable dump.
@@ -17,6 +37,7 @@ export type RecipeStepRow = Tables<'recipe_steps'>;
 export type RecipeTagRow = Tables<'recipe_tags'>;
 export type UserRecipeMetaRow = Tables<'user_recipe_meta'>;
 export type RecipeInsert = TablesInsert<'recipes'>;
+export type RecipeUpdate = TablesUpdate<'recipes'>;
 export type RecipeIngredientInsert = TablesInsert<'recipe_ingredients'>;
 export type RecipeStepInsert = TablesInsert<'recipe_steps'>;
 export type RecipeTagInsert = TablesInsert<'recipe_tags'>;
@@ -181,7 +202,7 @@ export function mapRecipe(row: RecipeRow): Recipe {
 		imageUrl: row.image_url,
 		sourceUrl: row.source_url,
 		nutritionPerServing: (row.nutrition_per_serving as NutritionInfo | null) ?? null,
-		nutritionSource: row.nutrition_source as NutritionSource,
+		nutritionSource: toNutritionSource(row.nutrition_source),
 		createdAt: row.created_at,
 		updatedAt: row.updated_at
 	};
@@ -220,7 +241,7 @@ export function mapTag(row: RecipeTagRow): RecipeTag {
 		id: row.id,
 		recipeId: row.recipe_id,
 		name: row.name,
-		category: row.category as TagCategory
+		category: toTagCategory(row.category)
 	};
 }
 

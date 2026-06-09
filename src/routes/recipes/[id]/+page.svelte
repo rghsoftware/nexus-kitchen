@@ -6,6 +6,7 @@
 	import ServingScaler from '$lib/components/recipes/ServingScaler.svelte';
 	import {
 		loadRecipe,
+		cachedRecipe,
 		setFavorite,
 		setRating,
 		deleteRecipe
@@ -80,6 +81,7 @@
 		meta = { ...(meta ?? blankMeta()), isFavorite: !(meta?.isFavorite ?? false) };
 		try {
 			await setFavorite(recipe.id, meta.isFavorite);
+			meta = cachedRecipe(recipe.id)?.meta ?? meta;
 		} catch (e) {
 			meta = prev;
 			actionError = e instanceof Error ? e.message : 'Could not update favorite.';
@@ -93,6 +95,7 @@
 		meta = { ...(meta ?? blankMeta()), rating };
 		try {
 			await setRating(recipe.id, rating);
+			meta = cachedRecipe(recipe.id)?.meta ?? meta;
 		} catch (e) {
 			meta = prev;
 			actionError = e instanceof Error ? e.message : 'Could not update rating.';

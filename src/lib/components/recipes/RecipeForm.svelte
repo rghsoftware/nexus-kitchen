@@ -47,28 +47,37 @@
 	let notes = $state(seed?.notes ?? '');
 	let mealTypes = $state<string[]>(seed?.mealTypes ?? []);
 
+	const seedIngredients = seed?.ingredients ?? [];
 	let ingredients = $state<RecipeIngredientInput[]>(
-		seed?.ingredients.map((ing, i) => ({
-			uid: crypto.randomUUID(),
-			ingredientId: ing.ingredientId,
-			name: ing.name,
-			quantity: ing.quantity,
-			unit: ing.unit,
-			preparation: ing.preparation,
-			isOptional: ing.isOptional,
-			substituteForIndex: null,
-			sortOrder: i
-		})) ?? [
-			{
-				uid: crypto.randomUUID(),
-				name: '',
-				quantity: 1,
-				unit: '',
-				preparation: '',
-				isOptional: false,
-				sortOrder: 0
-			}
-		]
+		seedIngredients.length > 0
+			? seedIngredients.map((ing, i) => {
+					const subIdx =
+						ing.substituteFor != null
+							? seedIngredients.findIndex((s) => s.id === ing.substituteFor)
+							: -1;
+					return {
+						uid: crypto.randomUUID(),
+						ingredientId: ing.ingredientId,
+						name: ing.name,
+						quantity: ing.quantity,
+						unit: ing.unit,
+						preparation: ing.preparation,
+						isOptional: ing.isOptional,
+						substituteForIndex: subIdx >= 0 ? subIdx : null,
+						sortOrder: i
+					};
+				})
+			: [
+					{
+						uid: crypto.randomUUID(),
+						name: '',
+						quantity: 1,
+						unit: '',
+						preparation: '',
+						isOptional: false,
+						sortOrder: 0
+					}
+				]
 	);
 
 	let steps = $state<RecipeStepInput[]>(
@@ -303,7 +312,14 @@
 			<p>A couple of things to tweak before saving:</p>
 			<ul>
 				{#each rowErrors as err (err.field)}
-					<li>{err.message}</li>
+					{@const match = err.field.match(/^(\w+)\.(\d+)\./)}
+					<li>
+						{#if match}
+							{match[1] === 'steps' ? 'Step' : 'Ingredient'}
+							{Number(match[2]) + 1}:
+						{/if}
+						{err.message}
+					</li>
 				{/each}
 			</ul>
 		</div>

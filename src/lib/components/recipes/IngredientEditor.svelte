@@ -24,14 +24,15 @@
 
 	function removeIngredient(index: number) {
 		ingredients = ingredients.filter((_, i) => i !== index);
-		// Drop now-dangling substitute references, then resequence.
-		ingredients = ingredients.map((ing) => ({
-			...ing,
-			substituteForIndex:
-				ing.substituteForIndex != null && ing.substituteForIndex === index
-					? null
-					: ing.substituteForIndex
-		}));
+		// TODO(001-substitutes): add UI picker for substituteForIndex — GH issue #2.
+		// Drop exact-match references; decrement references pointing above the removed index.
+		ingredients = ingredients.map((ing) => {
+			if (ing.substituteForIndex == null) return ing;
+			if (ing.substituteForIndex === index) return { ...ing, substituteForIndex: null };
+			if (ing.substituteForIndex > index)
+				return { ...ing, substituteForIndex: ing.substituteForIndex - 1 };
+			return ing;
+		});
 		resequence();
 	}
 

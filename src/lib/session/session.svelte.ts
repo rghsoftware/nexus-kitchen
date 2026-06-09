@@ -34,7 +34,13 @@ export async function ensureSession(): Promise<User | null> {
 		state.loading = true;
 		state.error = null;
 		try {
-			const { data: existing } = await supabase.auth.getSession();
+			const { data: existing, error: sessionErr } = await supabase.auth.getSession();
+			if (sessionErr) {
+				console.error(
+					'[ensureSession] getSession failed, falling back to anonymous sign-in',
+					sessionErr
+				);
+			}
 			if (existing.session) {
 				applySession(existing.session);
 				return state.user;
@@ -42,6 +48,7 @@ export async function ensureSession(): Promise<User | null> {
 
 			const { data, error } = await supabase.auth.signInAnonymously();
 			if (error) {
+				console.error('[ensureSession] Anonymous sign-in failed', error);
 				state.error =
 					'We couldn’t start a session. If this keeps happening, anonymous sign-ins may need to be enabled.';
 				return null;
@@ -66,6 +73,8 @@ export function currentUserId(): string | null {
 }
 
 // Keep local state in sync with Supabase auth changes (token refresh, sign-out, upgrade).
+// App-lifetime listener. To prevent duplicate listeners under Vite HMR, call
+// supabase.auth.stopAutoRefresh() or unsubscribe in import.meta.hot?.dispose.
 supabase.auth.onAuthStateChange((_event, session) => {
 	applySession(session);
 });

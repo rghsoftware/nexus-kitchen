@@ -2,7 +2,7 @@
 // and shame-free (design system voice) — they guide, never scold. The database CHECK
 // constraints are the backstop; this layer gives immediate feedback in the form.
 
-import type { RecipeInput } from './types';
+import type { RecipeInput, NutritionInfo } from './types';
 
 export interface ValidationError {
 	/** Dotted field path, e.g. "servings" or "ingredients.0.quantity". */
@@ -65,6 +65,11 @@ export function validateRecipeInput(input: RecipeInput): ValidationError[] {
 			field: 'activeTimeMinutes',
 			message: 'Hands-on time can’t be more than the total prep and cook time.'
 		});
+	}
+
+	// Nutrition values: non-negative (INV-NT-001; AI output is untrusted per INV-PRI-006)
+	if (input.nutritionPerServing != null) {
+		errors.push(...validateNutritionInfo(input.nutritionPerServing));
 	}
 
 	// INV-RC-001: at least one ingredient
@@ -135,6 +140,35 @@ export function validateRecipeInput(input: RecipeInput): ValidationError[] {
 		});
 	}
 
+	return errors;
+}
+
+/** Validate nutrition info values (INV-NT-001): all numeric fields must be non-negative. */
+export function validateNutritionInfo(
+	nutrition: NutritionInfo,
+	field = 'nutritionPerServing'
+): ValidationError[] {
+	const errors: ValidationError[] = [];
+	const required: (keyof NutritionInfo)[] = ['calories', 'proteinGrams', 'carbsGrams', 'fatGrams'];
+	for (const key of required) {
+		const v = nutrition[key] as number;
+		if (!Number.isFinite(v) || v < 0) {
+			errors.push({ field: `${field}.${key}`, message: `${key} can't be negative.` });
+		}
+	}
+	const optional: (keyof NutritionInfo)[] = [
+		'fiberGrams',
+		'sugarGrams',
+		'sodiumMg',
+		'saturatedFatGrams',
+		'cholesterolMg'
+	];
+	for (const key of optional) {
+		const v = nutrition[key];
+		if (v != null && (!Number.isFinite(v) || v < 0)) {
+			errors.push({ field: `${field}.${key}`, message: `${key} can't be negative.` });
+		}
+	}
 	return errors;
 }
 

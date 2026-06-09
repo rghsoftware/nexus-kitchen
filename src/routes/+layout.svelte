@@ -2,7 +2,7 @@
 	import './layout.css';
 	import { resolve } from '$app/paths';
 	import favicon from '$lib/assets/favicon.svg';
-	import { ensureSession } from '$lib/session/session.svelte';
+	import { ensureSession, sessionState } from '$lib/session/session.svelte';
 
 	let { children } = $props();
 
@@ -21,6 +21,9 @@
 			<a class="nk-btn nk-btn--ghost nk-btn--sm" href={resolve('/recipes')}>Recipes</a>
 		</nav>
 	</header>
+	{#if sessionState.error}
+		<div class="session-error" role="alert">{sessionState.error}</div>
+	{/if}
 	<div class="content">
 		{@render children()}
 	</div>
@@ -55,6 +58,13 @@
 		outline: 3px solid var(--focus-ring);
 		outline-offset: 2px;
 		border-radius: var(--radius-xs);
+	}
+	.session-error {
+		padding: var(--space-3) var(--space-5);
+		background: var(--attention-soft);
+		color: var(--attention);
+		font-size: var(--text-sm);
+		text-align: center;
 	}
 	.content {
 		flex: 1;

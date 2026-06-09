@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { validateRecipeInput, validateRating, isValidRecipeInput } from './recipeValidation';
+import {
+	validateRecipeInput,
+	validateRating,
+	validateNutritionInfo,
+	isValidRecipeInput
+} from './recipeValidation';
 import type { RecipeInput } from './types';
 
 function validInput(overrides: Partial<RecipeInput> = {}): RecipeInput {
@@ -101,5 +106,138 @@ describe('validateRating (INV-RC-009)', () => {
 
 	it('rejects non-integers', () => {
 		expect(validateRating(3.5).length).toBe(1);
+	});
+});
+
+describe('validateRecipeInput — length bounds', () => {
+	it('rejects a title over 500 characters', () => {
+		expect(fields(validInput({ title: 'a'.repeat(501) }))).toContain('title');
+	});
+
+	it('rejects a description over 2000 characters', () => {
+		expect(fields(validInput({ description: 'a'.repeat(2001) }))).toContain('description');
+	});
+
+	it('rejects notes over 5000 characters', () => {
+		expect(fields(validInput({ notes: 'a'.repeat(5001) }))).toContain('notes');
+	});
+
+	it('rejects an ingredient name over 200 characters', () => {
+		expect(
+			fields(
+				validInput({
+					ingredients: [{ name: 'a'.repeat(201), quantity: 1, unit: 'g', sortOrder: 0 }]
+				})
+			)
+		).toContain('ingredients.0.name');
+	});
+
+	it('rejects an ingredient with no name', () => {
+		expect(
+			fields(validInput({ ingredients: [{ name: '', quantity: 1, unit: 'g', sortOrder: 0 }] }))
+		).toContain('ingredients.0.name');
+	});
+
+	it('rejects an ingredient with no unit', () => {
+		expect(
+			fields(validInput({ ingredients: [{ name: 'salt', quantity: 1, unit: '', sortOrder: 0 }] }))
+		).toContain('ingredients.0.unit');
+	});
+
+	it('rejects an ingredient unit over 50 characters', () => {
+		expect(
+			fields(
+				validInput({
+					ingredients: [{ name: 'salt', quantity: 1, unit: 'x'.repeat(51), sortOrder: 0 }]
+				})
+			)
+		).toContain('ingredients.0.unit');
+	});
+
+	it('rejects a step instruction over 2000 characters', () => {
+		expect(
+			fields(validInput({ steps: [{ instruction: 'a'.repeat(2001), sortOrder: 0 }] }))
+		).toContain('steps.0.instruction');
+	});
+
+	it('rejects a step with negative durationMinutes', () => {
+		expect(
+			fields(validInput({ steps: [{ instruction: 'Cook', durationMinutes: -1, sortOrder: 0 }] }))
+		).toContain('steps.0.durationMinutes');
+	});
+
+	it('rejects a step with negative timerMinutes', () => {
+		expect(
+			fields(validInput({ steps: [{ instruction: 'Cook', timerMinutes: -5, sortOrder: 0 }] }))
+		).toContain('steps.0.timerMinutes');
+	});
+});
+
+describe('validateRecipeInput — time fields', () => {
+	it('rejects negative prepTimeMinutes', () => {
+		expect(fields(validInput({ prepTimeMinutes: -1 }))).toContain('prepTimeMinutes');
+	});
+
+	it('rejects negative cookTimeMinutes', () => {
+		expect(fields(validInput({ cookTimeMinutes: -1 }))).toContain('cookTimeMinutes');
+	});
+
+	it('accepts zero for time fields (valid: no prep time)', () => {
+		expect(fields(validInput({ prepTimeMinutes: 0 }))).not.toContain('prepTimeMinutes');
+	});
+});
+
+describe('validateRecipeInput — servings edge cases', () => {
+	it('rejects float servings', () => {
+		expect(fields(validInput({ servings: 1.5 }))).toContain('servings');
+	});
+
+	it('rejects NaN servings', () => {
+		expect(fields(validInput({ servings: NaN }))).toContain('servings');
+	});
+});
+
+describe('isValidRecipeInput', () => {
+	it('returns false when there are validation errors', () => {
+		expect(isValidRecipeInput(validInput({ title: '' }))).toBe(false);
+	});
+});
+
+describe('validateNutritionInfo (INV-NT-001)', () => {
+	const valid = {
+		calories: 300,
+		proteinGrams: 20,
+		carbsGrams: 40,
+		fatGrams: 10
+	};
+
+	it('passes for valid non-negative nutrition values', () => {
+		expect(validateNutritionInfo(valid)).toEqual([]);
+	});
+
+	it('rejects negative calories', () => {
+		expect(validateNutritionInfo({ ...valid, calories: -1 }).map((e) => e.field)).toContain(
+			'nutritionPerServing.calories'
+		);
+	});
+
+	it('rejects negative proteinGrams', () => {
+		expect(validateNutritionInfo({ ...valid, proteinGrams: -5 }).map((e) => e.field)).toContain(
+			'nutritionPerServing.proteinGrams'
+		);
+	});
+
+	it('accepts zero for required fields (edge: exactly 0 is valid)', () => {
+		expect(validateNutritionInfo({ ...valid, calories: 0, fatGrams: 0 })).toEqual([]);
+	});
+
+	it('rejects negative optional field when present', () => {
+		expect(validateNutritionInfo({ ...valid, fiberGrams: -2 }).map((e) => e.field)).toContain(
+			'nutritionPerServing.fiberGrams'
+		);
+	});
+
+	it('accepts absent optional fields', () => {
+		expect(validateNutritionInfo(valid)).toEqual([]);
 	});
 });
