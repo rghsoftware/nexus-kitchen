@@ -6,7 +6,7 @@
 -- which is what auth.uid() reads inside the policies.
 
 begin;
-select plan(17);
+select plan(16);
 
 -- Two test users (recipes.owner_id FKs to auth.users).
 insert into auth.users (id, email)
