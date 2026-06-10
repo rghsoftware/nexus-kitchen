@@ -118,7 +118,7 @@
 	<header class="flex items-start justify-between gap-2">
 		<div>
 			<h2
-				class="m-0 font-[var(--font-display)] font-[var(--weight-bold)] text-[var(--text)] text-[var(--text-xl)]"
+				class="m-0 font-[var(--font-display)] [font-weight:var(--weight-bold)] text-[var(--text)] text-[var(--text-xl)]"
 			>
 				Add a meal
 			</h2>
@@ -143,7 +143,7 @@
 	<!-- Slot picker (band pre-filled from the tapped band, FR-PL-005) -->
 	<div class="flex flex-col gap-2">
 		<span
-			class="font-[var(--font-sans)] font-[var(--weight-semibold)] text-[var(--text-secondary)] text-[var(--text-sm)]"
+			class="font-[var(--font-sans)] [font-weight:var(--weight-semibold)] text-[var(--text-secondary)] text-[var(--text-sm)]"
 			id="add-slot-label"
 		>
 			When
@@ -171,7 +171,7 @@
 				aria-selected={tab === t.id}
 				class="cursor-pointer rounded-t-[var(--radius-sm)] border-0 bg-transparent px-3 py-2 font-[var(--font-sans)] text-[var(--text-sm)] {tab ===
 				t.id
-					? 'border-b-2 border-[var(--primary)] font-[var(--weight-semibold)] text-[var(--primary)]'
+					? 'border-b-2 border-[var(--primary)] [font-weight:var(--weight-semibold)] text-[var(--primary)]'
 					: 'text-[var(--text-secondary)]'}"
 				onclick={() => (tab = t.id)}
 			>
@@ -214,7 +214,7 @@
 								onclick={() => pickRecipe(recipe)}
 							>
 								<span
-									class="truncate font-[var(--font-sans)] font-[var(--weight-semibold)] text-[var(--text)] text-[var(--text-sm)]"
+									class="truncate font-[var(--font-sans)] [font-weight:var(--weight-semibold)] text-[var(--text)] text-[var(--text-sm)]"
 								>
 									{recipe.title}
 								</span>
@@ -231,7 +231,7 @@
 				<div class="flex items-center gap-2">
 					<label
 						for="add-servings"
-						class="font-[var(--font-sans)] font-[var(--weight-semibold)] text-[var(--text-secondary)] text-[var(--text-sm)]"
+						class="font-[var(--font-sans)] [font-weight:var(--weight-semibold)] text-[var(--text-secondary)] text-[var(--text-sm)]"
 					>
 						Servings
 					</label>
@@ -266,7 +266,7 @@
 			>
 				<label
 					for="add-store-bought"
-					class="font-[var(--font-sans)] font-[var(--weight-semibold)] text-[var(--text-secondary)] text-[var(--text-sm)]"
+					class="font-[var(--font-sans)] [font-weight:var(--weight-semibold)] text-[var(--text-secondary)] text-[var(--text-sm)]"
 				>
 					What will you buy?
 				</label>

@@ -46,7 +46,7 @@
 >
 	<header class="flex items-start justify-between gap-2">
 		<h2
-			class="m-0 min-w-0 truncate font-[var(--font-display)] font-[var(--weight-bold)] text-[var(--text)] text-[var(--text-xl)]"
+			class="m-0 min-w-0 truncate font-[var(--font-display)] [font-weight:var(--weight-bold)] text-[var(--text)] text-[var(--text-xl)]"
 		>
 			Move “{name}”
 		</h2>
@@ -67,7 +67,7 @@
 	<div class="flex flex-col gap-2">
 		<label
 			for="move-date"
-			class="font-[var(--font-sans)] font-[var(--weight-semibold)] text-[var(--text-secondary)] text-[var(--text-sm)]"
+			class="font-[var(--font-sans)] [font-weight:var(--weight-semibold)] text-[var(--text-secondary)] text-[var(--text-sm)]"
 		>
 			New day
 		</label>
@@ -81,7 +81,7 @@
 
 	<div class="flex flex-col gap-2">
 		<span
-			class="font-[var(--font-sans)] font-[var(--weight-semibold)] text-[var(--text-secondary)] text-[var(--text-sm)]"
+			class="font-[var(--font-sans)] [font-weight:var(--weight-semibold)] text-[var(--text-secondary)] text-[var(--text-sm)]"
 			id="move-slot-label"
 		>
 			When
