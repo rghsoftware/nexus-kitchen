@@ -19,9 +19,9 @@ Tests are required (constitution P12; spec SC-003/005 demand DB-level negative t
 
 ## Phase 2: Service & state (blocks all UI)
 
-- [ ] T005 Implement `planningService` exactly per contracts/planning-service.md: `getOrCreatePlanForWeek` (upsert on owner_id+start_date), `listPlannedMeals(from,to)`, `addPlannedMeal` (append sort_order = max+1, retry once on unique violation; RECIPE captures title snapshot), `updatePlannedMeal`, `movePlannedMeal` (cross-week re-home, FR-PL-015), `removePlannedMeal`; typed `PlanningError`, no swallowed errors — src/lib/planning/planningService.ts
-- [ ] T006 Unit-test planningService with a mocked supabase client: week upsert payload shape, source-exclusive insert payloads for all three drafts, append-ordering + conflict retry, cross-week move re-homes plan id, error propagation — src/lib/planning/planningService.spec.ts
-- [ ] T007 Implement runes-based plan store: date-keyed cache for a loaded range, `loadRange(from,to)`, optimistic `add`/`update`/`move`/`remove` with rollback + error surface, group ordering by (slot, sortOrder); export via index barrel — src/lib/planning/planStore.svelte.ts, src/lib/planning/index.ts
+- [X] T005 Implement `planningService` exactly per contracts/planning-service.md: `getOrCreatePlanForWeek` (upsert on owner_id+start_date), `listPlannedMeals(from,to)`, `addPlannedMeal` (append sort_order = max+1, retry once on unique violation; RECIPE captures title snapshot), `updatePlannedMeal`, `movePlannedMeal` (cross-week re-home, FR-PL-015), `removePlannedMeal`; typed `PlanningError`, no swallowed errors — src/lib/planning/planningService.ts
+- [X] T006 Unit-test planningService with a mocked supabase client: week upsert payload shape, source-exclusive insert payloads for all three drafts, append-ordering + conflict retry, cross-week move re-homes plan id, error propagation — src/lib/planning/planningService.spec.ts
+- [X] T007 Implement runes-based plan store: date-keyed cache for a loaded range, `loadRange(from,to)`, optimistic `add`/`update`/`move`/`remove` with rollback + error surface, group ordering by (slot, sortOrder); export via index barrel — src/lib/planning/planStore.svelte.ts, src/lib/planning/index.ts
 
 ## Phase 3: US1 — Calendar views
 
