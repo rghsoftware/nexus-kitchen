@@ -18,6 +18,7 @@
 	<header class="topbar">
 		<a class="brand" href={resolve('/')}>Nexus Kitchen</a>
 		<nav class="nav" aria-label="Primary">
+			<a class="nk-btn nk-btn--ghost nk-btn--sm" href={resolve('/plan')}>Plan</a>
 			<a class="nk-btn nk-btn--ghost nk-btn--sm" href={resolve('/recipes')}>Recipes</a>
 		</nav>
 	</header>

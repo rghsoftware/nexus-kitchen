@@ -25,25 +25,25 @@ Tests are required (constitution P12; spec SC-003/005 demand DB-level negative t
 
 ## Phase 3: US1 — Calendar views
 
-- [ ] T008 [US1] Build `MealCard.svelte` (name via `plannedMealName`, source-kind badge, servings; recipe meals link to `/recipes/[id]` when recipeId present) and `SlotBand.svelte` (one slot group per band incl. "Anytime"; ordered meals; "+ add" affordance; shame-free empty copy "Nothing planned" per FR-PL-020) using design tokens / `.nk-*` only — src/lib/planning/components/MealCard.svelte, src/lib/planning/components/SlotBand.svelte
-- [ ] T009 [P] [US1] Build `WeekView.svelte`: 7 day columns (Mon–Sun) of slot bands; responsive compression on small screens — src/lib/planning/components/WeekView.svelte
-- [ ] T010 [P] [US1] Build `DayView.svelte`: full slot-band detail for one day with prev/next day controls — src/lib/planning/components/DayView.svelte
-- [ ] T011 [P] [US1] Build `MonthView.svelte`: month grid with compact per-day meal summaries; tapping a day opens it in Day view — src/lib/planning/components/MonthView.svelte
-- [ ] T012 [US1] Build `PlanCalendar.svelte` shell: Day/Week/Month switcher (weekly default, choice persisted to localStorage per A-001), prev/next period nav, "Today" shortcut, drives `planStore.loadRange` for the visible range — src/lib/planning/components/PlanCalendar.svelte
-- [ ] T013 [US1] Add `/plan` route rendering `PlanCalendar` and add "Plan" link to primary nav — src/routes/plan/+page.svelte, src/routes/+layout.svelte
+- [X] T008 [US1] Build `MealCard.svelte` (name via `plannedMealName`, source-kind badge, servings; recipe meals link to `/recipes/[id]` when recipeId present) and `SlotBand.svelte` (one slot group per band incl. "Anytime"; ordered meals; "+ add" affordance; shame-free empty copy "Nothing planned" per FR-PL-020) using design tokens / `.nk-*` only — src/lib/planning/components/MealCard.svelte, src/lib/planning/components/SlotBand.svelte
+- [X] T009 [P] [US1] Build `WeekView.svelte`: 7 day columns (Mon–Sun) of slot bands; responsive compression on small screens — src/lib/planning/components/WeekView.svelte
+- [X] T010 [P] [US1] Build `DayView.svelte`: full slot-band detail for one day with prev/next day controls — src/lib/planning/components/DayView.svelte
+- [X] T011 [P] [US1] Build `MonthView.svelte`: month grid with compact per-day meal summaries; tapping a day opens it in Day view — src/lib/planning/components/MonthView.svelte
+- [X] T012 [US1] Build `PlanCalendar.svelte` shell: Day/Week/Month switcher (weekly default, choice persisted to localStorage per A-001), prev/next period nav, "Today" shortcut, drives `planStore.loadRange` for the visible range — src/lib/planning/components/PlanCalendar.svelte
+- [X] T013 [US1] Add `/plan` route rendering `PlanCalendar` and add "Plan" link to primary nav — src/routes/plan/+page.svelte, src/routes/+layout.svelte
 
 ## Phase 4: US2 — Place meals
 
-- [ ] T014 [US2] Build `AddMealSheet.svelte`: opens scoped to (date, slot?) from any band's "+ add" (slot pre-filled, "Anytime" selectable); three source tabs — Recipe (searchable picker over existing recipes module, servings defaulting from recipe), Store-bought (free text), Quick (one-tap "Takeout"/"Leftovers" + custom text); ≤ 3 interactions for the quick path (FR-PL-005..008, FR-PL-021); wires to `planStore.add` — src/lib/planning/components/AddMealSheet.svelte
+- [X] T014 [US2] Build `AddMealSheet.svelte`: opens scoped to (date, slot?) from any band's "+ add" (slot pre-filled, "Anytime" selectable); three source tabs — Recipe (searchable picker over existing recipes module, servings defaulting from recipe), Store-bought (free text), Quick (one-tap "Takeout"/"Leftovers" + custom text); ≤ 3 interactions for the quick path (FR-PL-005..008, FR-PL-021); wires to `planStore.add` — src/lib/planning/components/AddMealSheet.svelte
 
 ## Phase 5: US3 — Edit, move, remove
 
-- [ ] T015 [US3] Build `MealDetailSheet.svelte` (edit servings/slot/source details; Remove with single lightweight confirm; Move entry point) and `MoveMealSheet.svelte` (tap-based date + slot picker calling `planStore.move`) (FR-PL-012/013/014) — src/lib/planning/components/MealDetailSheet.svelte, src/lib/planning/components/MoveMealSheet.svelte
-- [ ] T016 [US3] Wire HTML5 drag-and-drop on pointer devices: `MealCard` draggable, `SlotBand` drop target (cross-day, cross-slot, append-to-group), visual drop affordance via tokens; keyboard/touch users rely on MoveMealSheet (FR-PL-013, FR-PL-015) — src/lib/planning/components/MealCard.svelte, src/lib/planning/components/SlotBand.svelte, src/lib/planning/components/WeekView.svelte, src/lib/planning/components/DayView.svelte
+- [X] T015 [US3] Build `MealDetailSheet.svelte` (edit servings/slot/source details; Remove with single lightweight confirm; Move entry point) and `MoveMealSheet.svelte` (tap-based date + slot picker calling `planStore.move`) (FR-PL-012/013/014) — src/lib/planning/components/MealDetailSheet.svelte, src/lib/planning/components/MoveMealSheet.svelte
+- [X] T016 [US3] Wire HTML5 drag-and-drop on pointer devices: `MealCard` draggable, `SlotBand` drop target (cross-day, cross-slot, append-to-group), visual drop affordance via tokens; keyboard/touch users rely on MoveMealSheet (FR-PL-013, FR-PL-015) — src/lib/planning/components/MealCard.svelte, src/lib/planning/components/SlotBand.svelte, src/lib/planning/components/WeekView.svelte, src/lib/planning/components/DayView.svelte
 
 ## Phase 6: Polish & verification
 
-- [ ] T017 Write Playwright e2e: plan a recipe + store-bought + quick meal in one week; two meals in one slot + an Anytime meal; move a meal across days (tap-move path); edit servings; remove; reload and assert persistence (SC-001..004) — tests/plan.e2e.ts
+- [X] T017 Write Playwright e2e: plan a recipe + store-bought + quick meal in one week; two meals in one slot + an Anytime meal; move a meal across days (tap-move path); edit servings; remove; reload and assert persistence (SC-001..004) — tests/plan.e2e.ts
 - [ ] T018 Run `bun run format`, `bun run check`, `bun run lint`, `bun run test:unit -- --run`; fix all findings; confirm Definition of Done items in plan.md — (repo-wide)
 
 ## Dependencies
