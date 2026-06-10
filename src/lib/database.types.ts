@@ -28,6 +28,173 @@ export type Database = {
 	};
 	public: {
 		Tables: {
+			pantry_items: {
+				Row: {
+					barcode: string | null;
+					created_at: string;
+					custom_location: string | null;
+					expiration_date: string | null;
+					household_id: string | null;
+					id: string;
+					ingredient_id: string | null;
+					minimum_quantity: number | null;
+					name: string;
+					opened_date: string | null;
+					owner_id: string;
+					photo_url: string | null;
+					purchase_date: string | null;
+					quantity: number;
+					storage_location: Database['public']['Enums']['storage_location'];
+					thumbnail_url: string | null;
+					unit: string;
+					updated_at: string;
+				};
+				Insert: {
+					barcode?: string | null;
+					created_at?: string;
+					custom_location?: string | null;
+					expiration_date?: string | null;
+					household_id?: string | null;
+					id?: string;
+					ingredient_id?: string | null;
+					minimum_quantity?: number | null;
+					name: string;
+					opened_date?: string | null;
+					owner_id: string;
+					photo_url?: string | null;
+					purchase_date?: string | null;
+					quantity?: number;
+					storage_location?: Database['public']['Enums']['storage_location'];
+					thumbnail_url?: string | null;
+					unit: string;
+					updated_at?: string;
+				};
+				Update: {
+					barcode?: string | null;
+					created_at?: string;
+					custom_location?: string | null;
+					expiration_date?: string | null;
+					household_id?: string | null;
+					id?: string;
+					ingredient_id?: string | null;
+					minimum_quantity?: number | null;
+					name?: string;
+					opened_date?: string | null;
+					owner_id?: string;
+					photo_url?: string | null;
+					purchase_date?: string | null;
+					quantity?: number;
+					storage_location?: Database['public']['Enums']['storage_location'];
+					thumbnail_url?: string | null;
+					unit?: string;
+					updated_at?: string;
+				};
+				Relationships: [];
+			};
+			portion_events: {
+				Row: {
+					created_at: string;
+					delta_portions: number;
+					id: string;
+					kind: Database['public']['Enums']['portion_event_kind'];
+					prepped_meal_id: string;
+					triggered_by: string | null;
+				};
+				Insert: {
+					created_at?: string;
+					delta_portions: number;
+					id?: string;
+					kind: Database['public']['Enums']['portion_event_kind'];
+					prepped_meal_id: string;
+					triggered_by?: string | null;
+				};
+				Update: {
+					created_at?: string;
+					delta_portions?: number;
+					id?: string;
+					kind?: Database['public']['Enums']['portion_event_kind'];
+					prepped_meal_id?: string;
+					triggered_by?: string | null;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'portion_events_prepped_meal_id_fkey';
+						columns: ['prepped_meal_id'];
+						isOneToOne: false;
+						referencedRelation: 'prepped_meals';
+						referencedColumns: ['id'];
+					}
+				];
+			};
+			prepped_meals: {
+				Row: {
+					container_label: string | null;
+					created_at: string;
+					defrost_started_at: string | null;
+					defrost_state: Database['public']['Enums']['defrost_state'];
+					estimated_ready_at: string | null;
+					expiration_date: string;
+					household_id: string | null;
+					id: string;
+					meal_prep_session_id: string | null;
+					name: string;
+					origin: Database['public']['Enums']['prepped_meal_origin'];
+					original_portions: number;
+					owner_id: string;
+					photo_url: string | null;
+					portions_remaining: number;
+					prepared_date: string;
+					recipe_id: string | null;
+					recipe_name: string | null;
+					storage_location: Database['public']['Enums']['storage_location'];
+					updated_at: string;
+				};
+				Insert: {
+					container_label?: string | null;
+					created_at?: string;
+					defrost_started_at?: string | null;
+					defrost_state?: Database['public']['Enums']['defrost_state'];
+					estimated_ready_at?: string | null;
+					expiration_date: string;
+					household_id?: string | null;
+					id?: string;
+					meal_prep_session_id?: string | null;
+					name: string;
+					origin: Database['public']['Enums']['prepped_meal_origin'];
+					original_portions: number;
+					owner_id: string;
+					photo_url?: string | null;
+					portions_remaining: number;
+					prepared_date: string;
+					recipe_id?: string | null;
+					recipe_name?: string | null;
+					storage_location: Database['public']['Enums']['storage_location'];
+					updated_at?: string;
+				};
+				Update: {
+					container_label?: string | null;
+					created_at?: string;
+					defrost_started_at?: string | null;
+					defrost_state?: Database['public']['Enums']['defrost_state'];
+					estimated_ready_at?: string | null;
+					expiration_date?: string;
+					household_id?: string | null;
+					id?: string;
+					meal_prep_session_id?: string | null;
+					name?: string;
+					origin?: Database['public']['Enums']['prepped_meal_origin'];
+					original_portions?: number;
+					owner_id?: string;
+					photo_url?: string | null;
+					portions_remaining?: number;
+					prepared_date?: string;
+					recipe_id?: string | null;
+					recipe_name?: string | null;
+					storage_location?: Database['public']['Enums']['storage_location'];
+					updated_at?: string;
+				};
+				Relationships: [];
+			};
 			recipe_ingredients: {
 				Row: {
 					id: string;
@@ -270,7 +437,10 @@ export type Database = {
 			[_ in never]: never;
 		};
 		Enums: {
-			[_ in never]: never;
+			defrost_state: 'NOT_APPLICABLE' | 'FROZEN' | 'DEFROSTING' | 'READY';
+			portion_event_kind: 'INITIALIZED' | 'CONSUMED' | 'ADJUSTED';
+			prepped_meal_origin: 'PREP_SESSION' | 'DIRECT_ENTRY' | 'STORE_BOUGHT';
+			storage_location: 'PANTRY' | 'FRIDGE' | 'FREEZER' | 'OTHER';
 		};
 		CompositeTypes: {
 			[_ in never]: never;
@@ -398,6 +568,11 @@ export const Constants = {
 		Enums: {}
 	},
 	public: {
-		Enums: {}
+		Enums: {
+			defrost_state: ['NOT_APPLICABLE', 'FROZEN', 'DEFROSTING', 'READY'],
+			portion_event_kind: ['INITIALIZED', 'CONSUMED', 'ADJUSTED'],
+			prepped_meal_origin: ['PREP_SESSION', 'DIRECT_ENTRY', 'STORE_BOUGHT'],
+			storage_location: ['PANTRY', 'FRIDGE', 'FREEZER', 'OTHER']
+		}
 	}
 } as const;

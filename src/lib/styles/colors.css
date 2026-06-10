@@ -128,6 +128,16 @@
 
 	--focus-ring: var(--herb-400);
 
+	/* --- Pantry alert aliases (expiry / stock states) ---------------- */
+	/* "warning" = expiring soon — warm ochre attention token (never alarm-red) */
+	--color-warning: var(--attention);
+	--color-warning-soft: var(--attention-soft);
+	--color-warning-text: oklch(0.48 0.11 55);
+	/* "error" = expired / past-date — deep clay (warm, not red) */
+	--color-error: var(--clay-600);
+	--color-error-soft: var(--clay-100);
+	--color-error-text: oklch(0.42 0.1 42);
+
 	/* Warm, low, soft shadows */
 	--shadow-sm: 0 1px 2px oklch(0.4 0.03 70 / 0.06), 0 1px 1px oklch(0.4 0.03 70 / 0.04);
 	--shadow-md: 0 4px 12px oklch(0.4 0.03 70 / 0.07), 0 2px 4px oklch(0.4 0.03 70 / 0.05);
@@ -164,6 +174,14 @@
 
 	--attention: oklch(0.78 0.12 66);
 	--attention-soft: oklch(0.33 0.05 66);
+
+	/* Pantry alert aliases — dark mode */
+	--color-warning: oklch(0.78 0.12 66);
+	--color-warning-soft: oklch(0.33 0.05 66);
+	--color-warning-text: oklch(0.9 0.1 66);
+	--color-error: oklch(0.62 0.12 42);
+	--color-error-soft: oklch(0.33 0.06 42);
+	--color-error-text: oklch(0.88 0.1 44);
 
 	--have: var(--herb-400);
 	--have-soft: oklch(0.32 0.05 150);

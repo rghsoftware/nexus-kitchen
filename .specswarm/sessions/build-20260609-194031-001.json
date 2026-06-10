@@ -1,0 +1,20 @@
+{
+	"active": true,
+	"feature_description": "Pantry / inventory — what's on hand. The inventory half of the thesis; required before fulfillment can be computed.",
+	"feature_num": "001",
+	"parent_branch": "worktree-feat+pantry-inventory",
+	"branch_name": "001-pantry-inventory-what-s-on-hand-the-inventory-half-of-the-thesis-required-before-fulfillment-can-be-computed",
+	"session_id": "build-20260609-194031-001",
+	"started_at": "2026-06-09T19:40:31-05:00",
+	"current_phase": "specify",
+	"phases_complete": [],
+	"quality_threshold": 80,
+	"run_validate": false,
+	"background_mode": false,
+	"notify_on_complete": false,
+	"orchestrate_flag": "",
+	"run_analyze": false,
+	"run_checklist": false,
+	"quick_mode": false,
+	"use_orchestration": false
+}
