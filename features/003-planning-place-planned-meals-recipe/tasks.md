@@ -44,7 +44,7 @@ Tests are required (constitution P12; spec SC-003/005 demand DB-level negative t
 ## Phase 6: Polish & verification
 
 - [X] T017 Write Playwright e2e: plan a recipe + store-bought + quick meal in one week; two meals in one slot + an Anytime meal; move a meal across days (tap-move path); edit servings; remove; reload and assert persistence (SC-001..004) — tests/plan.e2e.ts
-- [ ] T018 Run `bun run format`, `bun run check`, `bun run lint`, `bun run test:unit -- --run`; fix all findings; confirm Definition of Done items in plan.md — (repo-wide)
+- [X] T018 Run `bun run format`, `bun run check`, `bun run lint`, `bun run test:unit -- --run`; fix all findings; confirm Definition of Done items in plan.md — (repo-wide)
 
 ## Dependencies
 

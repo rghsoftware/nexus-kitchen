@@ -1,0 +1,14 @@
+{
+	"features": {
+		"003-planning": {
+			"quality_score": 92,
+			"tasks_total": 18,
+			"tasks_completed": 18,
+			"unit_tests": { "server": "120/120", "new": 34 },
+			"e2e_tests": "17/17 (6 new)",
+			"pgtap_tests": "32/32 (16 new)",
+			"spec_mentor": "PASS",
+			"completed_at": "2026-06-10"
+		}
+	}
+}
