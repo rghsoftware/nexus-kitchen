@@ -28,6 +28,39 @@ export type Database = {
 	};
 	public: {
 		Tables: {
+			meal_plans: {
+				Row: {
+					created_at: string;
+					end_date: string;
+					household_id: string | null;
+					id: string;
+					name: string | null;
+					owner_id: string;
+					start_date: string;
+					updated_at: string;
+				};
+				Insert: {
+					created_at?: string;
+					end_date: string;
+					household_id?: string | null;
+					id?: string;
+					name?: string | null;
+					owner_id?: string;
+					start_date: string;
+					updated_at?: string;
+				};
+				Update: {
+					created_at?: string;
+					end_date?: string;
+					household_id?: string | null;
+					id?: string;
+					name?: string | null;
+					owner_id?: string;
+					start_date?: string;
+					updated_at?: string;
+				};
+				Relationships: [];
+			};
 			pantry_items: {
 				Row: {
 					barcode: string | null;
@@ -90,6 +123,85 @@ export type Database = {
 					updated_at?: string;
 				};
 				Relationships: [];
+			};
+			planned_meals: {
+				Row: {
+					created_at: string;
+					date: string;
+					id: string;
+					logged_at: string | null;
+					meal_plan_id: string;
+					meal_slot: Database['public']['Enums']['meal_slot'] | null;
+					prepped_meal_id: string | null;
+					quick_meal_name: string | null;
+					recipe_id: string | null;
+					recipe_title_snapshot: string | null;
+					servings: number;
+					sort_order: number;
+					source: Database['public']['Enums']['planned_meal_source'];
+					status: Database['public']['Enums']['planned_meal_status'];
+					store_bought_name: string | null;
+					updated_at: string;
+				};
+				Insert: {
+					created_at?: string;
+					date: string;
+					id?: string;
+					logged_at?: string | null;
+					meal_plan_id: string;
+					meal_slot?: Database['public']['Enums']['meal_slot'] | null;
+					prepped_meal_id?: string | null;
+					quick_meal_name?: string | null;
+					recipe_id?: string | null;
+					recipe_title_snapshot?: string | null;
+					servings?: number;
+					sort_order?: number;
+					source: Database['public']['Enums']['planned_meal_source'];
+					status?: Database['public']['Enums']['planned_meal_status'];
+					store_bought_name?: string | null;
+					updated_at?: string;
+				};
+				Update: {
+					created_at?: string;
+					date?: string;
+					id?: string;
+					logged_at?: string | null;
+					meal_plan_id?: string;
+					meal_slot?: Database['public']['Enums']['meal_slot'] | null;
+					prepped_meal_id?: string | null;
+					quick_meal_name?: string | null;
+					recipe_id?: string | null;
+					recipe_title_snapshot?: string | null;
+					servings?: number;
+					sort_order?: number;
+					source?: Database['public']['Enums']['planned_meal_source'];
+					status?: Database['public']['Enums']['planned_meal_status'];
+					store_bought_name?: string | null;
+					updated_at?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'planned_meals_meal_plan_id_fkey';
+						columns: ['meal_plan_id'];
+						isOneToOne: false;
+						referencedRelation: 'meal_plans';
+						referencedColumns: ['id'];
+					},
+					{
+						foreignKeyName: 'planned_meals_prepped_meal_id_fkey';
+						columns: ['prepped_meal_id'];
+						isOneToOne: false;
+						referencedRelation: 'prepped_meals';
+						referencedColumns: ['id'];
+					},
+					{
+						foreignKeyName: 'planned_meals_recipe_id_fkey';
+						columns: ['recipe_id'];
+						isOneToOne: false;
+						referencedRelation: 'recipes';
+						referencedColumns: ['id'];
+					}
+				];
 			};
 			portion_events: {
 				Row: {
@@ -438,6 +550,9 @@ export type Database = {
 		};
 		Enums: {
 			defrost_state: 'NOT_APPLICABLE' | 'FROZEN' | 'DEFROSTING' | 'READY';
+			meal_slot: 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK';
+			planned_meal_source: 'RECIPE' | 'PREPPED' | 'STORE_BOUGHT' | 'QUICK';
+			planned_meal_status: 'PLANNED' | 'LOGGED' | 'SKIPPED' | 'SWAPPED';
 			portion_event_kind: 'INITIALIZED' | 'CONSUMED' | 'ADJUSTED';
 			prepped_meal_origin: 'PREP_SESSION' | 'DIRECT_ENTRY' | 'STORE_BOUGHT';
 			storage_location: 'PANTRY' | 'FRIDGE' | 'FREEZER' | 'OTHER';
@@ -570,6 +685,9 @@ export const Constants = {
 	public: {
 		Enums: {
 			defrost_state: ['NOT_APPLICABLE', 'FROZEN', 'DEFROSTING', 'READY'],
+			meal_slot: ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'],
+			planned_meal_source: ['RECIPE', 'PREPPED', 'STORE_BOUGHT', 'QUICK'],
+			planned_meal_status: ['PLANNED', 'LOGGED', 'SKIPPED', 'SWAPPED'],
 			portion_event_kind: ['INITIALIZED', 'CONSUMED', 'ADJUSTED'],
 			prepped_meal_origin: ['PREP_SESSION', 'DIRECT_ENTRY', 'STORE_BOUGHT'],
 			storage_location: ['PANTRY', 'FRIDGE', 'FREEZER', 'OTHER']

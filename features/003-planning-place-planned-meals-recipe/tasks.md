@@ -12,10 +12,10 @@ Tests are required (constitution P12; spec SC-003/005 demand DB-level negative t
 
 ## Phase 1: Foundational (blocks everything)
 
-- [ ] T001 Write migration with enums (`meal_slot`, `planned_meal_source`, `planned_meal_status`), `meal_plans` (CHECK end ≥ start, UNIQUE (owner_id, start_date)), `planned_meals` (INV-PL-003 exactly-one-source CHECK against snapshot for RECIPE, servings > 0, logged_at pairing, `UNIQUE NULLS NOT DISTINCT (meal_plan_id, date, meal_slot, sort_order)`, INV-PL-002 range trigger), owner RLS default-deny on both tables, realtime publication, `set_updated_at` triggers, indexes — per data-model.md — supabase/migrations/0005_meal_plans.sql
-- [ ] T002 Apply migration locally (`supabase db reset` or `migration up`) and regenerate types via `bun run db:types`; verify new tables appear — src/lib/database.types.ts
-- [ ] T003 [P] Create planning domain types (`MealSlot`, `PlannedMealSource`, `PlannedMealStatus`, `MealPlan`, `PlannedMeal`, discriminated `PlannedMealDraft`, `PlannedMealPlacement`, `plannedMealName()`) per data-model.md — src/lib/planning/types.ts
-- [ ] T004 [P] Implement Monday-start civil-date week math (`mondayOf`, `weekRangeOf`, `addDays`, `monthGridRange`, `todayLocalISO`, label formatters; UTC-noon internal parsing) with exhaustive unit tests incl. year/month boundaries — src/lib/planning/weekMath.ts, src/lib/planning/weekMath.spec.ts
+- [X] T001 Write migration with enums (`meal_slot`, `planned_meal_source`, `planned_meal_status`), `meal_plans` (CHECK end ≥ start, UNIQUE (owner_id, start_date)), `planned_meals` (INV-PL-003 exactly-one-source CHECK against snapshot for RECIPE, servings > 0, logged_at pairing, `UNIQUE NULLS NOT DISTINCT (meal_plan_id, date, meal_slot, sort_order)`, INV-PL-002 range trigger), owner RLS default-deny on both tables, realtime publication, `set_updated_at` triggers, indexes — per data-model.md — supabase/migrations/0005_meal_plans.sql
+- [X] T002 Apply migration locally (`supabase db reset` or `migration up`) and regenerate types via `bun run db:types`; verify new tables appear — src/lib/database.types.ts
+- [X] T003 [P] Create planning domain types (`MealSlot`, `PlannedMealSource`, `PlannedMealStatus`, `MealPlan`, `PlannedMeal`, discriminated `PlannedMealDraft`, `PlannedMealPlacement`, `plannedMealName()`) per data-model.md — src/lib/planning/types.ts
+- [X] T004 [P] Implement Monday-start civil-date week math (`mondayOf`, `weekRangeOf`, `addDays`, `monthGridRange`, `todayLocalISO`, label formatters; UTC-noon internal parsing) with exhaustive unit tests incl. year/month boundaries — src/lib/planning/weekMath.ts, src/lib/planning/weekMath.spec.ts
 
 ## Phase 2: Service & state (blocks all UI)
 
