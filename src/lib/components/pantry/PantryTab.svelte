@@ -107,7 +107,9 @@
 			aria-modal="true"
 			aria-label="Add or edit pantry item"
 		>
-			<div class="w-full max-w-lg rounded-t-2xl bg-[var(--surface)] p-4 sm:rounded-2xl">
+			<div
+				class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-[var(--surface)] p-4 sm:rounded-2xl"
+			>
 				<PantryItemForm item={editingItem} onSave={closeItemForm} onCancel={closeItemForm} />
 			</div>
 		</div>
@@ -120,7 +122,9 @@
 			aria-modal="true"
 			aria-label="Add or edit prepped meal"
 		>
-			<div class="w-full max-w-lg rounded-t-2xl bg-[var(--surface)] p-4 sm:rounded-2xl">
+			<div
+				class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-[var(--surface)] p-4 sm:rounded-2xl"
+			>
 				<PreppedMealForm meal={editingMeal} onSave={closeMealForm} onCancel={closeMealForm} />
 			</div>
 		</div>
@@ -133,7 +137,9 @@
 			aria-modal="true"
 			aria-label="Manage portions"
 		>
-			<div class="w-full max-w-md rounded-t-2xl bg-[var(--surface)] p-4 sm:rounded-2xl">
+			<div
+				class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-[var(--surface)] p-4 sm:rounded-2xl"
+			>
 				<PortionEditor meal={portionMeal} onClose={() => (portionMeal = undefined)} />
 			</div>
 		</div>
