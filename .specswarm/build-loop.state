@@ -1,0 +1,20 @@
+{
+  "active": true,
+  "feature_description": "Planning — place planned meals (recipe / store-bought / quick) on a calendar. The requirement-creation spine. No fulfillment derivation yet.",
+  "feature_num": "003",
+  "parent_branch": "worktree-feat+planning",
+  "branch_name": "003-planning-place-planned-meals-recipe",
+  "session_id": "build-20260610-100352-003",
+  "started_at": "2026-06-10T10:03:52-05:00",
+  "current_phase": "specify",
+  "phases_complete": [],
+  "quality_threshold": 80,
+  "run_validate": false,
+  "background_mode": false,
+  "notify_on_complete": false,
+  "orchestrate_flag": "",
+  "run_analyze": false,
+  "run_checklist": false,
+  "quick_mode": false,
+  "use_orchestration": false
+}
