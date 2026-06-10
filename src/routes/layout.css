@@ -1,8 +1,11 @@
+/* Webfonts first: fonts.css carries a remote @import url(...), which CSS requires to
+   precede all other statements once bundling inlines these files. */
+@import '../lib/styles/fonts.css';
+
 @import 'tailwindcss';
 
 /* Nexus Kitchen design system — tokens first, then base component classes.
    Components MUST use these var(--token) / .nk-* primitives (CLAUDE.md, constitution P4). */
-@import '../lib/styles/fonts.css';
 @import '../lib/styles/colors.css';
 @import '../lib/styles/spacing.css';
 @import '../lib/styles/typography.css';
