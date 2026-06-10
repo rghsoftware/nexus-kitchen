@@ -80,7 +80,7 @@
 
 							<!-- Item name -->
 							<p
-								class="line-clamp-2 leading-[var(--leading-snug)] font-[var(--weight-semibold)] text-[var(--text)] text-[var(--text-sm)]"
+								class="line-clamp-2 leading-[var(--leading-snug)] [font-weight:var(--weight-semibold)] text-[var(--text)] text-[var(--text-sm)]"
 							>
 								{entry.name}
 							</p>
@@ -109,7 +109,7 @@
 					{#each lowStock as item (item.id)}
 						<li class="nk-row justify-between gap-2">
 							<span
-								class="truncate font-[var(--weight-medium)] text-[var(--text)] text-[var(--text-sm)]"
+								class="truncate [font-weight:var(--weight-medium)] text-[var(--text)] text-[var(--text-sm)]"
 							>
 								{item.name}
 							</span>

@@ -108,7 +108,7 @@
 		<!-- Name + badges -->
 		<div class="nk-stack min-w-0 flex-1 gap-1">
 			<p
-				class="truncate leading-[var(--leading-snug)] font-[var(--font-sans)] font-[var(--weight-semibold)] text-[var(--text)] text-[var(--text-base)]"
+				class="truncate leading-[var(--leading-snug)] font-[var(--font-sans)] [font-weight:var(--weight-semibold)] text-[var(--text)] text-[var(--text-base)]"
 			>
 				{meal.name}
 			</p>
