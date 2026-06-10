@@ -25,53 +25,114 @@
 </script>
 
 <!--
-	MonthView — Monday-aligned month grid with compact per-day summaries; tapping a
-	day opens the Day view (FR-PL-001). Out-of-month days are dimmed but interactive.
+	MonthView — Monday-aligned month grid in the calendar's visual language
+	(surface cells, primary-soft today). Tapping a day opens the Day view (FR-PL-001).
 -->
-<div class="flex flex-col gap-1">
-	<div class="grid grid-cols-7 gap-1" aria-hidden="true">
+<div class="month">
+	<div class="month__weekdays" aria-hidden="true">
 		{#each weekdays as wd (wd)}
-			<span
-				class="px-1 text-center font-[var(--font-sans)] font-[var(--weight-semibold)] text-[var(--text-secondary)] text-[var(--text-xs)]"
-			>
-				{wd}
-			</span>
+			<span>{wd}</span>
 		{/each}
 	</div>
 
-	<div class="grid grid-cols-7 gap-1" aria-label="Month grid">
+	<div class="month__grid" aria-label="Month grid">
 		{#each dates as date (date)}
 			{@const meals = mealsOn(date)}
 			<button
 				type="button"
-				class="flex min-h-[72px] cursor-pointer flex-col items-stretch gap-0.5 rounded-[var(--radius-md)] border bg-[var(--surface)] p-1 text-left transition-shadow duration-[var(--transition)] hover:shadow-[var(--shadow-md)] focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] {date ===
-				today
-					? 'border-[var(--primary)]'
-					: 'border-[var(--border)]'} {isSameMonth(date, anchor) ? '' : 'opacity-50'}"
+				class="mday"
+				class:mday--today={date === today}
+				class:mday--out={!isSameMonth(date, anchor)}
 				aria-label="{date}, {meals.length} meal{meals.length === 1 ? '' : 's'} planned"
 				onclick={() => onOpenDay?.(date)}
 			>
-				<span
-					class="font-[var(--font-sans)] font-[var(--weight-semibold)] text-[var(--text-xs)] {date ===
-					today
-						? 'text-[var(--primary)]'
-						: 'text-[var(--text-secondary)]'}"
-				>
-					{dayOfMonth(date)}
-				</span>
+				<b>{dayOfMonth(date)}</b>
 				{#each meals.slice(0, MAX_NAMES) as meal (meal.id)}
-					<span
-						class="truncate rounded-[var(--radius-sm)] bg-[var(--primary-soft)] px-1 text-[0.625rem] leading-4 text-[var(--text)]"
-					>
-						{plannedMealName(meal)}
-					</span>
+					<span class="mday__meal">{plannedMealName(meal)}</span>
 				{/each}
 				{#if meals.length > MAX_NAMES}
-					<span class="px-1 text-[0.625rem] text-[var(--text-muted)]">
-						+{meals.length - MAX_NAMES} more
-					</span>
+					<span class="mday__more">+{meals.length - MAX_NAMES} more</span>
 				{/if}
 			</button>
 		{/each}
 	</div>
 </div>
+
+<style>
+	.month__weekdays {
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		gap: var(--space-2);
+		margin-bottom: var(--space-2);
+	}
+	.month__weekdays span {
+		text-align: center;
+		font-size: var(--text-xs);
+		font-weight: var(--weight-bold);
+		letter-spacing: var(--tracking-wide);
+		text-transform: uppercase;
+		color: var(--text-muted);
+	}
+	.month__grid {
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		gap: var(--space-2);
+	}
+	.mday {
+		min-height: 88px;
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 3px;
+		padding: var(--space-2);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		cursor: pointer;
+		text-align: left;
+		font-family: var(--font-sans);
+		transition:
+			border-color var(--transition),
+			box-shadow var(--transition);
+	}
+	.mday:hover {
+		border-color: var(--border-strong);
+		box-shadow: var(--shadow-sm);
+	}
+	.mday:focus-visible {
+		outline: 3px solid var(--focus-ring);
+		outline-offset: 2px;
+	}
+	.mday b {
+		font-family: var(--font-display);
+		font-size: var(--text-sm);
+		color: var(--text-secondary);
+	}
+	.mday--today {
+		background: color-mix(in oklab, var(--primary-soft) 50%, var(--surface));
+		border-color: var(--primary);
+	}
+	.mday--today b {
+		color: var(--primary-text);
+	}
+	.mday--out {
+		opacity: 0.45;
+	}
+	.mday__meal {
+		font-size: var(--text-2xs);
+		font-weight: var(--weight-semibold);
+		line-height: 1.5;
+		padding: 1px 6px;
+		border-radius: var(--radius-pill);
+		background: var(--primary-soft);
+		color: var(--primary-text);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.mday__more {
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		padding-left: 6px;
+	}
+</style>

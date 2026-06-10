@@ -216,15 +216,14 @@ test.describe('Plan — calendar shell', () => {
 		await mockBackend(page);
 		await gotoPlan(page);
 
+		// One cell per (day, slot): 7 add affordances per band incl. the Anytime row.
+		// Empty cells invite with a dashed "Add" — gaps without judgment (design readme).
 		for (const band of ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Anytime']) {
 			expect(
-				await page.getByRole('heading', { name: band, exact: true }).count()
-			).toBeGreaterThanOrEqual(7);
+				await page.getByRole('button', { name: new RegExp(`^Add a meal to ${band} on `) }).count()
+			).toBe(7);
 		}
-		// Shame-free empty copy lives in the roomier Day view; week columns compact to "—"
-		await page.getByRole('button', { name: 'Day', exact: true }).click();
-		await expect(page.getByText('Nothing planned').first()).toBeVisible();
-		await page.getByRole('button', { name: 'Week', exact: true }).click();
+		await expect(page.getByRole('group', { name: 'Week planner' })).toBeVisible();
 
 		const unexpected = errors.filter((e) => !/supabase|fetch|network/i.test(e));
 		expect(unexpected).toEqual([]);
@@ -265,7 +264,7 @@ test.describe('Plan — placing meals (SC-001, SC-002)', () => {
 		await page.getByRole('tab', { name: 'Store-bought' }).click();
 		await page.getByLabel('What will you buy?').fill('Frozen lasagna');
 		await page.getByRole('button', { name: 'Add to plan' }).click();
-		await expect(page.getByRole('button', { name: /Frozen lasagna, Buy/ })).toBeVisible();
+		await expect(page.getByRole('button', { name: /Frozen lasagna, To buy/ })).toBeVisible();
 
 		// 3. Quick meal — one-tap option (FR-PL-021)
 		await addButton(page, /^Add a meal to Lunch/).click();
@@ -351,10 +350,10 @@ test.describe('Plan — persistence (SC-003)', () => {
 		await page.getByRole('tab', { name: 'Store-bought' }).click();
 		await page.getByLabel('What will you buy?').fill('Overnight oats cup');
 		await page.getByRole('button', { name: 'Add to plan' }).click();
-		await expect(page.getByRole('button', { name: /Overnight oats cup, Buy/ })).toBeVisible();
+		await expect(page.getByRole('button', { name: /Overnight oats cup, To buy/ })).toBeVisible();
 
 		await page.reload();
 		await expect(page.getByRole('group', { name: 'Calendar view' })).toBeVisible();
-		await expect(page.getByRole('button', { name: /Overnight oats cup, Buy/ })).toBeVisible();
+		await expect(page.getByRole('button', { name: /Overnight oats cup, To buy/ })).toBeVisible();
 	});
 });

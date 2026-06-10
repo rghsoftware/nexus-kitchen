@@ -5,28 +5,15 @@
 	interface Props {
 		date: ISODate;
 		slot: MealSlot | null;
+		icon: string;
 		meals: PlannedMeal[];
-		/** Compact rendering for tight week columns. */
-		compact?: boolean;
 		onAdd?: (date: ISODate, slot: MealSlot | null) => void;
 		onMealClick?: (meal: PlannedMeal) => void;
 		/** Drop target for drag-and-drop moves (FR-PL-013/015). */
 		onDropMeal?: (mealId: string, date: ISODate, slot: MealSlot | null) => void;
-		ondragstartmeal?: (meal: PlannedMeal) => void;
-		ondragendmeal?: () => void;
 	}
 
-	let {
-		date,
-		slot,
-		meals,
-		compact = false,
-		onAdd,
-		onMealClick,
-		onDropMeal,
-		ondragstartmeal,
-		ondragendmeal
-	}: Props = $props();
+	let { date, slot, icon, meals, onAdd, onMealClick, onDropMeal }: Props = $props();
 
 	let dropActive = $state(false);
 
@@ -44,55 +31,121 @@
 		e.preventDefault();
 		onDropMeal?.(mealId, date, slot);
 	}
+
+	const label = $derived(mealSlotLabel(slot));
 </script>
 
 <!--
-	SlotBand — one (date, slot) group: a conceptual time-of-day band, never a capacity
-	limit (Domain Spec §2.4). Any number of meals, ordered by saved sort order; the
-	null slot renders as "Anytime". Empty copy is neutral, never guilt (FR-PL-020).
+	SlotBand — one day-view slot section per design/screens/mobile-calendar.html
+	(.slot / .mmeal / .addmeal). A band is a time-of-day group, never a capacity limit
+	(Domain Spec §2.4). The empty state is the dashed add affordance itself —
+	"Empty meal slots say 'Add', never 'You skipped'" (design readme, FR-PL-020).
 -->
 <section
-	aria-label="{mealSlotLabel(slot)} on {date}"
-	class="flex flex-col gap-1 rounded-[var(--radius-md)] transition-colors duration-[var(--transition)] {compact
-		? 'p-1'
-		: 'p-2'} {dropActive
-		? 'bg-[var(--primary-soft)] outline-2 outline-[var(--primary)] outline-dashed'
-		: ''}"
+	aria-label="{label} on {date}"
+	class="slot"
+	class:slot--drop={dropActive}
 	ondragover={handleDragOver}
 	ondragleave={() => (dropActive = false)}
 	ondrop={handleDrop}
 >
-	<header class="flex items-center justify-between gap-1">
-		<h4 class="nk-eyebrow m-0 {compact ? 'text-[0.625rem]' : ''}">
-			{mealSlotLabel(slot)}
-		</h4>
-		<button
-			type="button"
-			class="nk-btn nk-btn--ghost nk-btn--sm shrink-0 {compact ? 'min-h-[28px] px-1.5' : ''}"
-			aria-label="Add a meal to {mealSlotLabel(slot)} on {date}"
-			onclick={() => onAdd?.(date, slot)}
-		>
-			+
-		</button>
+	<header class="slot__head">
+		<i class="ph {icon}" aria-hidden="true"></i>
+		<h4>{label}</h4>
 	</header>
 
-	{#if meals.length === 0}
-		<p class="m-0 px-1 text-[var(--text-muted)] text-[var(--text-xs)] italic">
-			{compact ? '—' : 'Nothing planned'}
-		</p>
-	{:else}
-		<ul class="m-0 flex list-none flex-col gap-1 p-0">
+	{#if meals.length > 0}
+		<ul class="slot__meals">
 			{#each meals as meal (meal.id)}
 				<li>
-					<MealCard
-						{meal}
-						{compact}
-						onclick={() => onMealClick?.(meal)}
-						{ondragstartmeal}
-						{ondragendmeal}
-					/>
+					<MealCard {meal} onclick={() => onMealClick?.(meal)} />
 				</li>
 			{/each}
 		</ul>
 	{/if}
+
+	<button
+		type="button"
+		class="addmeal"
+		class:addmeal--after={meals.length > 0}
+		aria-label="Add a meal to {label} on {date}"
+		onclick={() => onAdd?.(date, slot)}
+	>
+		<i class="ph ph-plus" aria-hidden="true"></i>
+		Add {meals.length > 0 ? 'another' : 'a meal'}
+	</button>
 </section>
+
+<style>
+	.slot {
+		margin-top: var(--space-5);
+		border-radius: var(--radius-md);
+		transition: background var(--transition);
+	}
+	.slot--drop {
+		background: var(--primary-soft);
+		outline: 1.5px dashed var(--primary);
+		outline-offset: 4px;
+	}
+	.slot__head {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		margin-bottom: var(--space-3);
+	}
+	.slot__head i {
+		color: var(--text-muted);
+		font-size: 1.2em;
+	}
+	.slot__head h4 {
+		margin: 0;
+		font-family: var(--font-sans);
+		font-size: var(--text-xs);
+		font-weight: var(--weight-bold);
+		letter-spacing: var(--tracking-wide);
+		text-transform: uppercase;
+		color: var(--text-muted);
+	}
+	.slot__meals {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+	}
+	.addmeal {
+		width: 100%;
+		min-height: 56px;
+		border: 1.5px dashed var(--border-strong);
+		border-radius: var(--radius-md);
+		background: transparent;
+		color: var(--text-muted);
+		font-weight: var(--weight-semibold);
+		font-size: var(--text-base);
+		font-family: var(--font-sans);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-2);
+		cursor: pointer;
+		transition:
+			border-color var(--transition),
+			color var(--transition),
+			background var(--transition);
+	}
+	.addmeal--after {
+		margin-top: var(--space-2);
+		min-height: 44px;
+		font-size: var(--text-sm);
+	}
+	.addmeal:hover {
+		border-color: var(--primary);
+		color: var(--primary-text);
+		background: var(--primary-soft);
+	}
+	.addmeal:focus-visible {
+		outline: 3px solid var(--focus-ring);
+		outline-offset: 2px;
+	}
+</style>

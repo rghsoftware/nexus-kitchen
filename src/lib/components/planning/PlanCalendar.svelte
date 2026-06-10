@@ -63,10 +63,6 @@
 		loadRange(visibleRange.start, visibleRange.end);
 	});
 
-	function setView(v: View) {
-		view = v;
-	}
-
 	function step(direction: 1 | -1) {
 		if (view === 'day') {
 			anchor = addDays(anchor, direction);
@@ -115,51 +111,39 @@
 </script>
 
 <!--
-	PlanCalendar — the Plan tab shell (FR-PL-001): Day/Week/Month switcher, period
-	navigation, Today shortcut. The calendar is the only planning surface; implicit
-	weekly plans are managed by the service layer, never by the user (FR-PL-011).
+	PlanCalendar — the Plan surface per design/screens/web-calendar.html: title +
+	requirement framing, period nav with icon buttons, Today, view switcher.
+	Implicit weekly plans are managed by the service layer, never by the user (FR-PL-011).
 -->
-<div class="flex h-full flex-col gap-3 p-4">
-	<header class="flex flex-wrap items-center gap-2">
-		<h2
-			class="m-0 min-w-0 flex-1 truncate font-[var(--font-display)] font-[var(--weight-bold)] text-[var(--text)] text-[var(--text-xl)]"
-		>
-			{periodTitle}
-		</h2>
-
-		<div class="flex items-center gap-1" role="group" aria-label="Calendar navigation">
-			<button
-				type="button"
-				class="nk-btn nk-btn--ghost nk-btn--sm"
-				aria-label="Previous {view}"
-				onclick={() => step(-1)}
-			>
-				‹
-			</button>
-			<button type="button" class="nk-btn nk-btn--secondary nk-btn--sm" onclick={goToday}>
-				Today
-			</button>
-			<button
-				type="button"
-				class="nk-btn nk-btn--ghost nk-btn--sm"
-				aria-label="Next {view}"
-				onclick={() => step(1)}
-			>
-				›
-			</button>
+<div class="plan">
+	<header class="topbar">
+		<div class="topbar__title">
+			<h1>Plan</h1>
+			<p>Each meal you add becomes a requirement — we track what's covered and what's left.</p>
 		</div>
 
-		<div
-			class="flex gap-1 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-0.5"
-			role="group"
-			aria-label="Calendar view"
-		>
+		<div class="periodnav" role="group" aria-label="Calendar navigation">
+			<button type="button" class="icon-btn" aria-label="Previous {view}" onclick={() => step(-1)}>
+				<i class="ph ph-caret-left" aria-hidden="true"></i>
+			</button>
+			<span class="periodnav__range">{periodTitle}</span>
+			<button type="button" class="icon-btn" aria-label="Next {view}" onclick={() => step(1)}>
+				<i class="ph ph-caret-right" aria-hidden="true"></i>
+			</button>
+		</div>
+		<button type="button" class="nk-btn nk-btn--secondary nk-btn--sm" onclick={goToday}>
+			Today
+		</button>
+
+		<span class="spacer"></span>
+
+		<div class="viewswitch" role="group" aria-label="Calendar view">
 			{#each views as v (v.id)}
 				<button
 					type="button"
 					class="nk-btn nk-btn--sm {view === v.id ? 'nk-btn--primary' : 'nk-btn--ghost'}"
 					aria-pressed={view === v.id}
-					onclick={() => setView(v.id)}
+					onclick={() => (view = v.id)}
 				>
 					{v.label}
 				</button>
@@ -168,10 +152,7 @@
 	</header>
 
 	{#if planError()}
-		<div
-			class="flex items-center justify-between gap-2 rounded-[var(--radius-md)] bg-[var(--attention-soft,var(--surface))] p-3 text-[var(--attention)] text-[var(--text-sm)]"
-			role="alert"
-		>
+		<div class="plan__error" role="alert">
 			<span>{planError()}</span>
 			<button type="button" class="nk-btn nk-btn--ghost nk-btn--sm" onclick={clearPlanError}>
 				Dismiss
@@ -180,12 +161,10 @@
 	{/if}
 
 	{#if planLoading() && plannedMeals().length === 0}
-		<p class="m-0 text-[var(--text-secondary)] text-[var(--text-sm)]" aria-live="polite">
-			Loading your plan…
-		</p>
+		<p class="plan__loading" aria-live="polite">Loading your plan…</p>
 	{/if}
 
-	<div class="min-h-0 flex-1 overflow-y-auto">
+	<div class="plan__scroll nk-scroll">
 		{#if view === 'week'}
 			<WeekView
 				{anchor}
@@ -195,7 +174,13 @@
 				onOpenDay={openDay}
 			/>
 		{:else if view === 'day'}
-			<DayView date={anchor} onAdd={openAdd} onMealClick={openDetail} onDropMeal={handleDropMeal} />
+			<DayView
+				date={anchor}
+				onSelectDay={(d) => (anchor = d)}
+				onAdd={openAdd}
+				onMealClick={openDetail}
+				onDropMeal={handleDropMeal}
+			/>
 		{:else}
 			<MonthView {anchor} onOpenDay={openDay} />
 		{/if}
@@ -203,13 +188,8 @@
 </div>
 
 {#if addTarget}
-	<div
-		class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center"
-		role="dialog"
-		aria-modal="true"
-		aria-label="Add a meal"
-	>
-		<div class="max-h-[90vh] w-full max-w-lg overflow-y-auto">
+	<div class="sheet-overlay" role="dialog" aria-modal="true" aria-label="Add a meal">
+		<div class="sheet-overlay__panel">
 			<AddMealSheet
 				date={addTarget.date}
 				slot={addTarget.slot}
@@ -220,27 +200,142 @@
 {/if}
 
 {#if detailMeal}
-	<div
-		class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center"
-		role="dialog"
-		aria-modal="true"
-		aria-label="Meal details"
-	>
-		<div class="max-h-[90vh] w-full max-w-lg overflow-y-auto">
+	<div class="sheet-overlay" role="dialog" aria-modal="true" aria-label="Meal details">
+		<div class="sheet-overlay__panel">
 			<MealDetailSheet meal={detailMeal} onClose={() => (detailMeal = null)} onMove={openMove} />
 		</div>
 	</div>
 {/if}
 
 {#if moveTarget}
-	<div
-		class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center"
-		role="dialog"
-		aria-modal="true"
-		aria-label="Move meal"
-	>
-		<div class="max-h-[90vh] w-full max-w-lg overflow-y-auto">
+	<div class="sheet-overlay" role="dialog" aria-modal="true" aria-label="Move meal">
+		<div class="sheet-overlay__panel">
 			<MoveMealSheet meal={moveTarget} onClose={() => (moveTarget = null)} />
 		</div>
 	</div>
 {/if}
+
+<style>
+	.plan {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		min-height: 0;
+	}
+
+	.topbar {
+		display: flex;
+		align-items: center;
+		gap: var(--space-4);
+		padding: var(--space-5) var(--space-6);
+		border-bottom: 1px solid var(--border);
+		flex-wrap: wrap;
+		background: var(--bg);
+	}
+	.topbar__title h1 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-weight: var(--weight-bold);
+		font-size: var(--text-2xl);
+		color: var(--text);
+	}
+	.topbar__title p {
+		margin: 2px 0 0;
+		font-size: var(--text-sm);
+		color: var(--text-muted);
+	}
+
+	.periodnav {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		margin-left: var(--space-2);
+	}
+	.periodnav__range {
+		font-weight: var(--weight-semibold);
+		font-size: var(--text-base);
+		min-width: 150px;
+		text-align: center;
+		color: var(--text);
+	}
+	.icon-btn {
+		width: 40px;
+		height: 40px;
+		border-radius: var(--radius-md);
+		border: 1px solid var(--border-strong);
+		background: var(--surface);
+		color: var(--text-secondary);
+		display: grid;
+		place-items: center;
+		cursor: pointer;
+		font-size: 1.1em;
+		transition:
+			background var(--transition),
+			color var(--transition);
+	}
+	.icon-btn:hover {
+		background: var(--surface-2);
+		color: var(--text);
+	}
+	.icon-btn:focus-visible {
+		outline: 3px solid var(--focus-ring);
+		outline-offset: 2px;
+	}
+	.spacer {
+		flex: 1;
+	}
+	.viewswitch {
+		display: flex;
+		gap: var(--space-1);
+		border: 1px solid var(--border);
+		background: var(--surface);
+		border-radius: var(--radius-pill);
+		padding: 3px;
+	}
+
+	.plan__error {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-2);
+		margin: var(--space-4) var(--space-6) 0;
+		padding: var(--space-3) var(--space-4);
+		border-radius: var(--radius-md);
+		background: var(--attention-soft);
+		color: var(--attention);
+		font-size: var(--text-sm);
+	}
+	.plan__loading {
+		margin: var(--space-4) var(--space-6) 0;
+		color: var(--text-secondary);
+		font-size: var(--text-sm);
+	}
+
+	.plan__scroll {
+		flex: 1;
+		min-height: 0;
+		overflow: auto;
+		padding: var(--space-5) var(--space-6) var(--space-8);
+	}
+
+	.sheet-overlay {
+		position: fixed;
+		inset: 0;
+		z-index: 50;
+		display: flex;
+		align-items: flex-end;
+		justify-content: center;
+		background: rgb(0 0 0 / 0.5);
+	}
+	.sheet-overlay__panel {
+		width: 100%;
+		max-width: 32rem;
+		max-height: 90vh;
+		overflow-y: auto;
+	}
+	@media (min-width: 640px) {
+		.sheet-overlay {
+			align-items: center;
+		}
+	}
+</style>

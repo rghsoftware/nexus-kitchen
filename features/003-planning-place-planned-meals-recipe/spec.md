@@ -151,7 +151,7 @@ ceremony or confirmation friction beyond a single confirm.
 
 ### Tone & ADHD Fit
 
-- **FR-PL-020**: Planning UI copy shall be invitation-based and shame-free: empty days are neutral ("Nothing planned"), never framed as failure (per REQ-UX/ADHD principles in requirements §1.3 and the design system).
+- **FR-PL-020**: Planning UI copy shall be invitation-based and shame-free: an empty slot's state IS its dashed "Add" affordance — "Empty meal slots say 'Add', never 'You skipped'" (per design/readme.md Content fundamentals and REQ-UX/ADHD principles in requirements §1.3). Gaps are never framed as failure.
 - **FR-PL-021**: Adding a meal shall take ≤ 3 interactions from the calendar for the quick path (tap band → pick/type → save), honoring the low-friction principle.
 
 ## Success Criteria

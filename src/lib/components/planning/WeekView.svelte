@@ -1,12 +1,13 @@
 <script lang="ts">
-	import SlotBand from './SlotBand.svelte';
+	import MealCard from './MealCard.svelte';
 	import {
 		MEAL_SLOTS,
-		dayLabel,
+		mealSlotLabel,
 		mealsInGroup,
 		todayLocalISO,
 		weekDatesOf,
 		weekdayLabel,
+		dayOfMonth,
 		type ISODate,
 		type MealSlot,
 		type PlannedMeal
@@ -25,60 +26,221 @@
 
 	const dates = $derived(weekDatesOf(anchor));
 	const today = todayLocalISO();
-	const bands: (MealSlot | null)[] = [...MEAL_SLOTS, null];
+
+	// Slot rows per design/screens/web-calendar.html, plus the unslotted "Anytime"
+	// group (Domain Spec §2.4: bands are never capacity limits).
+	const SLOT_ICONS: Record<MealSlot, string> = {
+		BREAKFAST: 'ph-coffee',
+		LUNCH: 'ph-bowl-food',
+		DINNER: 'ph-fork-knife',
+		SNACK: 'ph-cookie'
+	};
+	const rows: { slot: MealSlot | null; icon: string }[] = [
+		...MEAL_SLOTS.map((s) => ({ slot: s as MealSlot | null, icon: SLOT_ICONS[s] })),
+		{ slot: null, icon: 'ph-circle-dashed' }
+	];
+
+	let dropTarget = $state<string | null>(null);
+
+	function cellKey(date: ISODate, slot: MealSlot | null): string {
+		return `${date}|${slot ?? 'ANYTIME'}`;
+	}
+
+	function handleDragOver(e: DragEvent, date: ISODate, slot: MealSlot | null) {
+		if (!e.dataTransfer?.types.includes('text/nk-planned-meal')) return;
+		e.preventDefault();
+		e.dataTransfer.dropEffect = 'move';
+		dropTarget = cellKey(date, slot);
+	}
+
+	function handleDrop(e: DragEvent, date: ISODate, slot: MealSlot | null) {
+		dropTarget = null;
+		const mealId = e.dataTransfer?.getData('text/nk-planned-meal');
+		if (!mealId) return;
+		e.preventDefault();
+		onDropMeal?.(mealId, date, slot);
+	}
 </script>
 
 <!--
-	WeekView — 7 Monday-start day columns of slot bands (FR-PL-001/002). On small
-	screens the grid scrolls horizontally with snap points so every day stays
-	reachable; the Day view is the focused small-screen experience (FR-PL-004).
+	WeekView — the planning grid per design/screens/web-calendar.html: slot rows
+	(label column with icon) × Monday-start day columns. Empty cells invite with a
+	dashed "+ Add" (gaps without judgment — design readme); cells are drop targets.
 -->
-<div
-	class="grid snap-x snap-mandatory auto-cols-[minmax(11rem,1fr)] grid-flow-col gap-2 overflow-x-auto pb-2 lg:auto-cols-fr"
-	role="list"
-	aria-label="Week of {dayLabel(dates[0])}"
->
+<div class="cal" role="group" aria-label="Week planner">
+	<div class="cal__corner"></div>
 	{#each dates as date (date)}
-		<div
-			role="listitem"
-			class="flex min-w-0 snap-start flex-col gap-1 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-2 {date ===
-			today
-				? 'border-[var(--primary)]'
-				: ''}"
+		<button
+			type="button"
+			class="cal__day"
+			class:cal__day--today={date === today}
+			onclick={() => onOpenDay?.(date)}
+			aria-label="Open {weekdayLabel(date)} {date} in day view"
 		>
-			<button
-				type="button"
-				class="flex items-baseline gap-2 rounded-[var(--radius-sm)] border-0 bg-transparent p-1 text-left focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] {onOpenDay
-					? 'cursor-pointer'
-					: ''}"
-				aria-label="Open {weekdayLabel(date)} {dayLabel(date)} in day view"
-				onclick={() => onOpenDay?.(date)}
-			>
-				<span
-					class="font-[var(--font-sans)] font-[var(--weight-semibold)] text-[var(--text-sm)] {date ===
-					today
-						? 'text-[var(--primary)]'
-						: 'text-[var(--text)]'}"
-				>
-					{weekdayLabel(date)}
-				</span>
-				<span class="text-[var(--text-secondary)] text-[var(--text-xs)]">{dayLabel(date)}</span>
-				{#if date === today}
-					<span class="nk-badge shrink-0">Today</span>
-				{/if}
-			</button>
+			<span>{weekdayLabel(date)}</span>
+			<b>{dayOfMonth(date)}</b>
+		</button>
+	{/each}
 
-			{#each bands as slot (slot ?? 'ANYTIME')}
-				<SlotBand
-					{date}
-					{slot}
-					meals={mealsInGroup(date, slot)}
-					compact
-					{onAdd}
-					{onMealClick}
-					{onDropMeal}
-				/>
-			{/each}
+	{#each rows as row (row.slot ?? 'ANYTIME')}
+		<div class="cal__slot">
+			<span>{mealSlotLabel(row.slot)}</span>
+			<i class="ph {row.icon}" aria-hidden="true"></i>
 		</div>
+		{#each dates as date (date)}
+			{@const meals = mealsInGroup(date, row.slot)}
+			<div
+				class="cell"
+				class:cell--today={date === today}
+				class:cell--drop={dropTarget === cellKey(date, row.slot)}
+				role="group"
+				aria-label="{mealSlotLabel(row.slot)} on {date}"
+				ondragover={(e) => handleDragOver(e, date, row.slot)}
+				ondragleave={() => (dropTarget = null)}
+				ondrop={(e) => handleDrop(e, date, row.slot)}
+			>
+				{#each meals as meal (meal.id)}
+					<MealCard {meal} compact onclick={() => onMealClick?.(meal)} />
+				{/each}
+				<button
+					type="button"
+					class="cell__add"
+					class:cell__add--quiet={meals.length > 0}
+					aria-label="Add a meal to {mealSlotLabel(row.slot)} on {date}"
+					onclick={() => onAdd?.(date, row.slot)}
+				>
+					<i class="ph ph-plus" aria-hidden="true"></i>
+					{#if meals.length === 0}Add{/if}
+				</button>
+			</div>
+		{/each}
 	{/each}
 </div>
+
+<style>
+	.cal {
+		display: grid;
+		grid-template-columns: 92px repeat(7, minmax(150px, 1fr));
+		gap: var(--space-2);
+		min-width: 1040px;
+	}
+
+	.cal__day {
+		padding: var(--space-2) var(--space-3);
+		text-align: center;
+		border: none;
+		background: transparent;
+		border-radius: var(--radius-md);
+		cursor: pointer;
+		font-family: var(--font-sans);
+		transition: background var(--transition);
+	}
+	.cal__day:hover {
+		background: var(--surface-2);
+	}
+	.cal__day:focus-visible {
+		outline: 3px solid var(--focus-ring);
+		outline-offset: 2px;
+	}
+	.cal__day span {
+		font-size: var(--text-xs);
+		color: var(--text-muted);
+		text-transform: uppercase;
+		letter-spacing: var(--tracking-wide);
+		font-weight: var(--weight-semibold);
+		display: block;
+	}
+	.cal__day b {
+		font-family: var(--font-display);
+		font-size: var(--text-lg);
+		display: block;
+		color: var(--text);
+	}
+	.cal__day--today {
+		background: var(--primary-soft);
+	}
+	.cal__day--today b {
+		color: var(--primary-text);
+	}
+
+	.cal__slot {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: var(--space-2);
+		padding: var(--space-3) var(--space-3) 0 0;
+		font-size: var(--text-xs);
+		font-weight: var(--weight-bold);
+		letter-spacing: var(--tracking-wide);
+		text-transform: uppercase;
+		color: var(--text-muted);
+		text-align: right;
+	}
+	.cal__slot i {
+		font-size: 1.3em;
+	}
+
+	.cell {
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		min-height: 96px;
+		padding: var(--space-2);
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+		transition:
+			border-color var(--transition),
+			background var(--transition);
+	}
+	.cell--today {
+		background: color-mix(in oklab, var(--primary-soft) 50%, var(--surface));
+	}
+	.cell--drop {
+		border: 1.5px dashed var(--primary);
+		background: var(--primary-soft);
+	}
+
+	.cell__add {
+		flex: 1;
+		min-height: 60px;
+		border: 1.5px dashed var(--border-strong);
+		border-radius: var(--radius-sm);
+		background: transparent;
+		color: var(--text-muted);
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-2);
+		font-weight: var(--weight-semibold);
+		font-size: var(--text-sm);
+		font-family: var(--font-sans);
+		transition:
+			border-color var(--transition),
+			color var(--transition),
+			background var(--transition);
+	}
+	.cell__add:hover {
+		border-color: var(--primary);
+		color: var(--primary-text);
+		background: var(--primary-soft);
+	}
+	.cell__add:focus-visible {
+		outline: 3px solid var(--focus-ring);
+		outline-offset: 2px;
+	}
+	/* Occupied cells keep a quiet add affordance below the meals */
+	.cell__add--quiet {
+		flex: 0;
+		min-height: 32px;
+		border-style: dashed;
+		border-color: transparent;
+		opacity: 0;
+	}
+	.cell:hover .cell__add--quiet,
+	.cell__add--quiet:focus-visible {
+		opacity: 1;
+		border-color: var(--border-strong);
+	}
+</style>

@@ -72,3 +72,4 @@ nimbalyst-local/
 
 # Agent session/handoff state
 .remember/
+.playwright-mcp/

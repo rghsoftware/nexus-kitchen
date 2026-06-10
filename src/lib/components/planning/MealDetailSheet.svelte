@@ -101,7 +101,7 @@
 			aria-label="Close"
 			onclick={onClose}
 		>
-			✕
+			<i class="ph ph-x" aria-hidden="true"></i>
 		</button>
 	</header>
 
