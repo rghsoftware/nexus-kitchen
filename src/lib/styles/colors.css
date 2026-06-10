@@ -50,6 +50,22 @@
 	--energy-4-soft: oklch(0.95 0.05 128);
 	--energy-5-soft: oklch(0.95 0.055 80);
 
+	/* --- Food tile hues (signature element) -------------------------
+     The calm categorical palette for no-photo food tiles: a hue assigned
+     for visual variety, NEVER as a judgment. Same restful cool->warm ramp
+     as energy (periwinkle, soft blue, teal-sage, green-gold, warm amber),
+     so tiles inherit the dark-mode soft overrides automatically. */
+	--tile-1: var(--energy-1);
+	--tile-2: var(--energy-2);
+	--tile-3: var(--energy-3);
+	--tile-4: var(--energy-4);
+	--tile-5: var(--energy-5);
+	--tile-1-soft: var(--energy-1-soft);
+	--tile-2-soft: var(--energy-2-soft);
+	--tile-3-soft: var(--energy-3-soft);
+	--tile-4-soft: var(--energy-4-soft);
+	--tile-5-soft: var(--energy-5-soft);
+
 	/* --- Requirement fulfillment — THE OPERATIONAL CORE -------------
      Every planned meal is a requirement in one of three states. The whole
      product exists to move each one to "Have it" before its day. This is a
