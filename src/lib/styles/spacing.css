@@ -4,31 +4,31 @@
    ============================================================ */
 
 :root {
-  /* Spacing scale (4px base) */
-  --space-1: 0.25rem;   /* 4 */
-  --space-2: 0.5rem;    /* 8 */
-  --space-3: 0.75rem;   /* 12 */
-  --space-4: 1rem;      /* 16 */
-  --space-5: 1.25rem;   /* 20 */
-  --space-6: 1.5rem;    /* 24 */
-  --space-7: 2rem;      /* 32 */
-  --space-8: 2.5rem;    /* 40 */
-  --space-9: 3rem;      /* 48 */
-  --space-10: 4rem;     /* 64 */
-  --space-12: 6rem;     /* 96 */
+	/* Spacing scale (4px base) */
+	--space-1: 0.25rem; /* 4 */
+	--space-2: 0.5rem; /* 8 */
+	--space-3: 0.75rem; /* 12 */
+	--space-4: 1rem; /* 16 */
+	--space-5: 1.25rem; /* 20 */
+	--space-6: 1.5rem; /* 24 */
+	--space-7: 2rem; /* 32 */
+	--space-8: 2.5rem; /* 40 */
+	--space-9: 3rem; /* 48 */
+	--space-10: 4rem; /* 64 */
+	--space-12: 6rem; /* 96 */
 
-  /* Radii — generous, soft */
-  --radius-xs: 6px;
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
-  --radius-pill: 999px;
+	/* Radii — generous, soft */
+	--radius-xs: 6px;
+	--radius-sm: 10px;
+	--radius-md: 14px;
+	--radius-lg: 20px;
+	--radius-xl: 28px;
+	--radius-pill: 999px;
 
-  /* Hit targets — accessibility floor */
-  --tap-min: 44px;
+	/* Hit targets — accessibility floor */
+	--tap-min: 44px;
 
-  --container: 1240px;
-  --transition: 160ms cubic-bezier(0.3, 0.1, 0.3, 1);
-  --transition-slow: 280ms cubic-bezier(0.3, 0.1, 0.3, 1);
+	--container: 1240px;
+	--transition: 160ms cubic-bezier(0.3, 0.1, 0.3, 1);
+	--transition-slow: 280ms cubic-bezier(0.3, 0.1, 0.3, 1);
 }
