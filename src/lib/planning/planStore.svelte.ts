@@ -290,14 +290,12 @@ export async function loadFulfillmentInputs(): Promise<void> {
 	try {
 		const [index] = await Promise.all([loadIngredientIndex(recipeIdsInRange()), ...inventoryLoads]);
 		_ingredientsByRecipeId = index;
+		// Only mark ready on success — if any load threw, chips stay hidden (FR-FS-009).
+		_inventoryReady = pantryError() === null && preppedMealsError() === null;
 	} catch (err) {
 		// RECIPE chips stay omitted (index remains null); surface the calm message.
 		_error = err instanceof Error ? err.message : "We couldn't check your ingredients.";
 	}
-
-	// Inventory is "ready" only if the stores loaded without error — otherwise chips
-	// stay hidden rather than claiming "To get" off an empty failed load (FR-FS-009).
-	_inventoryReady = pantryError() === null && preppedMealsError() === null;
 }
 
 /**
