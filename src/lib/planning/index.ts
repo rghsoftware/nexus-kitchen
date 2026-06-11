@@ -18,8 +18,20 @@ export {
 export { PlanningError } from './planningService';
 
 export {
+	buildPantryNameIndex,
+	deriveFulfillment,
+	normalizeName,
+	type FulfillmentInputs,
+	type FulfillmentResult,
+	type FulfillmentState,
+	type IngredientForMatch
+} from './fulfillment';
+
+export {
 	addMeal,
 	clearPlanError,
+	fulfillmentFor,
+	loadFulfillmentInputs,
 	loadRange,
 	loadedRange,
 	mealsInGroup,

@@ -2,8 +2,8 @@
 // snake_case database rows in `$lib/database.types`. The service layer returns these.
 //
 // Canonical shapes: Domain Specification §2.4 (Planning Context). Fulfillment state
-// (HAVE_IT / CAN_MAKE_IT / MUST_ACQUIRE) is derived, never stored (INV-PL-017), and is
-// not computed in this chunk at all.
+// (HAVE_IT / CAN_MAKE_IT / MUST_ACQUIRE) is derived, never stored (INV-PL-017) — see
+// fulfillment.ts for the derivation.
 
 import type { Enums, Tables, TablesInsert, TablesUpdate } from '$lib/database.types';
 
@@ -43,6 +43,8 @@ export interface PlannedMeal {
 	source: PlannedMealSource;
 	recipeId: string | null;
 	recipeTitleSnapshot: string | null;
+	preppedMealId: string | null;
+	preppedNameSnapshot: string | null;
 	storeBoughtName: string | null;
 	quickMealName: string | null;
 	servings: number;
@@ -54,10 +56,11 @@ export interface PlannedMeal {
 
 /**
  * Discriminated creation draft — makes INV-PL-003 (exactly one source reference)
- * unrepresentable client-side. PREPPED is deliberately absent this chunk (A-003).
+ * unrepresentable client-side.
  */
 export type PlannedMealDraft =
 	| { source: 'RECIPE'; recipeId: string; recipeTitle: string; servings: number }
+	| { source: 'PREPPED'; preppedMealId: string; preppedName: string; servings: number }
 	| { source: 'STORE_BOUGHT'; storeBoughtName: string; servings: number }
 	| { source: 'QUICK'; quickMealName: string; servings: number };
 
@@ -87,7 +90,7 @@ export function plannedMealName(meal: PlannedMeal): string {
 		case 'QUICK':
 			return meal.quickMealName ?? 'Quick meal';
 		case 'PREPPED':
-			return 'Prepped meal'; // reserved; not creatable this chunk
+			return meal.preppedNameSnapshot ?? 'Prepped meal';
 	}
 }
 
@@ -130,6 +133,8 @@ export function toPlannedMeal(row: PlannedMealRow): PlannedMeal {
 		source: row.source,
 		recipeId: row.recipe_id,
 		recipeTitleSnapshot: row.recipe_title_snapshot,
+		preppedMealId: row.prepped_meal_id,
+		preppedNameSnapshot: row.prepped_name_snapshot,
 		storeBoughtName: row.store_bought_name,
 		quickMealName: row.quick_meal_name,
 		servings: Number(row.servings),
