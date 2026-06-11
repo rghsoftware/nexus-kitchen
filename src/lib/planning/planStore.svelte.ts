@@ -6,12 +6,14 @@ import {
 	loadPantryItems,
 	pantryError,
 	pantryItems,
+	pantryLoaded,
 	pantryLoading
 } from '$lib/pantry/pantryStore.svelte';
 import {
 	loadPreppedMeals,
 	preppedMeals,
 	preppedMealsError,
+	preppedMealsLoaded,
 	preppedMealsLoading
 } from '$lib/pantry/preppedMealStore.svelte';
 import {
@@ -197,7 +199,9 @@ export async function updateMeal(id: string, patch: PlannedMealPatch): Promise<P
 		storeBoughtName: patch.storeBoughtName ?? before.storeBoughtName,
 		quickMealName: patch.quickMealName ?? before.quickMealName,
 		recipeId: patch.recipeId ?? before.recipeId,
-		recipeTitleSnapshot: patch.recipeTitleSnapshot ?? before.recipeTitleSnapshot
+		recipeTitleSnapshot: patch.recipeTitleSnapshot ?? before.recipeTitleSnapshot,
+		preppedMealId: patch.preppedMealId !== undefined ? patch.preppedMealId : before.preppedMealId,
+		preppedNameSnapshot: patch.preppedNameSnapshot ?? before.preppedNameSnapshot
 	};
 	if (patch.mealSlot !== undefined && patch.mealSlot !== before.mealSlot) {
 		optimistic.sortOrder = nextLocalSortOrder(before.date, patch.mealSlot);
@@ -270,8 +274,9 @@ async function extendIngredientIndex(recipeId: string): Promise<void> {
 	try {
 		const fetched = await loadIngredientIndex([recipeId]);
 		_ingredientsByRecipeId = new Map([..._ingredientsByRecipeId, ...fetched]);
-	} catch {
+	} catch (err) {
 		// Chip stays omitted for this meal until the next loadFulfillmentInputs().
+		console.error('[planStore] extendIngredientIndex failed for', recipeId, err);
 	}
 }
 
@@ -282,10 +287,8 @@ async function extendIngredientIndex(recipeId: string): Promise<void> {
  */
 export async function loadFulfillmentInputs(): Promise<void> {
 	const inventoryLoads: Promise<void>[] = [];
-	if (pantryItems().length === 0 && !pantryLoading()) inventoryLoads.push(loadPantryItems());
-	if (preppedMeals().length === 0 && !preppedMealsLoading()) {
-		inventoryLoads.push(loadPreppedMeals());
-	}
+	if (!pantryLoaded() && !pantryLoading()) inventoryLoads.push(loadPantryItems());
+	if (!preppedMealsLoaded() && !preppedMealsLoading()) inventoryLoads.push(loadPreppedMeals());
 
 	try {
 		const [index] = await Promise.all([loadIngredientIndex(recipeIdsInRange()), ...inventoryLoads]);

@@ -14,11 +14,13 @@ import type { PlannedMeal } from './types';
 
 export type FulfillmentState = 'HAVE_IT' | 'CAN_MAKE_IT' | 'MUST_ACQUIRE';
 
-export interface FulfillmentResult {
-	state: FulfillmentState;
-	/** Required-ingredient names not on hand; non-empty only for RECIPE + MUST_ACQUIRE. */
-	missingIngredients: string[];
-}
+/**
+ * Discriminated union so `missingIngredients` is structurally restricted to
+ * MUST_ACQUIRE — callers never need to null-guard it for HAVE_IT / CAN_MAKE_IT.
+ */
+export type FulfillmentResult =
+	| { state: 'HAVE_IT' | 'CAN_MAKE_IT'; missingIngredients?: never }
+	| { state: 'MUST_ACQUIRE'; missingIngredients: string[] };
 
 /** The slice of a recipe_ingredients row the matcher needs. */
 export interface IngredientForMatch {
@@ -34,7 +36,12 @@ export interface FulfillmentInputs {
 	pantryIndex: ReadonlySet<string>;
 	/** Prepped portions by id — only `portionsRemaining` matters here. */
 	preppedById: ReadonlyMap<string, { portionsRemaining: number }>;
-	/** Ingredients per recipe id; null = not fetched yet (chips are omitted, FR-FS-009). */
+	/**
+	 * Ingredients per recipe id.
+	 * - `null` = fetch has not been issued yet; RECIPE chips are omitted (FR-FS-009).
+	 * - empty `Map` = fetch issued but range has no RECIPE meals, or all recipes were deleted.
+	 * Never conflate these: pass `null` while loading, not `new Map()`.
+	 */
 	ingredientsByRecipeId: ReadonlyMap<string, IngredientForMatch[]> | null;
 }
 
@@ -77,9 +84,9 @@ export function inputsFromSnapshot(
 	};
 }
 
-const HAVE_IT: FulfillmentResult = { state: 'HAVE_IT', missingIngredients: [] };
+const HAVE_IT: FulfillmentResult = { state: 'HAVE_IT' };
+const CAN_MAKE_IT: FulfillmentResult = { state: 'CAN_MAKE_IT' };
 const MUST_ACQUIRE: FulfillmentResult = { state: 'MUST_ACQUIRE', missingIngredients: [] };
-const CAN_MAKE_IT: FulfillmentResult = { state: 'CAN_MAKE_IT', missingIngredients: [] };
 
 /**
  * Derive the fulfillment state of one planned meal (FR-FS-001..004).

@@ -32,12 +32,19 @@ export async function loadIngredientIndex(
 
 		for (const id of uncached) cache.set(id, []);
 		for (const row of data ?? []) {
-			cache.get(row.recipe_id)?.push({
-				id: row.id,
-				name: row.name,
-				isOptional: row.is_optional,
-				substituteFor: row.substitute_for
-			});
+			const list = cache.get(row.recipe_id);
+			if (list) {
+				list.push({
+					id: row.id,
+					name: row.name,
+					isOptional: row.is_optional,
+					substituteFor: row.substitute_for
+				});
+			} else {
+				// PostgREST returned a recipe_id that wasn't in our .in() filter — RLS
+				// rewrite or a data anomaly. Log for observability; don't let it corrupt cache.
+				console.error('[ingredientIndex] unexpected recipe_id in response:', row.recipe_id);
+			}
 		}
 	}
 

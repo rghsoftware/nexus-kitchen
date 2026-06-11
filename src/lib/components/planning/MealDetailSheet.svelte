@@ -128,7 +128,7 @@
 				<i class="ph {fulfillmentLine.icon}" aria-hidden="true"></i>
 				{fulfillmentLine.label}
 			</p>
-			{#if meal.source === 'RECIPE' && fulfillment !== null && fulfillment.missingIngredients.length > 0}
+			{#if fulfillment?.state === 'MUST_ACQUIRE' && fulfillment.missingIngredients.length > 0}
 				<!-- The gap to close (FR-FS-006) — neutral information, never a reproach. -->
 				<p class="m-0 text-[var(--text-secondary)] text-[var(--text-sm)]">
 					Missing: {fulfillment.missingIngredients.join(', ')}

@@ -182,6 +182,9 @@ function patchColumns(patch: PlannedMealPatch): PlannedMealUpdate {
 	if (patch.recipeId !== undefined) out.recipe_id = patch.recipeId;
 	if (patch.recipeTitleSnapshot !== undefined)
 		out.recipe_title_snapshot = patch.recipeTitleSnapshot;
+	if (patch.preppedMealId !== undefined) out.prepped_meal_id = patch.preppedMealId;
+	if (patch.preppedNameSnapshot !== undefined)
+		out.prepped_name_snapshot = patch.preppedNameSnapshot;
 	return out;
 }
 

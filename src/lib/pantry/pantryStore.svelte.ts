@@ -9,6 +9,7 @@ import { toPantryItem, type NewPantryItem, type PantryItem, type PantryItemUpdat
 let _items = $state<PantryItem[]>([]);
 let _loading = $state(false);
 let _error = $state<string | null>(null);
+let _loaded = $state(false);
 
 // ---------------------------------------------------------------------------
 // Public accessors (getter functions so consumers can read reactive state)
@@ -19,6 +20,9 @@ export function pantryItems(): PantryItem[] {
 }
 export function pantryLoading(): boolean {
 	return _loading;
+}
+export function pantryLoaded(): boolean {
+	return _loaded;
 }
 export function pantryError(): string | null {
 	return _error;
@@ -47,6 +51,7 @@ export async function loadPantryItems(householdId?: string | null): Promise<void
 	_error = null;
 	try {
 		_items = await getPantryItems(householdId);
+		_loaded = true;
 	} catch (err) {
 		_error = err instanceof Error ? err.message : 'Failed to load pantry';
 	} finally {

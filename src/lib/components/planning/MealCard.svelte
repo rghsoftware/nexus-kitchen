@@ -29,7 +29,7 @@
 	// vocabulary: "To get" is an action, not a reproach; ochre attention, never red.
 	const FULFILLMENT = {
 		HAVE_IT: { label: 'Have it', icon: 'ph-check-circle', cls: 'ful--have' },
-		CAN_MAKE_IT: { label: 'Can make it', icon: 'ph-cooking-pot', cls: 'ful--can' },
+		CAN_MAKE_IT: { label: 'Can make it', icon: 'ph-list-checks', cls: 'ful--can' },
 		MUST_ACQUIRE: { label: 'To get', icon: 'ph-basket', cls: 'ful--get' }
 	} as const;
 	const fulfillment = $derived(fulfillmentFor(meal));

@@ -91,7 +91,7 @@ describe('deriveFulfillment — PREPPED', () => {
 			prepped,
 			inputs({ preppedById: new Map([['pp-1', { portionsRemaining: 2 }]]) })
 		);
-		expect(result).toEqual({ state: 'HAVE_IT', missingIngredients: [] });
+		expect(result).toEqual({ state: 'HAVE_IT' });
 	});
 
 	it('is MUST_ACQUIRE when the portion is exhausted', () => {
@@ -136,7 +136,7 @@ describe('deriveFulfillment — RECIPE', () => {
 				['Rice', 'Black beans']
 			)
 		);
-		expect(result).toEqual({ state: 'CAN_MAKE_IT', missingIngredients: [] });
+		expect(result).toEqual({ state: 'CAN_MAKE_IT' });
 	});
 
 	it('is MUST_ACQUIRE listing the missing required ingredients by name', () => {

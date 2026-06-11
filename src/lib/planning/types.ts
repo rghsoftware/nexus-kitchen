@@ -78,6 +78,8 @@ export interface PlannedMealPatch {
 	quickMealName?: string;
 	recipeId?: string;
 	recipeTitleSnapshot?: string;
+	preppedMealId?: string | null;
+	preppedNameSnapshot?: string;
 }
 
 /** Display name for a planned meal regardless of source (FR-PL-003). */
