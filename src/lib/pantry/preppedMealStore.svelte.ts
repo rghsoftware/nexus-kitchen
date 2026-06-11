@@ -22,6 +22,7 @@ import {
 let _meals = $state<PreppedMeal[]>([]);
 let _loading = $state(false);
 let _error = $state<string | null>(null);
+let _loaded = $state(false);
 
 // ---------------------------------------------------------------------------
 // Public accessors
@@ -32,6 +33,9 @@ export function preppedMeals(): PreppedMeal[] {
 }
 export function preppedMealsLoading(): boolean {
 	return _loading;
+}
+export function preppedMealsLoaded(): boolean {
+	return _loaded;
 }
 export function preppedMealsError(): string | null {
 	return _error;
@@ -60,6 +64,7 @@ export async function loadPreppedMeals(householdId?: string | null): Promise<voi
 	_error = null;
 	try {
 		_meals = await getPreppedMeals(householdId);
+		_loaded = true;
 	} catch (err) {
 		_error = err instanceof Error ? err.message : 'Failed to load prepped meals';
 	} finally {

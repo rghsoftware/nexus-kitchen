@@ -76,6 +76,7 @@ function makeMealRow(overrides: Record<string, unknown> = {}) {
 		recipe_id: 'recipe-1',
 		recipe_title_snapshot: 'Chicken Stir Fry',
 		prepped_meal_id: null,
+		prepped_name_snapshot: null,
 		store_bought_name: null,
 		quick_meal_name: null,
 		servings: 2,
@@ -221,6 +222,32 @@ describe('planningService', () => {
 			expect(payload.source).toBe('QUICK');
 			expect(payload.quick_meal_name).toBe('Takeout');
 			expect(payload.store_bought_name).toBeUndefined();
+		});
+
+		it('inserts an exclusive PREPPED payload with name snapshot (FR-FS-010, INV-PL-003)', async () => {
+			const row = makeMealRow({
+				source: 'PREPPED',
+				recipe_id: null,
+				recipe_title_snapshot: null,
+				prepped_meal_id: 'prepped-1',
+				prepped_name_snapshot: 'Chili'
+			});
+			const [, , insertChain] = setupAddChains([{ data: row, error: null }]);
+
+			const meal = await addPlannedMeal(
+				{ source: 'PREPPED', preppedMealId: 'prepped-1', preppedName: 'Chili', servings: 1 },
+				{ date: '2026-06-11', mealSlot: 'LUNCH' }
+			);
+
+			const payload = insertChain.insert.mock.calls[0][0];
+			expect(payload.source).toBe('PREPPED');
+			expect(payload.prepped_meal_id).toBe('prepped-1');
+			expect(payload.prepped_name_snapshot).toBe('Chili');
+			expect(payload.recipe_id).toBeUndefined();
+			expect(payload.store_bought_name).toBeUndefined();
+			expect(payload.quick_meal_name).toBeUndefined();
+			expect(meal.preppedMealId).toBe('prepped-1');
+			expect(meal.preppedNameSnapshot).toBe('Chili');
 		});
 
 		it('retries once when a concurrent writer takes the sort position (23505)', async () => {

@@ -8,6 +8,12 @@
 		type MealSlot,
 		type PlannedMealDraft
 	} from '$lib/planning';
+	import {
+		loadPreppedMeals,
+		preppedMeals,
+		preppedMealsLoading
+	} from '$lib/pantry/preppedMealStore.svelte';
+	import type { PreppedMeal, StorageLocation } from '$lib/pantry/types';
 	import { recipesRepository, type RecipeSummary } from '$lib/recipes';
 
 	interface Props {
@@ -19,7 +25,7 @@
 
 	let { date, slot, onClose }: Props = $props();
 
-	type SourceTab = 'RECIPE' | 'STORE_BOUGHT' | 'QUICK';
+	type SourceTab = 'RECIPE' | 'PREPPED' | 'STORE_BOUGHT' | 'QUICK';
 	let tab = $state<SourceTab>('RECIPE');
 	// The sheet unmounts on close, so capturing the initial slot is intentional.
 	// svelte-ignore state_referenced_locally
@@ -39,6 +45,18 @@
 	let quickName = $state('');
 	const QUICK_OPTIONS = ['Takeout', 'Leftovers'];
 
+	// Prepped tab (FR-FS-010) — only portions that still exist to eat
+	let selectedPrepped = $state<PreppedMeal | null>(null);
+	let preppedRequested = $state(false);
+	const availablePortions = $derived(preppedMeals().filter((p) => p.portions_remaining > 0));
+
+	const STORAGE_LABEL: Record<StorageLocation, string> = {
+		PANTRY: 'Pantry',
+		FRIDGE: 'Fridge',
+		FREEZER: 'Freezer',
+		OTHER: 'Stored'
+	};
+
 	$effect(() => {
 		if (tab === 'RECIPE' && !recipesLoaded) {
 			recipesRepository
@@ -50,6 +68,15 @@
 				.catch(() => {
 					error = "We couldn't load your recipes. You can still add a store-bought or quick meal.";
 				});
+		}
+	});
+
+	$effect(() => {
+		if (tab === 'PREPPED' && !preppedRequested) {
+			preppedRequested = true;
+			if (preppedMeals().length === 0 && !preppedMealsLoading()) {
+				void loadPreppedMeals();
+			}
 		}
 	});
 
@@ -99,17 +126,30 @@
 		void save({ source: 'QUICK', quickMealName: trimmed, servings: 1 });
 	}
 
+	/** Place an existing ready-to-eat portion — lands as HAVE_IT (FR-FS-010). */
+	function savePrepped() {
+		if (!selectedPrepped) return;
+		void save({
+			source: 'PREPPED',
+			preppedMealId: selectedPrepped.id,
+			preppedName: selectedPrepped.name,
+			servings: 1
+		});
+	}
+
 	const tabs: { id: SourceTab; label: string }[] = [
 		{ id: 'RECIPE', label: 'Recipe' },
+		{ id: 'PREPPED', label: 'Prepped' },
 		{ id: 'STORE_BOUGHT', label: 'Store-bought' },
 		{ id: 'QUICK', label: 'Quick' }
 	];
 </script>
 
 <!--
-	AddMealSheet — place a meal on (date, slot). Three sources: a recipe to cook, a
-	store-bought meal to buy (REQ-MP-011), or a pressure-free quick option
-	(FR-PL-005..008). Slots are bands, never limits; "Anytime" leaves it unslotted.
+	AddMealSheet — place a meal on (date, slot). Four sources: a recipe to cook, a
+	prepped portion already on hand (FR-FS-010 — lands as HAVE_IT), a store-bought
+	meal to buy (REQ-MP-011), or a pressure-free quick option (FR-PL-005..008).
+	Slots are bands, never limits; "Anytime" leaves it unslotted.
 -->
 <div
 	class="flex flex-col gap-4 rounded-[var(--radius-lg)] bg-[var(--surface)] p-6"
@@ -251,6 +291,54 @@
 				class="nk-btn nk-btn--primary"
 				disabled={!selectedRecipe || saving}
 				onclick={saveRecipe}
+			>
+				{saving ? 'Adding…' : 'Add to plan'}
+			</button>
+		</div>
+	{:else if tab === 'PREPPED'}
+		<div class="flex flex-col gap-3" role="tabpanel" aria-label="Prepped">
+			{#if preppedMealsLoading()}
+				<p class="m-0 text-[var(--text-secondary)] text-[var(--text-sm)]" aria-live="polite">
+					Loading your prepped portions…
+				</p>
+			{:else if availablePortions.length === 0}
+				<p class="m-0 text-[var(--text-secondary)] text-[var(--text-sm)]">
+					No portions ready right now — prep or log meals from the Pantry tab, or plan a recipe
+					instead.
+				</p>
+			{:else}
+				<ul class="m-0 flex max-h-64 list-none flex-col gap-1 overflow-y-auto p-0">
+					{#each availablePortions as portion (portion.id)}
+						<li>
+							<button
+								type="button"
+								class="nk-card flex w-full cursor-pointer items-center justify-between gap-2 p-2.5 text-left {selectedPrepped?.id ===
+								portion.id
+									? 'outline-2 outline-[var(--primary)]'
+									: ''}"
+								aria-pressed={selectedPrepped?.id === portion.id}
+								onclick={() => (selectedPrepped = portion)}
+							>
+								<span
+									class="truncate font-[var(--font-sans)] [font-weight:var(--weight-semibold)] text-[var(--text)] text-[var(--text-sm)]"
+								>
+									{portion.name}
+								</span>
+								<span class="shrink-0 text-[var(--text-secondary)] text-[var(--text-xs)]">
+									{portion.portions_remaining} portion{portion.portions_remaining === 1 ? '' : 's'}
+									· {STORAGE_LABEL[portion.storage_location]}
+								</span>
+							</button>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+
+			<button
+				type="button"
+				class="nk-btn nk-btn--primary"
+				disabled={!selectedPrepped || saving}
+				onclick={savePrepped}
 			>
 				{saving ? 'Adding…' : 'Add to plan'}
 			</button>

@@ -1,0 +1,28 @@
+{
+  "active": false,
+  "feature_description": "implement the Fulfillment state feature — derive and show HAVE_IT / CAN_MAKE_IT / MUST_ACQUIRE per planned meal.",
+  "feature_num": "004",
+  "parent_branch": "worktree-feat+fulfillment-state",
+  "branch_name": "004-implement-the-fulfillment-state-feature-derive-and",
+  "session_id": "build-20260610-184341-004",
+  "started_at": "2026-06-10T18:43:41-05:00",
+  "current_phase": "complete",
+  "phases_complete": [
+    "specify",
+    "clarify",
+    "plan",
+    "tasks",
+    "implement",
+    "verify",
+    "quality"
+  ],
+  "quality_threshold": 80,
+  "run_validate": false,
+  "background_mode": false,
+  "notify_on_complete": false,
+  "orchestrate_flag": "",
+  "run_analyze": false,
+  "run_checklist": false,
+  "quick_mode": false,
+  "use_orchestration": false
+}

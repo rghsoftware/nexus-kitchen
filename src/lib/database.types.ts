@@ -133,6 +133,7 @@ export type Database = {
 					meal_plan_id: string;
 					meal_slot: Database['public']['Enums']['meal_slot'] | null;
 					prepped_meal_id: string | null;
+					prepped_name_snapshot: string | null;
 					quick_meal_name: string | null;
 					recipe_id: string | null;
 					recipe_title_snapshot: string | null;
@@ -151,6 +152,7 @@ export type Database = {
 					meal_plan_id: string;
 					meal_slot?: Database['public']['Enums']['meal_slot'] | null;
 					prepped_meal_id?: string | null;
+					prepped_name_snapshot?: string | null;
 					quick_meal_name?: string | null;
 					recipe_id?: string | null;
 					recipe_title_snapshot?: string | null;
@@ -169,6 +171,7 @@ export type Database = {
 					meal_plan_id?: string;
 					meal_slot?: Database['public']['Enums']['meal_slot'] | null;
 					prepped_meal_id?: string | null;
+					prepped_name_snapshot?: string | null;
 					quick_meal_name?: string | null;
 					recipe_id?: string | null;
 					recipe_title_snapshot?: string | null;

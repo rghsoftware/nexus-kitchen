@@ -3,6 +3,7 @@
 	import {
 		MEAL_SLOTS,
 		dayFullLabel,
+		fulfillmentFor,
 		mealSlotLabel,
 		plannedMealName,
 		removeMeal,
@@ -34,6 +35,15 @@
 	let error = $state<string | null>(null);
 
 	const name = $derived(plannedMealName(meal));
+
+	// Fulfillment (REQ-MP-012): derived live, null = not tracked / inputs loading.
+	const FULFILLMENT = {
+		HAVE_IT: { label: 'Have it', icon: 'ph-check-circle', tone: 'var(--primary-text)' },
+		CAN_MAKE_IT: { label: 'Can make it', icon: 'ph-cooking-pot', tone: 'var(--text-secondary)' },
+		MUST_ACQUIRE: { label: 'To get', icon: 'ph-basket', tone: 'var(--attention)' }
+	} as const;
+	const fulfillment = $derived(fulfillmentFor(meal));
+	const fulfillmentLine = $derived(fulfillment === null ? null : FULFILLMENT[fulfillment.state]);
 
 	function buildPatch(): PlannedMealPatch {
 		const patch: PlannedMealPatch = {};
@@ -107,6 +117,24 @@
 
 	{#if error}
 		<p class="m-0 text-[var(--attention)] text-[var(--text-sm)]" role="alert">{error}</p>
+	{/if}
+
+	{#if fulfillmentLine}
+		<div class="flex flex-col gap-1">
+			<p
+				class="m-0 flex items-center gap-1.5 font-[var(--font-sans)] [font-weight:var(--weight-semibold)] text-[var(--text-sm)]"
+				style="color: {fulfillmentLine.tone};"
+			>
+				<i class="ph {fulfillmentLine.icon}" aria-hidden="true"></i>
+				{fulfillmentLine.label}
+			</p>
+			{#if fulfillment?.state === 'MUST_ACQUIRE' && fulfillment.missingIngredients.length > 0}
+				<!-- The gap to close (FR-FS-006) — neutral information, never a reproach. -->
+				<p class="m-0 text-[var(--text-secondary)] text-[var(--text-sm)]">
+					Missing: {fulfillment.missingIngredients.join(', ')}
+				</p>
+			{/if}
+		</div>
 	{/if}
 
 	{#if meal.source === 'RECIPE' && meal.recipeId}

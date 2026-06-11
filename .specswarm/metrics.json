@@ -1,14 +1,30 @@
 {
-	"features": {
-		"003-planning": {
-			"quality_score": 92,
-			"tasks_total": 18,
-			"tasks_completed": 18,
-			"unit_tests": { "server": "120/120", "new": 34 },
-			"e2e_tests": "17/17 (6 new)",
-			"pgtap_tests": "32/32 (16 new)",
-			"spec_mentor": "PASS",
-			"completed_at": "2026-06-10"
-		}
-	}
+  "features": {
+    "003-planning": {
+      "quality_score": 92,
+      "tasks_total": 18,
+      "tasks_completed": 18,
+      "unit_tests": {
+        "server": "120/120",
+        "new": 34
+      },
+      "e2e_tests": "17/17 (6 new)",
+      "pgtap_tests": "32/32 (16 new)",
+      "spec_mentor": "PASS",
+      "completed_at": "2026-06-10"
+    },
+    "004-fulfillment-state": {
+      "quality_score": 88,
+      "tasks_total": 14,
+      "tasks_completed": 14,
+      "unit_tests": {
+        "server": "140/140",
+        "new": 20
+      },
+      "pgtap_tests": "32/32",
+      "e2e_tests": "not runnable in build sandbox (browser hang, pre-existing env issue)",
+      "spec_mentor": "PASS after FR-FS-008 alignment (NEEDS-MARTY item resolved in 3b68c46)",
+      "completed_at": "2026-06-10"
+    }
+  }
 }

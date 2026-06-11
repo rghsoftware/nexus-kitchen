@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { plannedMealName, type PlannedMeal } from '$lib/planning';
+	import { fulfillmentFor, plannedMealName, type PlannedMeal } from '$lib/planning';
 
 	interface Props {
 		meal: PlannedMeal;
@@ -16,14 +16,24 @@
 	const name = $derived(plannedMealName(meal));
 
 	// Source → glyph + worded chip. Icons always pair with a text label (design readme:
-	// color is never the only signal). Fulfillment states arrive in a later chunk.
+	// color is never the only signal).
 	const SOURCE = {
 		RECIPE: { label: 'Recipe', icon: 'ph-cooking-pot', tile: 'tile--recipe' },
 		STORE_BOUGHT: { label: 'To buy', icon: 'ph-shopping-bag', tile: 'tile--buy' },
 		QUICK: { label: 'Quick', icon: 'ph-lightning', tile: 'tile--quick' },
-		PREPPED: { label: 'Prepped', icon: 'ph-snowflake', tile: 'tile--recipe' } // reserved
+		PREPPED: { label: 'Prepped', icon: 'ph-snowflake', tile: 'tile--prepped' }
 	} as const;
 	const source = $derived(SOURCE[meal.source]);
+
+	// Fulfillment state (REQ-MP-012) — derived live, never stored (INV-PL-017). Calm
+	// vocabulary: "To get" is an action, not a reproach; ochre attention, never red.
+	const FULFILLMENT = {
+		HAVE_IT: { label: 'Have it', icon: 'ph-check-circle', cls: 'ful--have' },
+		CAN_MAKE_IT: { label: 'Can make it', icon: 'ph-list-checks', cls: 'ful--can' },
+		MUST_ACQUIRE: { label: 'To get', icon: 'ph-basket', cls: 'ful--get' }
+	} as const;
+	const fulfillment = $derived(fulfillmentFor(meal));
+	const fulfillmentChip = $derived(fulfillment === null ? null : FULFILLMENT[fulfillment.state]);
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Enter' || e.key === ' ') {
@@ -48,7 +58,9 @@
 <div
 	role="button"
 	tabindex="0"
-	aria-label="{name}, {source.label}, {meal.servings} serving{meal.servings === 1 ? '' : 's'}"
+	aria-label="{name}, {source.label}, {meal.servings} serving{meal.servings === 1
+		? ''
+		: 's'}{fulfillmentChip ? `, ${fulfillmentChip.label}` : ''}"
 	class="meal {compact ? 'meal--compact' : ''}"
 	draggable="true"
 	{onclick}
@@ -64,6 +76,19 @@
 				<span class="chip"><i class="ph {source.icon}" aria-hidden="true"></i> {source.label}</span>
 				<span class="chip chip--quiet">
 					{meal.servings} serving{meal.servings === 1 ? '' : 's'}
+				</span>
+				{#if fulfillmentChip}
+					<span class="chip ful {fulfillmentChip.cls}">
+						<i class="ph {fulfillmentChip.icon}" aria-hidden="true"></i>
+						{fulfillmentChip.label}
+					</span>
+				{/if}
+			</span>
+		{:else if fulfillmentChip}
+			<span class="meta">
+				<span class="chip ful ful--compact {fulfillmentChip.cls}">
+					<i class="ph {fulfillmentChip.icon}" aria-hidden="true"></i>
+					{fulfillmentChip.label}
 				</span>
 			</span>
 		{/if}
@@ -137,6 +162,10 @@
 		background: var(--surface-2);
 		color: var(--text-secondary);
 	}
+	.tile--prepped {
+		background: var(--tile-1-soft);
+		color: var(--text-secondary);
+	}
 	.meal--compact .tile--quick {
 		background: var(--surface);
 	}
@@ -177,17 +206,34 @@
 		background: var(--primary-soft);
 		color: var(--primary-text);
 	}
-	.tile--buy ~ .body .chip:not(.chip--quiet) {
+	.tile--buy ~ .body .chip:not(.chip--quiet):not(.ful) {
 		background: var(--clay-50);
 		color: var(--clay-600);
 	}
-	.tile--quick ~ .body .chip:not(.chip--quiet) {
+	.tile--quick ~ .body .chip:not(.chip--quiet):not(.ful) {
 		background: var(--surface-2);
 		color: var(--text-secondary);
 	}
 	.chip--quiet {
 		background: var(--surface-2);
 		color: var(--text-secondary);
+	}
+
+	/* Fulfillment chips — calm, categorical; ochre attention, never alarm-red. */
+	.ful--have {
+		background: var(--primary-soft);
+		color: var(--primary-text);
+	}
+	.ful--can {
+		background: var(--tile-3-soft);
+		color: var(--text-secondary);
+	}
+	.ful--get {
+		background: var(--attention-soft);
+		color: var(--attention);
+	}
+	.ful--compact {
+		padding: 2px 6px;
 	}
 	.chev {
 		color: var(--text-muted);

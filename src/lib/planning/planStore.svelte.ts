@@ -3,6 +3,27 @@
 // reconciliation (P15: online-first, server authoritative, rollback on failure).
 
 import {
+	loadPantryItems,
+	pantryError,
+	pantryItems,
+	pantryLoaded,
+	pantryLoading
+} from '$lib/pantry/pantryStore.svelte';
+import {
+	loadPreppedMeals,
+	preppedMeals,
+	preppedMealsError,
+	preppedMealsLoaded,
+	preppedMealsLoading
+} from '$lib/pantry/preppedMealStore.svelte';
+import {
+	deriveFulfillment,
+	inputsFromSnapshot,
+	type FulfillmentResult,
+	type IngredientForMatch
+} from './fulfillment';
+import { loadIngredientIndex } from './ingredientIndex';
+import {
 	addPlannedMeal,
 	listPlannedMeals,
 	movePlannedMeal,
@@ -139,6 +160,8 @@ export async function addMeal(
 		source: draft.source,
 		recipeId: draft.source === 'RECIPE' ? draft.recipeId : null,
 		recipeTitleSnapshot: draft.source === 'RECIPE' ? draft.recipeTitle : null,
+		preppedMealId: draft.source === 'PREPPED' ? draft.preppedMealId : null,
+		preppedNameSnapshot: draft.source === 'PREPPED' ? draft.preppedName : null,
 		storeBoughtName: draft.source === 'STORE_BOUGHT' ? draft.storeBoughtName : null,
 		quickMealName: draft.source === 'QUICK' ? draft.quickMealName : null,
 		servings: draft.servings,
@@ -153,6 +176,9 @@ export async function addMeal(
 	try {
 		const created = await addPlannedMeal(draft, placement);
 		reconcile(tempId, created);
+		if (created.source === 'RECIPE' && created.recipeId !== null) {
+			void extendIngredientIndex(created.recipeId);
+		}
 		return created;
 	} catch (err) {
 		_meals = _meals.filter((m) => m.id !== tempId);
@@ -173,7 +199,9 @@ export async function updateMeal(id: string, patch: PlannedMealPatch): Promise<P
 		storeBoughtName: patch.storeBoughtName ?? before.storeBoughtName,
 		quickMealName: patch.quickMealName ?? before.quickMealName,
 		recipeId: patch.recipeId ?? before.recipeId,
-		recipeTitleSnapshot: patch.recipeTitleSnapshot ?? before.recipeTitleSnapshot
+		recipeTitleSnapshot: patch.recipeTitleSnapshot ?? before.recipeTitleSnapshot,
+		preppedMealId: patch.preppedMealId !== undefined ? patch.preppedMealId : before.preppedMealId,
+		preppedNameSnapshot: patch.preppedNameSnapshot ?? before.preppedNameSnapshot
 	};
 	if (patch.mealSlot !== undefined && patch.mealSlot !== before.mealSlot) {
 		optimistic.sortOrder = nextLocalSortOrder(before.date, patch.mealSlot);
@@ -219,6 +247,76 @@ export async function moveMeal(
 		_error = err instanceof Error ? err.message : 'Failed to move that meal';
 		return null;
 	}
+}
+
+// ---------------------------------------------------------------------------
+// Fulfillment (REQ-MP-012, INV-PL-017 — derived, never stored)
+// ---------------------------------------------------------------------------
+
+/** Ingredients per recipe id for the loaded range; null until fetched (FR-FS-009). */
+let _ingredientsByRecipeId = $state<Map<string, IngredientForMatch[]> | null>(null);
+/** True once the inventory stores have been loaded for fulfillment derivation. */
+let _inventoryReady = $state(false);
+
+function recipeIdsInRange(): string[] {
+	return _meals
+		.filter((m) => m.source === 'RECIPE' && m.recipeId !== null)
+		.map((m) => m.recipeId as string);
+}
+
+/**
+ * Pull one newly-planned recipe into the loaded index so its chip appears without a
+ * full reload. A failure here only delays the chip until the next range load, so it
+ * degrades silently by design (FR-FS-009) instead of raising a banner.
+ */
+async function extendIngredientIndex(recipeId: string): Promise<void> {
+	if (_ingredientsByRecipeId === null || _ingredientsByRecipeId.has(recipeId)) return;
+	try {
+		const fetched = await loadIngredientIndex([recipeId]);
+		_ingredientsByRecipeId = new Map([..._ingredientsByRecipeId, ...fetched]);
+	} catch (err) {
+		// Chip stays omitted for this meal until the next loadFulfillmentInputs().
+		console.error('[planStore] extendIngredientIndex failed for', recipeId, err);
+	}
+}
+
+/**
+ * Load everything fulfillment derivation needs: pantry + prepped inventory (when those
+ * stores are still empty) and the ingredient index for the loaded range's recipes.
+ * Call after loadRange; safe to call repeatedly (loads are skipped or cached).
+ */
+export async function loadFulfillmentInputs(): Promise<void> {
+	const inventoryLoads: Promise<void>[] = [];
+	if (!pantryLoaded() && !pantryLoading()) inventoryLoads.push(loadPantryItems());
+	if (!preppedMealsLoaded() && !preppedMealsLoading()) inventoryLoads.push(loadPreppedMeals());
+
+	try {
+		const [index] = await Promise.all([loadIngredientIndex(recipeIdsInRange()), ...inventoryLoads]);
+		_ingredientsByRecipeId = index;
+		// Only mark ready on success — if any load threw, chips stay hidden (FR-FS-009).
+		_inventoryReady = pantryError() === null && preppedMealsError() === null;
+	} catch (err) {
+		// RECIPE chips stay omitted (index remains null); surface the calm message.
+		_error = err instanceof Error ? err.message : "We couldn't check your ingredients.";
+	}
+}
+
+/**
+ * Derive the fulfillment state of one planned meal from live store state. Returns
+ * null when not tracked (QUICK, non-PLANNED) or when inputs aren't ready — callers
+ * wrap in $derived so chips appear/refresh as inventory and ingredients arrive.
+ */
+export function fulfillmentFor(meal: PlannedMeal): FulfillmentResult | null {
+	if (!_inventoryReady) return null;
+	// Inputs flow through the InventorySnapshot interface shape (FR-FS-008/FR-FC-003),
+	// fed with live store values so derivations stay reactive.
+	return deriveFulfillment(
+		meal,
+		inputsFromSnapshot(
+			{ pantryItems: pantryItems(), preppedMeals: preppedMeals() },
+			_ingredientsByRecipeId
+		)
+	);
 }
 
 /** Optimistically remove a meal. Returns true on success, false on rollback. */

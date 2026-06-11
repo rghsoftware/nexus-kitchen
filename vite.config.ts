@@ -15,6 +15,10 @@ export default defineConfig({
 					browser: {
 						enabled: true,
 						provider: playwright(),
+						// Bind the tester server on IPv4 loopback explicitly: a plain
+						// `localhost` bind can land on [::1] only, which headless chromium
+						// may not reach — vitest then waits forever for the tester websocket.
+						api: { host: '127.0.0.1' },
 						instances: [{ browser: 'chromium', headless: true }]
 					},
 					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],

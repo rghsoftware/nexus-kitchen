@@ -343,7 +343,7 @@ test.describe('Plan — editing, moving, removing (SC-004)', () => {
 
 test.describe('Plan — persistence (SC-003)', () => {
 	test('planned meals survive a reload with details intact', async ({ page }) => {
-		await mockBackend(page);
+		const db = await mockBackend(page);
 		await gotoPlan(page);
 
 		await addButton(page, /^Add a meal to Breakfast/).click();
@@ -351,6 +351,10 @@ test.describe('Plan — persistence (SC-003)', () => {
 		await page.getByLabel('What will you buy?').fill('Overnight oats cup');
 		await page.getByRole('button', { name: 'Add to plan' }).click();
 		await expect(page.getByRole('button', { name: /Overnight oats cup, To buy/ })).toBeVisible();
+
+		// The add renders optimistically; wait for the insert to land server-side
+		// before reloading, or the reload aborts the in-flight write.
+		await expect.poll(() => db.planned_meals.length).toBe(1);
 
 		await page.reload();
 		await expect(page.getByRole('group', { name: 'Calendar view' })).toBeVisible();
