@@ -9,6 +9,7 @@
 		addDays,
 		clearPlanError,
 		dayFullLabel,
+		loadFulfillmentInputs,
 		loadRange,
 		monthEndOf,
 		monthGridRange,
@@ -60,7 +61,9 @@
 		localStorage.setItem(VIEW_STORAGE_KEY, view);
 	});
 	$effect(() => {
-		loadRange(visibleRange.start, visibleRange.end);
+		// Fulfillment inputs load after the range so the visible recipes are known
+		// (REQ-MP-012); chips stay omitted until inputs are ready (FR-FS-009).
+		void loadRange(visibleRange.start, visibleRange.end).then(loadFulfillmentInputs);
 	});
 
 	function step(direction: 1 | -1) {
