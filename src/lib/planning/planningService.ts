@@ -123,6 +123,14 @@ function draftColumns(draft: PlannedMealDraft): Partial<PlannedMealInsert> {
 				recipe_id: draft.recipeId,
 				recipe_title_snapshot: draft.recipeTitle
 			};
+		case 'PREPPED':
+			// Like RECIPE, the required reference is the name snapshot; the id FK may
+			// null out if the portion is later deleted (migration 0006, FR-FS-011).
+			return {
+				source: 'PREPPED',
+				prepped_meal_id: draft.preppedMealId,
+				prepped_name_snapshot: draft.preppedName
+			};
 		case 'STORE_BOUGHT':
 			return { source: 'STORE_BOUGHT', store_bought_name: draft.storeBoughtName };
 		case 'QUICK':

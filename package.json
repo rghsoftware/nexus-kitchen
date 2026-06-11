@@ -48,5 +48,8 @@
 	},
 	"dependencies": {
 		"@supabase/supabase-js": "^2.107.0"
+	},
+	"patchedDependencies": {
+		"@vitest/browser@4.1.8": "patches/@vitest%2Fbrowser@4.1.8.patch"
 	}
 }
