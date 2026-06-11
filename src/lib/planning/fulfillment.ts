@@ -9,6 +9,7 @@
 // QUICK meals carry no fulfillment state by design; nor do non-PLANNED meals — the
 // requirement is already resolved (eaten, skipped, swapped).
 
+import type { InventorySnapshot } from '$lib/pantry/types';
 import type { PlannedMeal } from './types';
 
 export type FulfillmentState = 'HAVE_IT' | 'CAN_MAKE_IT' | 'MUST_ACQUIRE';
@@ -55,6 +56,25 @@ export function buildPantryNameIndex(
 		if (Number(item.quantity) > 0) index.add(normalizeName(item.name));
 	}
 	return index;
+}
+
+/**
+ * Assemble derivation inputs from the inventory-snapshot interface (FR-FS-008): the
+ * `InventorySnapshot` shape from FR-FC-003 is the documented seam between the pantry
+ * feature and this derivation. Pass live store values for reactive consumers, or a
+ * point-in-time `getInventorySnapshot()` result in tests.
+ */
+export function inputsFromSnapshot(
+	snapshot: Pick<InventorySnapshot, 'pantryItems' | 'preppedMeals'>,
+	ingredientsByRecipeId: ReadonlyMap<string, IngredientForMatch[]> | null
+): FulfillmentInputs {
+	return {
+		pantryIndex: buildPantryNameIndex(snapshot.pantryItems),
+		preppedById: new Map(
+			snapshot.preppedMeals.map((p) => [p.id, { portionsRemaining: p.portions_remaining }])
+		),
+		ingredientsByRecipeId
+	};
 }
 
 const HAVE_IT: FulfillmentResult = { state: 'HAVE_IT', missingIngredients: [] };

@@ -20,6 +20,7 @@ export { PlanningError } from './planningService';
 export {
 	buildPantryNameIndex,
 	deriveFulfillment,
+	inputsFromSnapshot,
 	normalizeName,
 	type FulfillmentInputs,
 	type FulfillmentResult,

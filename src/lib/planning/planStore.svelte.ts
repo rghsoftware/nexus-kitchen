@@ -2,7 +2,6 @@
 // currently-loaded date range with optimistic add/update/move/remove and server
 // reconciliation (P15: online-first, server authoritative, rollback on failure).
 
-import { SvelteMap } from 'svelte/reactivity';
 import {
 	loadPantryItems,
 	pantryError,
@@ -16,8 +15,8 @@ import {
 	preppedMealsLoading
 } from '$lib/pantry/preppedMealStore.svelte';
 import {
-	buildPantryNameIndex,
 	deriveFulfillment,
+	inputsFromSnapshot,
 	type FulfillmentResult,
 	type IngredientForMatch
 } from './fulfillment';
@@ -308,13 +307,15 @@ export async function loadFulfillmentInputs(): Promise<void> {
  */
 export function fulfillmentFor(meal: PlannedMeal): FulfillmentResult | null {
 	if (!_inventoryReady) return null;
-	return deriveFulfillment(meal, {
-		pantryIndex: buildPantryNameIndex(pantryItems()),
-		preppedById: new SvelteMap(
-			preppedMeals().map((p) => [p.id, { portionsRemaining: p.portions_remaining }])
-		),
-		ingredientsByRecipeId: _ingredientsByRecipeId
-	});
+	// Inputs flow through the InventorySnapshot interface shape (FR-FS-008/FR-FC-003),
+	// fed with live store values so derivations stay reactive.
+	return deriveFulfillment(
+		meal,
+		inputsFromSnapshot(
+			{ pantryItems: pantryItems(), preppedMeals: preppedMeals() },
+			_ingredientsByRecipeId
+		)
+	);
 }
 
 /** Optimistically remove a meal. Returns true on success, false on rollback. */
