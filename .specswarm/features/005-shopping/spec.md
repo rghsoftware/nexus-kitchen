@@ -1,7 +1,7 @@
 ---
 parent_branch: worktree-feat+shopping
 feature_number: 005
-status: In Progress
+status: Implemented — pending manual verification + /ss:ship
 created_at: 2026-06-11T21:53:40-05:00
 references_consulted:
   - nexus-kitchen-differentiator.md

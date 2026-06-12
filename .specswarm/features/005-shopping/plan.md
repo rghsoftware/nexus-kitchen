@@ -137,6 +137,6 @@ None.
 
 - [x] Phase 0: research.md
 - [x] Phase 1: data-model.md, contracts/, quickstart.md
-- [ ] Phase 2: tasks.md (`/ss:tasks`)
-- [ ] Implementation
-- [ ] Verification
+- [x] Phase 2: tasks.md (`/ss:tasks`)
+- [x] Implementation
+- [x] Verification (automated gates + dual review; manual quickstart pending)
