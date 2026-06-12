@@ -6,9 +6,28 @@
 // (cross-row — research R1): `wouldEmptyActiveList()` lets the UI prompt to archive
 // instead of silently leaving an empty active list.
 
+import { inputsFromSnapshot, normalizeName } from '$lib/planning/fulfillment';
+import { loadIngredientIndex } from '$lib/planning/ingredientIndex';
+import { listPlannedMeals } from '$lib/planning/planningService';
+import type { ISODate } from '$lib/planning/types';
 import {
+	loadPantryItems,
+	pantryItems,
+	pantryLoaded,
+	pantryLoading
+} from '$lib/pantry/pantryStore.svelte';
+import {
+	loadPreppedMeals,
+	preppedMeals,
+	preppedMealsLoaded,
+	preppedMealsLoading
+} from '$lib/pantry/preppedMealStore.svelte';
+import { computeBuyGaps } from './generation';
+import {
+	addItems as svcAddItems,
 	addItem as svcAddItem,
 	archiveShoppingList,
+	createGeneratedList,
 	createShoppingList,
 	deleteItem as svcDeleteItem,
 	listItems,
@@ -250,6 +269,7 @@ export async function setOpenItemStatus(
 	const optimistic: ShoppingItem = {
 		...before,
 		status,
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- non-reactive timestamp, not UI state
 		checkedAt: status === 'CHECKED' ? new Date().toISOString() : null
 	};
 	_items = _items.map((i) => (i.id === id ? optimistic : i));
@@ -290,4 +310,112 @@ export function markItemUnavailable(id: string): Promise<ShoppingItem | null> {
 /** Replace the open list's items wholesale (generation/completion flows). */
 export function setOpenItemsLocal(items: ShoppingItem[]): void {
 	_items = items;
+}
+
+// ---------------------------------------------------------------------------
+// Generation (FR-SH-010..014)
+// ---------------------------------------------------------------------------
+
+export interface GenerationOutcome {
+	/** Null when the range had no buy-gaps — no empty list is created (INV-SH-001). */
+	list: ShoppingList | null;
+	added: number;
+}
+
+function rangeListName(range: { start: ISODate; end: ISODate }): string {
+	const day = (iso: ISODate) =>
+		new Date(`${iso}T12:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+	return `Shopping ${day(range.start)} – ${day(range.end)}`;
+}
+
+/**
+ * Turn the range's MUST_ACQUIRE gaps into list items (FR-SH-010): loads the range's
+ * planned meals + the same fulfillment inputs the calendar uses, computes gaps via
+ * computeBuyGaps, then creates a FROM_PLAN list — or, when `intoListId` is given,
+ * dedupes into that existing list instead (FR-SH-011). Returns the target list and
+ * how many items were added; `list: null` means "fully covered, nothing to buy".
+ */
+export async function generateFromPlan(
+	range: { start: ISODate; end: ISODate },
+	intoListId?: string
+): Promise<GenerationOutcome | null> {
+	_loading = true;
+	_error = null;
+	try {
+		const inventoryLoads: Promise<void>[] = [];
+		if (!pantryLoaded() && !pantryLoading()) inventoryLoads.push(loadPantryItems());
+		if (!preppedMealsLoaded() && !preppedMealsLoading()) inventoryLoads.push(loadPreppedMeals());
+
+		const [meals] = await Promise.all([
+			listPlannedMeals(range.start, range.end),
+			...inventoryLoads
+		]);
+		const recipeIds = meals
+			.filter((m) => m.source === 'RECIPE' && m.recipeId !== null)
+			.map((m) => m.recipeId as string);
+		const ingredientsByRecipeId = await loadIngredientIndex(recipeIds);
+
+		const existingItems = intoListId !== undefined ? await listItems(intoListId) : [];
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- transient lookup set, not UI state
+		const existingPendingNames = new Set(
+			existingItems.filter((i) => i.status === 'PENDING').map((i) => normalizeName(i.name))
+		);
+
+		const gaps = computeBuyGaps(
+			meals,
+			inputsFromSnapshot(
+				{ pantryItems: pantryItems(), preppedMeals: preppedMeals() },
+				ingredientsByRecipeId
+			),
+			existingPendingNames
+		);
+
+		const newItems: NewShoppingItem[] = [
+			...gaps.ingredientGaps.map((gap, index) => ({
+				name: gap.name,
+				quantity: gap.suggestedQuantity,
+				unit: gap.unit,
+				category: gap.category,
+				neededFor: gap.neededFor,
+				sortOrder: index
+			})),
+			...gaps.storeBoughtGaps.map((gap, index) => ({
+				name: gap.name,
+				quantity: Math.max(1, gap.servings),
+				unit: 'x',
+				category: 'OTHER' as const,
+				sourcePlannedMealId: gap.plannedMealId,
+				sortOrder: gaps.ingredientGaps.length + index
+			}))
+		];
+
+		if (newItems.length === 0) {
+			// Fully covered. Never create (or leave) an empty active list (INV-SH-001).
+			return {
+				list: intoListId ? (_lists.find((l) => l.id === intoListId) ?? null) : null,
+				added: 0
+			};
+		}
+
+		let target: ShoppingList;
+		if (intoListId !== undefined) {
+			const known = _lists.find((l) => l.id === intoListId);
+			if (!known) throw new Error("That list isn't available anymore.");
+			target = known;
+		} else {
+			target = await createGeneratedList(rangeListName(range), range);
+			upsertListLocal(target);
+		}
+
+		const created = await svcAddItems(target.id, newItems);
+		if (_activeListId === target.id) {
+			_items = [..._items, ...created];
+		}
+		return { list: target, added: created.length };
+	} catch (err) {
+		_error = err instanceof Error ? err.message : "We couldn't build the list from your plan.";
+		return null;
+	} finally {
+		_loading = false;
+	}
 }

@@ -68,7 +68,7 @@
 				{#each active as list (list.id)}
 					<article class="nk-card flex items-center gap-3 p-4">
 						<i
-							class="ph ph-shopping-cart-simple text-[1.4rem] text-[var(--primary-text)]"
+							class="ph ph-shopping-cart-simple text-[var(--primary-text)] text-[var(--text-xl)]"
 							aria-hidden="true"
 						></i>
 						<div class="min-w-0 flex-1">

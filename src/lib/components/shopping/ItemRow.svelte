@@ -103,7 +103,7 @@
 	<div class="flex items-center gap-3">
 		<button
 			type="button"
-			class="grid size-9 shrink-0 place-items-center rounded-[var(--radius-sm)] border text-[1.25rem] transition-colors
+			class="grid size-11 shrink-0 place-items-center rounded-[var(--radius-sm)] border text-[var(--text-lg)] transition-colors
 				{checked
 				? 'border-[var(--primary)] bg-[var(--primary-soft)] text-[var(--primary-text)]'
 				: 'border-[var(--border)] bg-[var(--surface)] text-[var(--text-muted)]'}"

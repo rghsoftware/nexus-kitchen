@@ -256,6 +256,11 @@
 	.tab i {
 		font-size: 24px;
 	}
+	.tab:focus-visible {
+		outline: 3px solid var(--focus-ring);
+		outline-offset: 2px;
+		border-radius: var(--radius-sm);
+	}
 	.tab--active {
 		color: var(--primary-text);
 	}

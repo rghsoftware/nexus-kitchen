@@ -142,7 +142,7 @@
 					></i>
 				</button>
 				{#if checkedOpen}
-					<ul class="m-0 flex list-none flex-col gap-2 p-0">
+					<ul id="shopping-checked-items" class="m-0 flex list-none flex-col gap-2 p-0">
 						{#each checked as item (item.id)}
 							<ItemRow {item} />
 						{/each}

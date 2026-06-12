@@ -40,32 +40,32 @@ User stories (from spec, priority order):
 
 ## Phase 4: US2 — Generate from must-acquire gaps
 
-- [ ] T014 [US2] Pure `computeBuyGaps(meals, fulfillmentInputs, existingPendingNames): GapResult` reusing `deriveFulfillment` (FR-SH-012): missing-ingredient aggregation deduped by `normalizeName`, merged `{recipeId,title}` attribution, quantity suggestion rules, STORE_BOUGHT gaps with `plannedMealId` — src/lib/shopping/generation.ts
-- [ ] T015 [US2] Server-project tests for generation: dedupe across recipes, attribution merge, pending-name exclusion, QUICK/non-PLANNED ignored, store-bought gap rows, empty-gap result — src/lib/shopping/generation.spec.ts
-- [ ] T016 [US2] Generate sheet: date-range picker defaulting today→+6 (FR-SH-014), loads range meals + fulfillment inputs via existing planning machinery, empty-gap calm success state (no list created, INV-SH-001) — src/lib/components/shopping/GenerateListSheet.svelte
-- [ ] T017 [US2] Store action `generateFromPlan(range)`: create FROM_PLAN list with `generated_range_start/end`, bulk-insert gap items with category via `categorize()` and `source_planned_meal_id` for store-bought rows; dedupe into existing active generated list when user chooses — src/lib/shopping/shoppingStore.svelte.ts
+- [X] T014 [US2] Pure `computeBuyGaps(meals, fulfillmentInputs, existingPendingNames): GapResult` reusing `deriveFulfillment` (FR-SH-012): missing-ingredient aggregation deduped by `normalizeName`, merged `{recipeId,title}` attribution, quantity suggestion rules, STORE_BOUGHT gaps with `plannedMealId` — src/lib/shopping/generation.ts
+- [X] T015 [US2] Server-project tests for generation: dedupe across recipes, attribution merge, pending-name exclusion, QUICK/non-PLANNED ignored, store-bought gap rows, empty-gap result — src/lib/shopping/generation.spec.ts
+- [X] T016 [US2] Generate sheet: date-range picker defaulting today→+6 (FR-SH-014), loads range meals + fulfillment inputs via existing planning machinery, empty-gap calm success state (no list created, INV-SH-001) — src/lib/components/shopping/GenerateListSheet.svelte
+- [X] T017 [US2] Store action `generateFromPlan(range)`: create FROM_PLAN list with `generated_range_start/end`, bulk-insert gap items with category via `categorize()` and `source_planned_meal_id` for store-bought rows; dedupe into existing active generated list when user chooses — src/lib/shopping/shoppingStore.svelte.ts
 
 **Checkpoint**: plan with gaps → generated, attributed, categorized list in ≤3 interactions.
 
 ## Phase 5: US3 — The shopping trip
 
-- [ ] T018 [US3] Optimistic check/uncheck/unavailable store actions with rollback (REQ-CN-003); list status ACTIVE→SHOPPING on first check — src/lib/shopping/shoppingStore.svelte.ts
-- [ ] T019 [US3] Trip UI: checkbox interactions on ItemRow, collapsible "Checked" section that items move to without disappearing (FR-SH-008), progress indicator on ShoppingListView, "couldn't find it" (unavailable) affordance — src/lib/components/shopping/ItemRow.svelte, src/lib/components/shopping/ShoppingListView.svelte
+- [X] T018 [US3] Optimistic check/uncheck/unavailable store actions with rollback (REQ-CN-003); list status ACTIVE→SHOPPING on first check — src/lib/shopping/shoppingStore.svelte.ts
+- [X] T019 [US3] Trip UI: checkbox interactions on ItemRow, collapsible "Checked" section that items move to without disappearing (FR-SH-008), progress indicator on ShoppingListView, "couldn't find it" (unavailable) affordance — src/lib/components/shopping/ItemRow.svelte, src/lib/components/shopping/ShoppingListView.svelte
 
 **Checkpoint**: full trip flow minus completion — independently testable.
 
 ## Phase 6: US4 — Complete the trip (replenish + close the loop)
 
-- [ ] T020 [P] [US4] Pure `planReplenishment(checkedItems, pantryItems)`: merge on (normalized name, normalized unit) → quantity add, else insert with storage-location default; server-project tests incl. unit-mismatch insert — src/lib/shopping/replenishment.ts, src/lib/shopping/replenishment.spec.ts
-- [ ] T021 [P] [US4] Implement the reserved pantry seam `addPantryItemsFromShoppingList` (replace no-op body; same signature/path, FR-PI-008): inserts + merges via pantryService — src/lib/pantry/shoppingListIntegration.ts
-- [ ] T022 [US4] `completeTrip()` orchestration in replenishment.ts + service support: store-bought items → `addPreppedMeal` (origin STORE_BOUGHT, fridge, today+3d default expiry, portions from meal servings) then convert source planned meal to PREPPED (set `prepped_meal_id` + `prepped_name_snapshot`, null `store_bought_name`) only when still PLANNED/STORE_BOUGHT (FR-SH-018); list → COMPLETED with `completed_at`; per-item failure report — src/lib/shopping/replenishment.ts, src/lib/shopping/shoppingService.ts
-- [ ] T023 [US4] Complete-trip sheet: review checked items (qty/location, store-bought portions/expiry editable), decline path (complete without replenishing), carry-over offer for PENDING/UNAVAILABLE items to new/existing active list (FR-SH-017), failure reporting — src/lib/components/shopping/CompleteTripSheet.svelte
+- [X] T020 [P] [US4] Pure `planReplenishment(checkedItems, pantryItems)`: merge on (normalized name, normalized unit) → quantity add, else insert with storage-location default; server-project tests incl. unit-mismatch insert — src/lib/shopping/replenishment.ts, src/lib/shopping/replenishment.spec.ts
+- [X] T021 [P] [US4] Implement the reserved pantry seam `addPantryItemsFromShoppingList` (replace no-op body; same signature/path, FR-PI-008): inserts + merges via pantryService — src/lib/pantry/shoppingListIntegration.ts
+- [X] T022 [US4] `completeTrip()` orchestration in replenishment.ts + service support: store-bought items → `addPreppedMeal` (origin STORE_BOUGHT, fridge, today+3d default expiry, portions from meal servings) then convert source planned meal to PREPPED (set `prepped_meal_id` + `prepped_name_snapshot`, null `store_bought_name`) only when still PLANNED/STORE_BOUGHT (FR-SH-018); list → COMPLETED with `completed_at`; per-item failure report — src/lib/shopping/replenishment.ts, src/lib/shopping/shoppingService.ts
+- [X] T023 [US4] Complete-trip sheet: review checked items (qty/location, store-bought portions/expiry editable), decline path (complete without replenishing), carry-over offer for PENDING/UNAVAILABLE items to new/existing active list (FR-SH-017), failure reporting — src/lib/components/shopping/CompleteTripSheet.svelte
 
 **Checkpoint**: end-to-end loop — buy gaps → shop → pantry replenished → calendar flips to Can make it / Have it.
 
 ## Phase 7: Polish & verification
 
-- [ ] T024 Public exports barrel + `bun run check` + `bun run lint` + `bun run test:unit -- --run` all green; fix fallout — src/lib/shopping/index.ts
+- [X] T024 Public exports barrel + `bun run check` + `bun run lint` + `bun run test:unit -- --run` all green; fix fallout — src/lib/shopping/index.ts
 - [ ] T025 Manual quickstart verification (quickstart.md loop) incl. responsive mobile layout and a11y pass (labels paired with icons, focus order in sheets) — .specswarm/features/005-shopping/quickstart.md
 
 ## Dependencies
@@ -82,3 +82,16 @@ User stories (from spec, priority order):
 MVP = Foundational + US1. Each story checkpoint is independently testable; US2 and US3
 are parallelizable streams after US1. Pure logic (T007, T013, T014–T015, T020) is
 server-vitest-covered; UI verified manually (memory: browser project hangs in sandboxes).
+
+## Verification notes (2026-06-11)
+
+- T025 left for a human pass: the in-browser quickstart loop needs a real session
+  (agent sandboxes can't run the browser test project — see memory). Everything
+  automatable was verified: `bun run build` smoke, full server vitest suite (166),
+  pgTAP suite (73 incl. 19 new shopping tests), svelte-autofixer clean, plus
+  supabase-rls-reviewer and svelte5-reviewer findings triaged and fixed
+  (cross-user FK guard trigger, bidirectional CHECKs, range-pairing NULL fix,
+  inert/Escape on sheets, tap target, aria-controls, focus-visible, token sizes).
+- Infrastructure repair shipped alongside: migration 0008_data_api_grants.sql —
+  the Supabase CLI's 2026-05-30 `auto_expose_new_tables=false` default flip left
+  fresh databases with no Data API grants on pre-existing tables.
