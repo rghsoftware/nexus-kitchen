@@ -1,0 +1,20 @@
+{
+  "active": true,
+  "feature_description": "Shopping — turn must-acquire (buy) gaps into a list; buying replenishes the pantry. Closes the buy side.",
+  "feature_num": "005",
+  "parent_branch": "worktree-feat+shopping",
+  "branch_name": "005-shopping",
+  "session_id": "build-20260611-215340-005",
+  "started_at": "2026-06-11T21:53:40-05:00",
+  "current_phase": "specify",
+  "phases_complete": [],
+  "quality_threshold": 80,
+  "run_validate": false,
+  "background_mode": false,
+  "notify_on_complete": false,
+  "orchestrate_flag": "",
+  "run_analyze": false,
+  "run_checklist": false,
+  "quick_mode": false,
+  "use_orchestration": false
+}
