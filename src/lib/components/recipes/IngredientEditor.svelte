@@ -24,8 +24,6 @@
 
 	function removeIngredient(index: number) {
 		ingredients = ingredients.filter((_, i) => i !== index);
-		// TODO(001-substitutes): add UI picker for substituteForIndex — GH issue #2.
-		// Drop exact-match references; decrement references pointing above the removed index.
 		ingredients = ingredients.map((ing) => {
 			if (ing.substituteForIndex == null) return ing;
 			if (ing.substituteForIndex === index) return { ...ing, substituteForIndex: null };
@@ -41,7 +39,12 @@
 		if (target < 0 || target >= ingredients.length) return;
 		const next = [...ingredients];
 		[next[index], next[target]] = [next[target], next[index]];
-		ingredients = next;
+		ingredients = next.map((ing) => {
+			if (ing.substituteForIndex == null) return ing;
+			if (ing.substituteForIndex === index) return { ...ing, substituteForIndex: target };
+			if (ing.substituteForIndex === target) return { ...ing, substituteForIndex: index };
+			return ing;
+		});
 		resequence();
 	}
 </script>
@@ -96,6 +99,28 @@
 				<label class="optional">
 					<input type="checkbox" bind:checked={ingredient.isOptional} />
 					<span>Optional</span>
+				</label>
+				<label class="substitute">
+					<span class="lbl">Sub:</span>
+					<select
+						aria-label="Substitute for ingredient {i + 1}"
+						disabled={ingredients.length < 2}
+						value={ingredient.substituteForIndex != null
+							? String(ingredient.substituteForIndex)
+							: ''}
+						onchange={(e) => {
+							const v = (e.currentTarget as HTMLSelectElement).value;
+							const parsed = parseInt(v, 10);
+							ingredient.substituteForIndex = v === '' || isNaN(parsed) ? null : parsed;
+						}}
+					>
+						<option value="">None</option>
+						{#each ingredients as sibling, j (sibling.uid ?? j)}
+							{#if j !== i}
+								<option value={String(j)}>{sibling.name || `Ingredient ${j + 1}`}</option>
+							{/if}
+						{/each}
+					</select>
 				</label>
 				<div class="nk-row reorder">
 					<button
@@ -191,6 +216,32 @@
 		gap: var(--space-2);
 		font-size: var(--text-sm);
 		color: var(--text-secondary);
+	}
+	.substitute {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		font-size: var(--text-sm);
+		color: var(--text-secondary);
+	}
+	select {
+		background: var(--surface);
+		border: 1.5px solid var(--border);
+		border-radius: var(--radius-sm);
+		min-height: var(--tap-min);
+		padding: 0 var(--space-3);
+		font-size: var(--text-sm);
+		font-family: var(--font-sans);
+		color: var(--text);
+	}
+	select:focus-visible {
+		outline: 3px solid var(--focus-ring);
+		outline-offset: 1px;
+		border-color: var(--primary);
+	}
+	select:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
 	}
 	.reorder {
 		gap: var(--space-1);

@@ -1,0 +1,20 @@
+{
+  "active": true,
+  "feature_description": "feat(recipes): substitute ingredient picker UI - add substitute picker control in IngredientEditor.svelte, display substitute relationships on recipe detail page",
+  "feature_num": "005",
+  "parent_branch": "main",
+  "branch_name": "worktree-feat+sub-picker-ui",
+  "session_id": "build-20260611-202820-005",
+  "started_at": "2026-06-11T20:28:20-05:00",
+  "current_phase": "specify",
+  "phases_complete": [],
+  "quality_threshold": 80,
+  "run_validate": false,
+  "background_mode": false,
+  "notify_on_complete": false,
+  "orchestrate_flag": "",
+  "run_analyze": false,
+  "run_checklist": false,
+  "quick_mode": false,
+  "use_orchestration": false
+}

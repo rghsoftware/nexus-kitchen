@@ -14,6 +14,7 @@
 	import { signImageUrl } from '$lib/recipes/recipesRepository';
 	import { scaleIngredients } from '$lib/recipes/recipeScaling';
 	import type { RecipeWithDetail, UserRecipeMeta } from '$lib/recipes/types';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	const id = $derived(page.params.id ?? '');
 
@@ -72,6 +73,19 @@
 
 	const scaledIngredients = $derived(
 		recipe ? scaleIngredients(recipe.ingredients, recipe.servings, targetServings) : []
+	);
+
+	const substitutesByPrimaryId = $derived(
+		(() => {
+			const map = new SvelteMap<string, string[]>();
+			for (const ing of scaledIngredients) {
+				if (ing.substituteFor) {
+					const existing = map.get(ing.substituteFor) ?? [];
+					map.set(ing.substituteFor, [...existing, ing.name]);
+				}
+			}
+			return map;
+		})()
 	);
 
 	async function toggleFavorite() {
@@ -230,6 +244,11 @@
 								<span class="iname">
 									{ing.name}{#if ing.preparation}, {ing.preparation}{/if}
 									{#if ing.isOptional}<span class="opt">(optional)</span>{/if}
+									{#if (substitutesByPrimaryId.get(ing.id) ?? []).length > 0}
+										<span class="sub-hint"
+											>or: {substitutesByPrimaryId.get(ing.id)!.join(', ')}</span
+										>
+									{/if}
 								</span>
 							</li>
 						{/each}
@@ -448,5 +467,11 @@
 	}
 	.delete-confirm {
 		background: var(--attention-soft);
+	}
+	.sub-hint {
+		display: block;
+		font-size: var(--text-xs);
+		color: var(--text-muted);
+		margin-top: var(--space-1);
 	}
 </style>

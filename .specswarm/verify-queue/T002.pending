@@ -1,0 +1,6 @@
+task_id=T002
+queued_at=2026-06-11T20:43:58-05:00
+feature_dir=/home/rghamilton3/workspace/nexus-kitchen/.claude/worktrees/feat+sub-picker-ui/.specswarm/features/005-sub-picker-ui
+tasks_md=/home/rghamilton3/workspace/nexus-kitchen/.claude/worktrees/feat+sub-picker-ui/.specswarm/features/005-sub-picker-ui/tasks.md
+task_desc=[P] [US2] Add substitute reverse-lookup map and "or: [name]" annotation — `src/routes/recipes/[id]/+page.svelte` 
+refs=
