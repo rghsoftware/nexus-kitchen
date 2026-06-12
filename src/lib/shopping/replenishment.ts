@@ -1,12 +1,14 @@
 // Trip completion (FR-SH-015..018): checked items replenish the pantry through the
 // reserved seam; checked items that came from a STORE_BOUGHT planned meal become
-// ready-to-eat prepped portions (origin STORE_BOUGHT, Domain Spec §2437) and the
+// ready-to-eat prepped portions (origin STORE_BOUGHT, Domain Spec §4.11) and the
 // source meal is auto-linked so it derives HAVE_IT.
 //
 // Writes are sequential client calls (online-first, P15 — research R5): a partial
 // failure leaves correct-but-incomplete state; every failure lands in the report the
-// completion sheet shows, and re-running is safe (merges are idempotent-ish, links
-// are guarded by status/source .eq filters).
+// completion sheet shows. Re-running is NOT safe in general — pantry merges add
+// quantities again and portions are re-created; only the meal links and list
+// completion are guarded by .eq filters. That is why the completion sheet offers
+// Close (tidy up from the pantry), not retry, after a partial failure.
 
 import { addPantryItemsFromShoppingList } from '$lib/pantry/shoppingListIntegration';
 import { addPreppedMeal } from '$lib/pantry/preppedMealService';
@@ -185,7 +187,8 @@ export async function completeTrip(
 
 /**
  * Carry unbought (PENDING / UNAVAILABLE) items onto a fresh list so the gaps stay
- * visible (FR-SH-017). Returns the number of items carried.
+ * visible (FR-SH-017). Returns the created list (null if creation failed) and the
+ * number of items carried onto it.
  */
 export async function carryOverItems(
 	createList: (name: string) => Promise<ShoppingList | null>,

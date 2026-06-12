@@ -58,7 +58,21 @@
 				replenish ? { pantry: pantryRows, portions: portionRows } : { pantry: [], portions: [] }
 			);
 			if (carryOver && unbought.length > 0) {
-				await carryOverItems(createList, unbought);
+				try {
+					const carried = await carryOverItems(createList, unbought);
+					if (!carried.list || carried.carried < unbought.length) {
+						result.failures.push({
+							name: 'Carry over',
+							message:
+								"We couldn't move the unbought items to a new list — they stayed on this one."
+						});
+					}
+				} catch {
+					result.failures.push({
+						name: 'Carry over',
+						message: "We couldn't move the unbought items to a new list — they stayed on this one."
+					});
+				}
 			}
 			if (result.list) upsertListLocal(result.list);
 			if (result.failures.length > 0) {
@@ -67,6 +81,19 @@
 				closeShoppingList();
 				onClose();
 			}
+		} catch {
+			report = {
+				list: null,
+				pantryItemsAdded: 0,
+				portionsCreated: 0,
+				mealsLinked: 0,
+				failures: [
+					{
+						name: 'Completing the trip',
+						message: "Something didn't go through — your list is still here. You can try again."
+					}
+				]
+			};
 		} finally {
 			busy = false;
 		}

@@ -11,6 +11,7 @@
 		closeShoppingList,
 		openList,
 		openListItems,
+		shoppingError,
 		shoppingLoading
 	} from '$lib/shopping/shoppingStore.svelte';
 	import {
@@ -77,6 +78,12 @@
 				</p>
 			{/if}
 		</header>
+
+		{#if shoppingError()}
+			<p class="m-0 text-[var(--attention)] text-[var(--text-sm)]" role="alert">
+				{shoppingError()}
+			</p>
+		{/if}
 
 		{#if progressTotal > 0}
 			<div
