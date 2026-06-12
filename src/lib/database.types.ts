@@ -500,6 +500,117 @@ export type Database = {
 				};
 				Relationships: [];
 			};
+			shopping_list_items: {
+				Row: {
+					category: Database['public']['Enums']['shopping_category'];
+					checked_at: string | null;
+					checked_by_user_id: string | null;
+					created_at: string;
+					id: string;
+					ingredient_id: string | null;
+					name: string;
+					needed_for: Json;
+					quantity: number;
+					shopping_list_id: string;
+					sort_order: number;
+					source_planned_meal_id: string | null;
+					status: Database['public']['Enums']['shopping_item_status'];
+					unit: string;
+					updated_at: string;
+				};
+				Insert: {
+					category?: Database['public']['Enums']['shopping_category'];
+					checked_at?: string | null;
+					checked_by_user_id?: string | null;
+					created_at?: string;
+					id?: string;
+					ingredient_id?: string | null;
+					name: string;
+					needed_for?: Json;
+					quantity?: number;
+					shopping_list_id: string;
+					sort_order?: number;
+					source_planned_meal_id?: string | null;
+					status?: Database['public']['Enums']['shopping_item_status'];
+					unit?: string;
+					updated_at?: string;
+				};
+				Update: {
+					category?: Database['public']['Enums']['shopping_category'];
+					checked_at?: string | null;
+					checked_by_user_id?: string | null;
+					created_at?: string;
+					id?: string;
+					ingredient_id?: string | null;
+					name?: string;
+					needed_for?: Json;
+					quantity?: number;
+					shopping_list_id?: string;
+					sort_order?: number;
+					source_planned_meal_id?: string | null;
+					status?: Database['public']['Enums']['shopping_item_status'];
+					unit?: string;
+					updated_at?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'shopping_list_items_shopping_list_id_fkey';
+						columns: ['shopping_list_id'];
+						isOneToOne: false;
+						referencedRelation: 'shopping_lists';
+						referencedColumns: ['id'];
+					},
+					{
+						foreignKeyName: 'shopping_list_items_source_planned_meal_id_fkey';
+						columns: ['source_planned_meal_id'];
+						isOneToOne: false;
+						referencedRelation: 'planned_meals';
+						referencedColumns: ['id'];
+					}
+				];
+			};
+			shopping_lists: {
+				Row: {
+					completed_at: string | null;
+					created_at: string;
+					generated_range_end: string | null;
+					generated_range_start: string | null;
+					household_id: string | null;
+					id: string;
+					name: string;
+					owner_id: string;
+					source_type: Database['public']['Enums']['shopping_list_source'];
+					status: Database['public']['Enums']['shopping_list_status'];
+					updated_at: string;
+				};
+				Insert: {
+					completed_at?: string | null;
+					created_at?: string;
+					generated_range_end?: string | null;
+					generated_range_start?: string | null;
+					household_id?: string | null;
+					id?: string;
+					name: string;
+					owner_id?: string;
+					source_type?: Database['public']['Enums']['shopping_list_source'];
+					status?: Database['public']['Enums']['shopping_list_status'];
+					updated_at?: string;
+				};
+				Update: {
+					completed_at?: string | null;
+					created_at?: string;
+					generated_range_end?: string | null;
+					generated_range_start?: string | null;
+					household_id?: string | null;
+					id?: string;
+					name?: string;
+					owner_id?: string;
+					source_type?: Database['public']['Enums']['shopping_list_source'];
+					status?: Database['public']['Enums']['shopping_list_status'];
+					updated_at?: string;
+				};
+				Relationships: [];
+			};
 			user_recipe_meta: {
 				Row: {
 					created_at: string;
@@ -558,6 +669,18 @@ export type Database = {
 			planned_meal_status: 'PLANNED' | 'LOGGED' | 'SKIPPED' | 'SWAPPED';
 			portion_event_kind: 'INITIALIZED' | 'CONSUMED' | 'ADJUSTED';
 			prepped_meal_origin: 'PREP_SESSION' | 'DIRECT_ENTRY' | 'STORE_BOUGHT';
+			shopping_category:
+				| 'PRODUCE'
+				| 'DAIRY'
+				| 'MEAT_SEAFOOD'
+				| 'CANNED'
+				| 'FROZEN'
+				| 'BAKERY'
+				| 'PANTRY_STAPLES'
+				| 'OTHER';
+			shopping_item_status: 'PENDING' | 'CHECKED' | 'UNAVAILABLE' | 'REMOVED';
+			shopping_list_source: 'MANUAL' | 'FROM_PLAN';
+			shopping_list_status: 'ACTIVE' | 'SHOPPING' | 'COMPLETED' | 'ARCHIVED';
 			storage_location: 'PANTRY' | 'FRIDGE' | 'FREEZER' | 'OTHER';
 		};
 		CompositeTypes: {
@@ -693,6 +816,19 @@ export const Constants = {
 			planned_meal_status: ['PLANNED', 'LOGGED', 'SKIPPED', 'SWAPPED'],
 			portion_event_kind: ['INITIALIZED', 'CONSUMED', 'ADJUSTED'],
 			prepped_meal_origin: ['PREP_SESSION', 'DIRECT_ENTRY', 'STORE_BOUGHT'],
+			shopping_category: [
+				'PRODUCE',
+				'DAIRY',
+				'MEAT_SEAFOOD',
+				'CANNED',
+				'FROZEN',
+				'BAKERY',
+				'PANTRY_STAPLES',
+				'OTHER'
+			],
+			shopping_item_status: ['PENDING', 'CHECKED', 'UNAVAILABLE', 'REMOVED'],
+			shopping_list_source: ['MANUAL', 'FROM_PLAN'],
+			shopping_list_status: ['ACTIVE', 'SHOPPING', 'COMPLETED', 'ARCHIVED'],
 			storage_location: ['PANTRY', 'FRIDGE', 'FREEZER', 'OTHER']
 		}
 	}

@@ -19,22 +19,22 @@ User stories (from spec, priority order):
 
 ## Phase 2: Foundational (blocks all stories)
 
-- [ ] T001 Create migration with 4 enums, `shopping_lists` + `shopping_list_items` tables, CHECK-encoded invariants (INV-SH-002/003/004), indexes, RLS enable + owner/parent-list policies, `set_updated_at` triggers per data-model.md — supabase/migrations/0007_shopping.sql
-- [ ] T002 Apply migration locally and regenerate generated DB types (`supabase gen types typescript --local`), verify new tables/enums present — src/lib/database.types.ts
-- [ ] T003 Shopping domain types: enum aliases, `ShoppingList`/`ShoppingItem`/`NeededFor` app shapes, row→app mappers, insert/update input types per data-model.md — src/lib/shopping/types.ts
-- [ ] T004 Shopping service: list CRUD (create/rename/archive/complete with `completed_at`), item CRUD (add/update/remove), status transitions (check sets `checked_at`, uncheck clears it, unavailable) per §5.3 state machine — src/lib/shopping/shoppingService.ts
-- [ ] T005 Runes store: lists + active list + items state, getter functions, load/create/update actions following `planStore.svelte.ts` pattern; INV-SH-001 guard (deleting last pending item of an active list prompts archive) — src/lib/shopping/shoppingStore.svelte.ts
-- [ ] T006 [P] Route page skeleton + nav wiring (`Shopping` entry `href: resolve('/shopping')`) — src/routes/shopping/+page.svelte, src/routes/+layout.svelte
+- [X] T001 Create migration with 4 enums, `shopping_lists` + `shopping_list_items` tables, CHECK-encoded invariants (INV-SH-002/003/004), indexes, RLS enable + owner/parent-list policies, `set_updated_at` triggers per data-model.md — supabase/migrations/0007_shopping.sql
+- [X] T002 Apply migration locally and regenerate generated DB types (`supabase gen types typescript --local`), verify new tables/enums present — src/lib/database.types.ts
+- [X] T003 Shopping domain types: enum aliases, `ShoppingList`/`ShoppingItem`/`NeededFor` app shapes, row→app mappers, insert/update input types per data-model.md — src/lib/shopping/types.ts
+- [X] T004 Shopping service: list CRUD (create/rename/archive/complete with `completed_at`), item CRUD (add/update/remove), status transitions (check sets `checked_at`, uncheck clears it, unavailable) per §5.3 state machine — src/lib/shopping/shoppingService.ts
+- [X] T005 Runes store: lists + active list + items state, getter functions, load/create/update actions following `planStore.svelte.ts` pattern; INV-SH-001 guard (deleting last pending item of an active list prompts archive) — src/lib/shopping/shoppingStore.svelte.ts
+- [X] T006 [P] Route page skeleton + nav wiring (`Shopping` entry `href: resolve('/shopping')`) — src/routes/shopping/+page.svelte, src/routes/+layout.svelte
 
 ## Phase 3: US1 — Manage lists & items (MVP)
 
-- [ ] T007 [P] [US1] Pure keyword categorizer `categorize(name): ShoppingCategory` (8 fixed categories, default OTHER) + server-project unit tests — src/lib/shopping/categorize.ts, src/lib/shopping/categorize.spec.ts
-- [ ] T008 [P] [US1] Lists overview: active-list card with item-count/progress, create-list form, recent (completed/archived) lists per Domain Spec §4.7 — src/lib/components/shopping/ListsOverview.svelte
-- [ ] T009 [P] [US1] Manual add-item form: name/quantity/unit/category, positive-quantity guard (INV-SH-002), auto-category suggestion via `categorize()` — src/lib/components/shopping/AddItemForm.svelte
-- [ ] T010 [P] [US1] Item row: name, quantity+unit, "For: …" attribution display, edit quantity/category, remove — src/lib/components/shopping/ItemRow.svelte
-- [ ] T011 [US1] List view: pending items grouped by category in fixed enum order (FR-SH-019), composes ItemRow + AddItemForm — src/lib/components/shopping/ShoppingListView.svelte
-- [ ] T012 [US1] Compose overview/list view on the route page; empty states; design tokens + `.nk-*` only — src/routes/shopping/+page.svelte
-- [ ] T013 [US1] Server-project unit tests: row↔app mappers and service payload shapes (checked_at pairing, completed_at pairing) — src/lib/shopping/types.spec.ts
+- [X] T007 [P] [US1] Pure keyword categorizer `categorize(name): ShoppingCategory` (8 fixed categories, default OTHER) + server-project unit tests — src/lib/shopping/categorize.ts, src/lib/shopping/categorize.spec.ts
+- [X] T008 [P] [US1] Lists overview: active-list card with item-count/progress, create-list form, recent (completed/archived) lists per Domain Spec §4.7 — src/lib/components/shopping/ListsOverview.svelte
+- [X] T009 [P] [US1] Manual add-item form: name/quantity/unit/category, positive-quantity guard (INV-SH-002), auto-category suggestion via `categorize()` — src/lib/components/shopping/AddItemForm.svelte
+- [X] T010 [P] [US1] Item row: name, quantity+unit, "For: …" attribution display, edit quantity/category, remove — src/lib/components/shopping/ItemRow.svelte
+- [X] T011 [US1] List view: pending items grouped by category in fixed enum order (FR-SH-019), composes ItemRow + AddItemForm — src/lib/components/shopping/ShoppingListView.svelte
+- [X] T012 [US1] Compose overview/list view on the route page; empty states; design tokens + `.nk-*` only — src/routes/shopping/+page.svelte
+- [X] T013 [US1] Server-project unit tests: row↔app mappers and service payload shapes (checked_at pairing, completed_at pairing) — src/lib/shopping/types.spec.ts
 
 **Checkpoint**: create a list, add/edit/remove items, grouped display — independently testable.
 
