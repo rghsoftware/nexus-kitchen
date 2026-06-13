@@ -56,13 +56,15 @@
 		if (draftName.trim().length === 0 || !(draftQuantity > 0)) return;
 		busy = true;
 		try {
-			await updateOpenItem(item.id, {
+			const updated = await updateOpenItem(item.id, {
 				name: draftName.trim(),
 				quantity: draftQuantity,
 				unit: draftUnit.trim() || 'x',
 				category: draftCategory
 			});
-			editing = false;
+			// On rollback (null) the form stays open so the typed values aren't lost;
+			// the store error is rendered by ShoppingListView.
+			if (updated) editing = false;
 		} finally {
 			busy = false;
 		}

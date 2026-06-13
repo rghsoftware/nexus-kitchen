@@ -49,6 +49,10 @@
 	let busy = $state(false);
 	let report = $state<CompletionReport | null>(null);
 
+	// Earliest valid "Eat by": prepared_date is stamped as the UTC date, and the DB
+	// requires expiration_date > prepared_date (INV-INV-009) — so UTC tomorrow.
+	const minEatBy = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+
 	async function finish(replenish: boolean) {
 		if (!list) return;
 		busy = true;
@@ -57,7 +61,9 @@
 				list,
 				replenish ? { pantry: pantryRows, portions: portionRows } : { pantry: [], portions: [] }
 			);
-			if (carryOver && unbought.length > 0) {
+			// Carry over only when the list actually completed — otherwise the unbought
+			// items are still right where they were, on this still-open list.
+			if (result.list && carryOver && unbought.length > 0) {
 				try {
 					const carried = await carryOverItems(createList, unbought);
 					if (!carried.list || carried.carried < unbought.length) {
@@ -134,7 +140,7 @@
 				Some steps didn't go through:
 			</p>
 			<ul class="m-0 flex list-none flex-col gap-1 p-0 text-[var(--text)] text-[var(--text-sm)]">
-				{#each report.failures as failure (failure.name)}
+				{#each report.failures as failure, index (index)}
 					<li>{failure.name}: {failure.message}</li>
 				{/each}
 			</ul>
@@ -229,6 +235,7 @@
 							<input
 								class="h-10 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-2 text-[var(--text)]"
 								type="date"
+								min={minEatBy}
 								bind:value={portionRows[index].expirationDate}
 							/>
 						</label>

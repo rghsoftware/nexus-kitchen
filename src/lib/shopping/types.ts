@@ -5,7 +5,7 @@
 // §5.3. Deferred fields (photos, assignment, online ordering, store layouts) are not
 // modeled — see spec.md Assumptions.
 
-import type { Enums, Tables, TablesInsert, TablesUpdate } from '$lib/database.types';
+import type { Enums, Tables, TablesInsert } from '$lib/database.types';
 import type { ISODate } from '$lib/planning/types';
 
 // Real Postgres enums — the generated types carry the exact unions.
@@ -19,8 +19,6 @@ export type ShoppingListRow = Tables<'shopping_lists'>;
 export type ShoppingItemRow = Tables<'shopping_list_items'>;
 export type ShoppingListInsert = TablesInsert<'shopping_lists'>;
 export type ShoppingItemInsert = TablesInsert<'shopping_list_items'>;
-export type ShoppingListUpdate = TablesUpdate<'shopping_lists'>;
-export type ShoppingItemUpdate = TablesUpdate<'shopping_list_items'>;
 
 /** Display order of the fixed built-in categories (FR-SH-019) = enum order, Other last. */
 export const SHOPPING_CATEGORIES: readonly ShoppingCategory[] = [
@@ -51,20 +49,30 @@ export interface NeededFor {
 	title: string;
 }
 
-export interface ShoppingList {
+interface ShoppingListBase {
 	id: string;
 	ownerId: string;
 	name: string;
 	sourceType: ShoppingListSource;
 	generatedRangeStart: ISODate | null;
 	generatedRangeEnd: ISODate | null;
-	status: ShoppingListStatus;
-	completedAt: string | null;
 	createdAt: string;
 	updatedAt: string;
 }
 
-export interface ShoppingItem {
+/**
+ * `status`/`completedAt` mirror the DB CHECK `shopping_lists_completed_at_pairing`
+ * (INV-SH-004): in-progress lists carry no completion timestamp, COMPLETED requires
+ * one, ARCHIVED may have either — so the illegal combinations are unrepresentable.
+ */
+export type ShoppingList = ShoppingListBase &
+	(
+		| { status: 'ACTIVE' | 'SHOPPING'; completedAt: null }
+		| { status: 'COMPLETED'; completedAt: string }
+		| { status: 'ARCHIVED'; completedAt: string | null }
+	);
+
+interface ShoppingItemBase {
 	id: string;
 	shoppingListId: string;
 	name: string;
@@ -73,12 +81,21 @@ export interface ShoppingItem {
 	category: ShoppingCategory;
 	neededFor: NeededFor[];
 	sourcePlannedMealId: string | null;
-	status: ShoppingItemStatus;
-	checkedAt: string | null;
 	sortOrder: number;
 	createdAt: string;
 	updatedAt: string;
 }
+
+/**
+ * `status`/`checkedAt` mirror the DB CHECK `shopping_list_items_checked_at_pairing`
+ * (INV-SH-003): CHECKED ⇔ `checkedAt` present, so consumers can rely on the type
+ * instead of re-filtering at runtime.
+ */
+export type ShoppingItem = ShoppingItemBase &
+	(
+		| { status: 'CHECKED'; checkedAt: string }
+		| { status: Exclude<ShoppingItemStatus, 'CHECKED'>; checkedAt: null }
+	);
 
 /** Fields a user can edit on an item in place. */
 export interface ShoppingItemPatch {
@@ -104,18 +121,25 @@ export interface NewShoppingItem {
 // ---------------------------------------------------------------------------
 
 export function toShoppingList(row: ShoppingListRow): ShoppingList {
-	return {
+	const base: ShoppingListBase = {
 		id: row.id,
 		ownerId: row.owner_id,
 		name: row.name,
 		sourceType: row.source_type,
 		generatedRangeStart: row.generated_range_start,
 		generatedRangeEnd: row.generated_range_end,
-		status: row.status,
-		completedAt: row.completed_at,
 		createdAt: row.created_at,
 		updatedAt: row.updated_at
 	};
+	switch (row.status) {
+		case 'COMPLETED':
+			// The DB CHECK guarantees completed_at here; the fallback only satisfies the type.
+			return { ...base, status: 'COMPLETED', completedAt: row.completed_at ?? row.updated_at };
+		case 'ARCHIVED':
+			return { ...base, status: 'ARCHIVED', completedAt: row.completed_at };
+		default:
+			return { ...base, status: row.status, completedAt: null };
+	}
 }
 
 /**
@@ -141,7 +165,7 @@ export function parseNeededFor(value: unknown): NeededFor[] {
 }
 
 export function toShoppingItem(row: ShoppingItemRow): ShoppingItem {
-	return {
+	const base: ShoppingItemBase = {
 		id: row.id,
 		shoppingListId: row.shopping_list_id,
 		name: row.name,
@@ -150,12 +174,14 @@ export function toShoppingItem(row: ShoppingItemRow): ShoppingItem {
 		category: row.category,
 		neededFor: parseNeededFor(row.needed_for),
 		sourcePlannedMealId: row.source_planned_meal_id,
-		status: row.status,
-		checkedAt: row.checked_at,
 		sortOrder: row.sort_order,
 		createdAt: row.created_at,
 		updatedAt: row.updated_at
 	};
+	return row.status === 'CHECKED'
+		? // The DB CHECK guarantees checked_at here; the fallback only satisfies the type.
+			{ ...base, status: 'CHECKED', checkedAt: row.checked_at ?? row.updated_at }
+		: { ...base, status: row.status, checkedAt: null };
 }
 
 /** App input → insert row (jsonb attribution serialized). */

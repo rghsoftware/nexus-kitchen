@@ -5,16 +5,18 @@
 //
 // Writes are sequential client calls (online-first, P15 — research R5): a partial
 // failure leaves correct-but-incomplete state; every failure lands in the report the
-// completion sheet shows. Re-running is NOT safe in general — pantry merges add
-// quantities again and portions are re-created; only the meal links and list
-// completion are guarded by .eq filters. That is why the completion sheet offers
-// Close (tidy up from the pantry), not retry, after a partial failure.
+// completion sheet shows. Inventory writes are additive (pantry merges re-add,
+// portions re-create — only the meal links and list completion are .eq-guarded), so
+// completeTrip refuses lists that are already COMPLETED rather than risk doubling
+// inventory, and the completion sheet offers Close, not retry, after a partial failure.
 
 import { addPantryItemsFromShoppingList } from '$lib/pantry/shoppingListIntegration';
 import { addPreppedMeal } from '$lib/pantry/preppedMealService';
 import { loadPantryItems } from '$lib/pantry/pantryStore.svelte';
 import { loadPreppedMeals } from '$lib/pantry/preppedMealStore.svelte';
 import { ensureSession } from '$lib/session/session.svelte';
+import type { User } from '@supabase/supabase-js';
+import type { ISODate } from '$lib/planning/types';
 import type { StorageLocation } from '$lib/pantry/types';
 import { addItems, completeShoppingList, linkStoreBoughtMealToPortion } from './shoppingService';
 import type { ShoppingItem, ShoppingList } from './types';
@@ -41,12 +43,13 @@ export interface PortionAddition {
 	name: string;
 	portions: number;
 	storageLocation: StorageLocation;
-	/** YYYY-MM-DD; must be after today (INV-INV-009). */
-	expirationDate: string;
+	/** Must be after today (INV-INV-009). */
+	expirationDate: ISODate;
 }
 
 export interface CompletionReport {
 	list: ShoppingList | null;
+	/** Pantry rows written (merged or inserted); duplicate purchases merge into one row. */
 	pantryItemsAdded: number;
 	portionsCreated: number;
 	mealsLinked: number;
@@ -56,7 +59,7 @@ export interface CompletionReport {
 const DAY_MS = 86_400_000;
 const STORE_BOUGHT_SHELF_DAYS = 3;
 
-function isoDate(ms: number): string {
+function isoDate(ms: number): ISODate {
 	return new Date(ms).toISOString().slice(0, 10);
 }
 
@@ -114,9 +117,20 @@ export async function completeTrip(
 		failures: []
 	};
 
+	// Inventory writes are additive (see module header) — refuse a re-run instead of
+	// silently doubling pantry quantities and portions.
+	if (list.status === 'COMPLETED') {
+		report.list = list;
+		report.failures.push({
+			name: list.name,
+			message: 'This trip was already completed, so nothing was added twice.'
+		});
+		return report;
+	}
+
 	if (additions.pantry.length > 0) {
 		try {
-			await addPantryItemsFromShoppingList(
+			const written = await addPantryItemsFromShoppingList(
 				additions.pantry.map((a) => ({
 					id: a.itemId,
 					name: a.name,
@@ -125,8 +139,10 @@ export async function completeTrip(
 					storageLocation: a.storageLocation
 				}))
 			);
-			report.pantryItemsAdded = additions.pantry.length;
+			report.pantryItemsAdded = written.added;
+			report.failures.push(...written.failures);
 		} catch (err) {
+			// Thrown only before any write (no session / pantry unreadable) — see the seam.
 			report.failures.push({
 				name: 'Pantry items',
 				message: err instanceof Error ? err.message : "We couldn't add the items to your pantry."
@@ -134,7 +150,14 @@ export async function completeTrip(
 		}
 	}
 
-	const user = await ensureSession();
+	// The "never throws" contract includes the session lookup — a rejection here
+	// becomes per-portion failures below (user stays null), not an escaped rejection.
+	let user: User | null = null;
+	try {
+		user = await ensureSession();
+	} catch (err) {
+		console.error('[completeTrip] ensureSession failed', err);
+	}
 	const today = isoDate(Date.now());
 	for (const portion of additions.portions) {
 		try {
@@ -178,8 +201,9 @@ export async function completeTrip(
 	// Refresh inventory caches so the calendar re-derives fulfillment from fresh state.
 	try {
 		await Promise.all([loadPantryItems(), loadPreppedMeals()]);
-	} catch {
+	} catch (err) {
 		// Cache refresh is best-effort; the next navigation reloads anyway (P15).
+		console.error('[completeTrip] inventory cache refresh failed (best-effort)', err);
 	}
 
 	return report;

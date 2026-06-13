@@ -18,6 +18,9 @@ describe('categorize', () => {
 		expect(categorize('butternut squash')).toBe('PRODUCE');
 		// "coconut milk" (CANNED) must win over "milk" (DAIRY)
 		expect(categorize('Coconut milk')).toBe('CANNED');
+		// "chicken broth"/"beef stock" (CANNED) must win over "chicken"/"beef" (MEAT_SEAFOOD)
+		expect(categorize('Chicken broth')).toBe('CANNED');
+		expect(categorize('beef stock')).toBe('CANNED');
 	});
 
 	it('matches whole words only', () => {

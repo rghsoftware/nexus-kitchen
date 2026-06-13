@@ -6,8 +6,9 @@
 import { normalizeName } from '$lib/planning/fulfillment';
 import type { ShoppingCategory } from './types';
 
-// Order matters only across categories when keywords overlap; first hit wins.
-// Keep entries lowercase, singular where the plural contains the singular.
+// The longest matching keyword wins across all categories; KEYWORDS order only
+// breaks equal-length ties (see categorize()). Keep entries lowercase, singular
+// where the plural contains the singular.
 const KEYWORDS: readonly [ShoppingCategory, readonly string[]][] = [
 	['FROZEN', ['frozen', 'ice cream', 'popsicle', 'frozen peas', 'frozen corn', 'frozen berries']],
 	[
@@ -24,6 +25,12 @@ const KEYWORDS: readonly [ShoppingCategory, readonly string[]][] = [
 			'garbanzo',
 			'coconut milk',
 			'broth',
+			// Cross-category names: longer than 'chicken'/'beef', so the canned
+			// good wins over MEAT_SEAFOOD.
+			'chicken broth',
+			'beef broth',
+			'chicken stock',
+			'beef stock',
 			'stock',
 			'soup'
 		]

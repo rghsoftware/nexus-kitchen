@@ -30,6 +30,7 @@ import {
 	createGeneratedList,
 	createShoppingList,
 	deleteItem as svcDeleteItem,
+	deleteShoppingList,
 	listItems,
 	listShoppingLists,
 	markListShopping,
@@ -86,6 +87,15 @@ export function clearShoppingError(): void {
 	_error = null;
 }
 
+/**
+ * Record a failure: surface calm copy to the UI and log the underlying cause
+ * (ShoppingError.cause carries the PostgREST error) so failures stay diagnosable.
+ */
+function reportError(op: string, err: unknown, fallback: string): void {
+	console.error(`[shoppingStore] ${op} failed`, err);
+	_error = err instanceof Error ? err.message : fallback;
+}
+
 /** Lists a user can still shop from, most recent first. */
 export function activeLists(): ShoppingList[] {
 	return _lists.filter((l) => l.status === 'ACTIVE' || l.status === 'SHOPPING');
@@ -106,7 +116,7 @@ export async function loadLists(): Promise<void> {
 		_lists = await listShoppingLists();
 		_listsLoaded = true;
 	} catch (err) {
-		_error = err instanceof Error ? err.message : "We couldn't load your shopping lists.";
+		reportError('loadLists', err, "We couldn't load your shopping lists.");
 	} finally {
 		_loading = false;
 	}
@@ -121,7 +131,7 @@ export async function openShoppingList(listId: string): Promise<void> {
 	try {
 		_items = await listItems(listId);
 	} catch (err) {
-		_error = err instanceof Error ? err.message : "We couldn't load that list.";
+		reportError('openShoppingList', err, "We couldn't load that list.");
 	} finally {
 		_loading = false;
 	}
@@ -143,7 +153,7 @@ export async function createList(name: string): Promise<ShoppingList | null> {
 		_lists = [created, ..._lists];
 		return created;
 	} catch (err) {
-		_error = err instanceof Error ? err.message : "We couldn't create that list.";
+		reportError('createList', err, "We couldn't create that list.");
 		return null;
 	}
 }
@@ -155,7 +165,7 @@ export async function renameList(id: string, name: string): Promise<boolean> {
 		_lists = _lists.map((l) => (l.id === id ? updated : l));
 		return true;
 	} catch (err) {
-		_error = err instanceof Error ? err.message : "We couldn't rename that list.";
+		reportError('renameList', err, "We couldn't rename that list.");
 		return false;
 	}
 }
@@ -168,7 +178,7 @@ export async function archiveList(id: string): Promise<boolean> {
 		if (_activeListId === id) closeShoppingList();
 		return true;
 	} catch (err) {
-		_error = err instanceof Error ? err.message : "We couldn't archive that list.";
+		reportError('archiveList', err, "We couldn't archive that list.");
 		return false;
 	}
 }
@@ -192,7 +202,7 @@ export async function addItemToOpenList(item: NewShoppingItem): Promise<Shopping
 		_items = [..._items, created];
 		return created;
 	} catch (err) {
-		_error = err instanceof Error ? err.message : "We couldn't add that item.";
+		reportError('addItemToOpenList', err, "We couldn't add that item.");
 		return null;
 	}
 }
@@ -203,16 +213,21 @@ export async function updateOpenItem(
 ): Promise<ShoppingItem | null> {
 	const before = _items.find((i) => i.id === id);
 	if (!before) return null;
-	const optimistic: ShoppingItem = { ...before, ...patch };
+	// Drop explicitly-undefined patch keys: the service skips them, so the optimistic
+	// copy must too, or local state would briefly diverge from the server's.
+	const defined = Object.fromEntries(
+		Object.entries(patch).filter(([, v]) => v !== undefined)
+	) as ShoppingItemPatch;
+	const optimistic: ShoppingItem = { ...before, ...defined };
 	_items = _items.map((i) => (i.id === id ? optimistic : i));
 	_error = null;
 	try {
-		const updated = await svcUpdateItem(id, patch);
+		const updated = await svcUpdateItem(id, defined);
 		_items = _items.map((i) => (i.id === id ? updated : i));
 		return updated;
 	} catch (err) {
 		_items = _items.map((i) => (i.id === id ? before : i));
-		_error = err instanceof Error ? err.message : "We couldn't update that item.";
+		reportError('updateOpenItem', err, "We couldn't update that item.");
 		return null;
 	}
 }
@@ -245,7 +260,7 @@ export async function deleteOpenItem(id: string, archiveEmptiedList = false): Pr
 		return true;
 	} catch (err) {
 		_items = before;
-		_error = err instanceof Error ? err.message : "We couldn't remove that item.";
+		reportError('deleteOpenItem', err, "We couldn't remove that item.");
 		return false;
 	}
 }
@@ -266,12 +281,11 @@ export async function setOpenItemStatus(
 	const before = _items.find((i) => i.id === id);
 	if (!before) return null;
 
-	const optimistic: ShoppingItem = {
-		...before,
-		status,
-		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- non-reactive timestamp, not UI state
-		checkedAt: status === 'CHECKED' ? new Date().toISOString() : null
-	};
+	const optimistic: ShoppingItem =
+		status === 'CHECKED'
+			? // eslint-disable-next-line svelte/prefer-svelte-reactivity -- non-reactive timestamp, not UI state
+				{ ...before, status: 'CHECKED', checkedAt: new Date().toISOString() }
+			: { ...before, status, checkedAt: null };
 	_items = _items.map((i) => (i.id === id ? optimistic : i));
 	_error = null;
 
@@ -285,14 +299,15 @@ export async function setOpenItemStatus(
 		if (promote && _activeListId !== null) {
 			try {
 				upsertListLocal(await markListShopping(_activeListId));
-			} catch {
+			} catch (err) {
 				// Status promotion is cosmetic — checking off must not fail because of it.
+				console.error('[shoppingStore] markListShopping failed (cosmetic)', err);
 			}
 		}
 		return updated;
 	} catch (err) {
 		_items = _items.map((i) => (i.id === id ? before : i));
-		_error = err instanceof Error ? err.message : "We couldn't update that item.";
+		reportError('setOpenItemStatus', err, "We couldn't update that item.");
 		return null;
 	}
 }
@@ -407,13 +422,28 @@ export async function generateFromPlan(
 			upsertListLocal(target);
 		}
 
-		const created = await svcAddItems(target.id, newItems);
+		let created: ShoppingItem[];
+		try {
+			created = await svcAddItems(target.id, newItems);
+		} catch (err) {
+			if (intoListId === undefined) {
+				// Don't leave the just-created list behind empty — an ACTIVE list with no
+				// items violates INV-SH-001 and would confuse the overview.
+				_lists = _lists.filter((l) => l.id !== target.id);
+				try {
+					await deleteShoppingList(target.id);
+				} catch (cleanupErr) {
+					console.error('[shoppingStore] cleanup of empty generated list failed', cleanupErr);
+				}
+			}
+			throw err;
+		}
 		if (_activeListId === target.id) {
 			_items = [..._items, ...created];
 		}
 		return { list: target, added: created.length };
 	} catch (err) {
-		_error = err instanceof Error ? err.message : "We couldn't build the list from your plan.";
+		reportError('generateFromPlan', err, "We couldn't build the list from your plan.");
 		return null;
 	} finally {
 		_loading = false;

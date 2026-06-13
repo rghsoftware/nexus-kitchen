@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { itemStatusPayload, storeBoughtConversionPayload } from './shoppingService';
+import {
+	itemStatusPayload,
+	storeBoughtConversionPayload,
+	validateItemInput
+} from './shoppingService';
 import {
 	parseNeededFor,
 	toItemInsert,
@@ -126,5 +130,49 @@ describe('storeBoughtConversionPayload (FR-SH-018, INV-PL-003)', () => {
 		expect(payload.prepped_meal_id).toBe('pp-1');
 		expect(payload.prepped_name_snapshot).toBe('Rotisserie chicken');
 		expect(payload.store_bought_name).toBeNull();
+	});
+});
+
+describe('mapper status narrowing (INV-SH-003 / INV-SH-004 unions)', () => {
+	it('pairs a CHECKED item with its timestamp', () => {
+		const item = toShoppingItem(itemRow({ status: 'CHECKED', checked_at: '2026-06-11T09:00:00Z' }));
+		expect(item.status).toBe('CHECKED');
+		expect(item.checkedAt).toBe('2026-06-11T09:00:00Z');
+	});
+
+	it('forces checkedAt to null for non-CHECKED rows', () => {
+		const item = toShoppingItem(itemRow({ status: 'UNAVAILABLE', checked_at: null }));
+		expect(item.checkedAt).toBeNull();
+	});
+
+	it('pairs a COMPLETED list with its timestamp and in-progress lists with null', () => {
+		const completed = toShoppingList(
+			listRow({ status: 'COMPLETED', completed_at: '2026-06-11T18:30:00Z' })
+		);
+		expect(completed.completedAt).toBe('2026-06-11T18:30:00Z');
+		expect(toShoppingList(listRow({ status: 'SHOPPING' })).completedAt).toBeNull();
+	});
+});
+
+describe('validateItemInput (mirrors the 0007 CHECKs)', () => {
+	it('rejects non-positive and NaN quantities with a specific message', () => {
+		expect(() => validateItemInput({ quantity: 0 })).toThrow(
+			'Quantity needs to be more than zero.'
+		);
+		expect(() => validateItemInput({ quantity: -2 })).toThrow();
+		expect(() => validateItemInput({ quantity: Number.NaN })).toThrow();
+	});
+
+	it('rejects empty and over-long names with a specific message', () => {
+		expect(() => validateItemInput({ name: '' })).toThrow(
+			'Item names need to be 1–200 characters.'
+		);
+		expect(() => validateItemInput({ name: 'x'.repeat(201) })).toThrow();
+	});
+
+	it('accepts valid input and skips absent fields (patch semantics)', () => {
+		expect(() => validateItemInput({})).not.toThrow();
+		expect(() => validateItemInput({ name: 'Onions', quantity: 2.5 })).not.toThrow();
+		expect(() => validateItemInput({ name: 'x'.repeat(200) })).not.toThrow();
 	});
 });

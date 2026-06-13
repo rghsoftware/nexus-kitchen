@@ -22,7 +22,7 @@
 	} from '$lib/shopping/types';
 
 	interface Props {
-		/** Provided once completion exists (US4); the button hides without it. */
+		/** Optional so the view renders without the completion flow; the button hides without it. */
 		onComplete?: () => void;
 	}
 	let { onComplete }: Props = $props();

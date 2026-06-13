@@ -53,7 +53,7 @@ Concretely, the feature delivers:
   7 days; the user can widen/narrow before generating.
 - Q: Store-bought purchases on completion? → A: **Auto-link.** A checked item that was
   generated from a STORE_BOUGHT planned meal becomes a ready-to-eat prepped portion
-  (origin = STORE_BOUGHT, per Domain Spec §2437) AND the source planned meal is pointed
+  (origin = STORE_BOUGHT, per Domain Spec §4.11) AND the source planned meal is pointed
   at that portion, deriving HAVE_IT with zero extra steps. (Resolved partly from corpus:
   the prepped-portion mechanism was already canonical; the auto-link was the open call.)
 
@@ -168,7 +168,7 @@ generated list are not duplicated (matched by normalized name).
   to another (new or existing active) list so unmet gaps remain visible.
 - FR-SH-018: A checked item that was generated from a STORE_BOUGHT planned meal shall,
   on completion, be added to inventory as a ready-to-eat prepped portion (origin =
-  STORE_BOUGHT, Domain Specification §2437) — not a pantry item — and the source planned
+  STORE_BOUGHT, Domain Specification §4.11) — not a pantry item — and the source planned
   meal shall be automatically pointed at that portion so it derives HAVE_IT (clarified
   2026-06-11). Generated items therefore record which planned meal they were created
   for. If the source meal was meanwhile deleted or no longer PLANNED, the portion is

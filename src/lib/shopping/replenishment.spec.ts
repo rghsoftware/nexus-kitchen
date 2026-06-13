@@ -35,23 +35,30 @@ function purchased(overrides: Partial<ShoppingListItem> = {}): ShoppingListItem 
 	return { id: 'i-1', name: 'Onions', quantity: 4, unit: 'x', ...overrides };
 }
 
-function checkedItem(overrides: Partial<ShoppingItem> = {}): ShoppingItem {
-	return {
+function checkedItem(
+	overrides: Partial<Omit<ShoppingItem, 'status' | 'checkedAt'>> & {
+		status?: ShoppingItem['status'];
+	} = {}
+): ShoppingItem {
+	const { status = 'CHECKED', ...rest } = overrides;
+	const base = {
 		id: 'it-1',
 		shoppingListId: 'sl-1',
 		name: 'Onions',
 		quantity: 4,
 		unit: 'x',
-		category: 'PRODUCE',
+		category: 'PRODUCE' as const,
 		neededFor: [],
 		sourcePlannedMealId: null,
-		status: 'CHECKED',
-		checkedAt: '2026-06-11T18:00:00Z',
 		sortOrder: 0,
 		createdAt: '',
 		updatedAt: '',
-		...overrides
+		...rest
 	};
+	// The union pairs CHECKED ⇔ checkedAt (INV-SH-003), so the fixture pairs too.
+	return status === 'CHECKED'
+		? { ...base, status, checkedAt: '2026-06-11T18:00:00Z' }
+		: { ...base, status, checkedAt: null };
 }
 
 // ---------------------------------------------------------------------------

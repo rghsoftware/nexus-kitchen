@@ -36,6 +36,20 @@ async function requireSession() {
 	return user;
 }
 
+/**
+ * Mirror the DB CHECKs (quantity > 0 — INV-SH-002; name 1–200 chars) so bad input
+ * fails fast with a specific message instead of PostgREST's generic constraint error.
+ * Exported pure so the rules are unit-testable.
+ */
+export function validateItemInput(input: { name?: string; quantity?: number }): void {
+	if (input.name !== undefined && (input.name.length < 1 || input.name.length > 200)) {
+		throw new ShoppingError('Item names need to be 1–200 characters.');
+	}
+	if (input.quantity !== undefined && !(input.quantity > 0)) {
+		throw new ShoppingError('Quantity needs to be more than zero.');
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Lists
 // ---------------------------------------------------------------------------
@@ -102,6 +116,16 @@ export async function archiveShoppingList(id: string): Promise<ShoppingList> {
 	return toShoppingList(data);
 }
 
+/**
+ * Hard-delete a list (items cascade). Only used to clean up a just-created generated
+ * list whose items failed to insert — user-facing removal archives instead.
+ */
+export async function deleteShoppingList(id: string): Promise<void> {
+	await requireSession();
+	const { error } = await supabase.from('shopping_lists').delete().eq('id', id);
+	if (error) throw new ShoppingError("We couldn't remove the list.", error);
+}
+
 /** Mark the list SHOPPING (entered on first check; cosmetic, FR-SH-002). */
 export async function markListShopping(id: string): Promise<ShoppingList> {
 	await requireSession();
@@ -146,6 +170,7 @@ export async function listItems(listId: string): Promise<ShoppingItem[]> {
 }
 
 export async function addItem(listId: string, item: NewShoppingItem): Promise<ShoppingItem> {
+	validateItemInput(item);
 	await requireSession();
 	const { data, error } = await supabase
 		.from('shopping_list_items')
@@ -159,6 +184,7 @@ export async function addItem(listId: string, item: NewShoppingItem): Promise<Sh
 /** Bulk insert for generation (FR-SH-010); returns rows in insertion order. */
 export async function addItems(listId: string, items: NewShoppingItem[]): Promise<ShoppingItem[]> {
 	if (items.length === 0) return [];
+	for (const item of items) validateItemInput(item);
 	await requireSession();
 	const { data, error } = await supabase
 		.from('shopping_list_items')
@@ -169,6 +195,7 @@ export async function addItems(listId: string, items: NewShoppingItem[]): Promis
 }
 
 export async function updateItem(id: string, patch: ShoppingItemPatch): Promise<ShoppingItem> {
+	validateItemInput(patch);
 	await requireSession();
 	const { data, error } = await supabase
 		.from('shopping_list_items')

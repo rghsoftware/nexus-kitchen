@@ -17,7 +17,7 @@
 	import type { ShoppingList } from '$lib/shopping/types';
 
 	interface Props {
-		/** Provided once generation exists (US2); the button hides without it. */
+		/** Optional so the overview renders without the generation flow; the button hides without it. */
 		onGenerate?: () => void;
 	}
 	let { onGenerate }: Props = $props();
