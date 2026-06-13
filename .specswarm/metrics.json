@@ -25,6 +25,21 @@
       "e2e_tests": "not runnable in build sandbox (browser hang, pre-existing env issue)",
       "spec_mentor": "PASS after FR-FS-008 alignment (NEEDS-MARTY item resolved in 3b68c46)",
       "completed_at": "2026-06-10"
+    },
+    "005-shopping": {
+      "quality_score": 90,
+      "tasks_total": 25,
+      "tasks_completed": 24,
+      "tasks_outstanding": "T025 manual browser quickstart (needs human session)",
+      "unit_tests": {
+        "server": "166/166",
+        "new": 26
+      },
+      "pgtap_tests": "73/73 (19 new)",
+      "e2e_tests": "not runnable in build sandbox (browser hang, pre-existing env issue)",
+      "reviews": "supabase-rls-reviewer + svelte5-reviewer dispatched; criticals fixed (cross-user FK guard, inert/Escape on sheets)",
+      "infra_repair": "0008_data_api_grants.sql (CLI auto_expose_new_tables flip 2026-05-30)",
+      "completed_at": "2026-06-11"
     }
   }
 }

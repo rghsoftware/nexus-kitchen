@@ -29,6 +29,9 @@ export interface IngredientForMatch {
 	isOptional: boolean;
 	/** recipe_ingredients.id of the base ingredient this row substitutes for, if any. */
 	substituteFor: string | null;
+	/** Recipe-stated amount — unused by derivation; shopping generation suggests from it. */
+	quantity?: number;
+	unit?: string;
 }
 
 export interface FulfillmentInputs {

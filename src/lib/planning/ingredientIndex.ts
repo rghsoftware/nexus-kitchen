@@ -24,7 +24,7 @@ export async function loadIngredientIndex(
 	if (uncached.length > 0) {
 		const { data, error } = await supabase
 			.from('recipe_ingredients')
-			.select('id, recipe_id, name, is_optional, substitute_for')
+			.select('id, recipe_id, name, is_optional, substitute_for, quantity, unit')
 			.in('recipe_id', uncached);
 		if (error) {
 			throw new PlanningError("We couldn't check your ingredients. Please try again.", error);
@@ -38,7 +38,9 @@ export async function loadIngredientIndex(
 					id: row.id,
 					name: row.name,
 					isOptional: row.is_optional,
-					substituteFor: row.substitute_for
+					substituteFor: row.substitute_for,
+					quantity: Number(row.quantity),
+					unit: row.unit
 				});
 			} else {
 				// PostgREST returned a recipe_id that wasn't in our .in() filter — RLS

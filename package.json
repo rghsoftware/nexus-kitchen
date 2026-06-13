@@ -16,7 +16,8 @@
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run && npm run test:e2e",
 		"test:e2e": "playwright install && playwright test",
-		"db:types": "supabase gen types typescript --local > src/lib/database.types.ts && prettier --write src/lib/database.types.ts"
+		"db:types": "supabase gen types typescript --local > src/lib/database.types.ts && prettier --write src/lib/database.types.ts",
+		"seed": "bun run scripts/seed-dev.ts"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",

@@ -19,12 +19,13 @@
 		{ label: 'Plan', icon: 'ph-calendar-dots', href: resolve('/plan') },
 		{ label: 'Recipes', icon: 'ph-book-open', href: resolve('/recipes') },
 		{ label: 'Pantry', icon: 'ph-jar', href: resolve('/pantry') },
-		{ label: 'Shopping', icon: 'ph-shopping-cart-simple', href: null },
+		{ label: 'Shopping', icon: 'ph-shopping-cart-simple', href: resolve('/shopping') },
 		{ label: 'Meal prep', icon: 'ph-cooking-pot', href: null }
 	] as const;
 
-	// Bottom tabs (mobile) — five slots per design/mobile-*.html.
-	const TABS = NAV.filter((n) => n.label !== 'Shopping');
+	// Bottom tabs (mobile) — five slots per design/mobile-*.html. Shopping is live now,
+	// so it takes the fifth slot from the still-unbuilt Meal prep surface.
+	const TABS = NAV.filter((n) => n.label !== 'Meal prep');
 
 	function tabLabel(label: string): string {
 		return label === 'Meal prep' ? 'Prep' : label;
@@ -254,6 +255,11 @@
 	}
 	.tab i {
 		font-size: 24px;
+	}
+	.tab:focus-visible {
+		outline: 3px solid var(--focus-ring);
+		outline-offset: 2px;
+		border-radius: var(--radius-sm);
 	}
 	.tab--active {
 		color: var(--primary-text);
