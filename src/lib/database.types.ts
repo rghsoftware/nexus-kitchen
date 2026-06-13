@@ -660,7 +660,7 @@ export type Database = {
 			[_ in never]: never;
 		};
 		Functions: {
-			[_ in never]: never;
+			seed_demo_data: { Args: { p_owner?: string }; Returns: Json };
 		};
 		Enums: {
 			defrost_state: 'NOT_APPLICABLE' | 'FROZEN' | 'DEFROSTING' | 'READY';
