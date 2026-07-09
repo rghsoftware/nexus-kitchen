@@ -4,8 +4,18 @@ A responsive **SvelteKit SPA** (`adapter-static`, client-rendered) — an ADHD-f
 meal planner (recipes, planning, pantry/prepped inventory, shopping, energy-aware
 suggestions). One web app for desktop + mobile; **no native apps**.
 
-> **Status:** early scaffold. `src/` is still the minimal template and there is no
-> `supabase/` directory yet — the backend below is the _designed_ target, not yet built.
+> **Status:** actively built. Six features are shipped and tested — recipes (+
+> substitutes), pantry/prepped inventory with an append-only portion ledger, the
+> planning calendar, fulfillment derivation (HAVE_IT / CAN_MAKE_IT / MUST_ACQUIRE),
+> shopping (generation → trip → replenishment), and the Today dashboard with one-tap
+> meal logging + verdicts (`/today` is the home surface). Nine migrations, default-deny
+> RLS with pgTAP suites throughout. Per-feature specs, tasks, and quality scores live in
+> `.specswarm/features/` and `.specswarm/metrics.json`. Not yet built (tracked in GitHub
+> issues): meal reminders / Edge Functions, prep sessions, household sharing,
+> energy-aware suggestions, real auth (sessions are anonymous-only), deployment.
+>
+> `design/screens/*.html` are the **canonical layouts** — consult them before any UI
+> work; tokens are raw material, the mockups are the design.
 
 ## Commands
 
