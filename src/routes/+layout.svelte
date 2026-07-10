@@ -15,7 +15,7 @@
 	// Per design/web-*.html: full nav skeleton; unbuilt surfaces render muted (readme:
 	// "Other surfaces are scaffolded in the nav but not yet designed").
 	const NAV = [
-		{ label: 'Today', icon: 'ph-house', href: null },
+		{ label: 'Today', icon: 'ph-house', href: resolve('/today') },
 		{ label: 'Plan', icon: 'ph-calendar-dots', href: resolve('/plan') },
 		{ label: 'Recipes', icon: 'ph-book-open', href: resolve('/recipes') },
 		{ label: 'Pantry', icon: 'ph-jar', href: resolve('/pantry') },
@@ -41,7 +41,7 @@
 <div class="app">
 	<!-- Sidebar (desktop) — per design/screens/web-calendar.html -->
 	<aside class="side">
-		<a class="side__logo" href={resolve('/plan')}>
+		<a class="side__logo" href={resolve('/today')}>
 			<span class="side__mark" aria-hidden="true"><i class="ph-fill ph-cooking-pot"></i></span>
 			<span class="side__name">Nexus <span>Kitchen</span></span>
 		</a>

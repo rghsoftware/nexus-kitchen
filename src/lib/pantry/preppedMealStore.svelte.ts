@@ -136,7 +136,8 @@ export async function optimisticUpdatePreppedMeal(
 
 export async function optimisticConsumePortions(
 	preppedMealId: string,
-	count: number
+	count: number,
+	opts?: { triggeredBy?: string }
 ): Promise<void> {
 	const prev = _meals.find((m) => m.id === preppedMealId);
 	if (prev) {
@@ -147,7 +148,7 @@ export async function optimisticConsumePortions(
 		_meals = _meals.map((m) => (m.id === preppedMealId ? updated : m));
 	}
 	try {
-		await consumePortions(preppedMealId, count);
+		await consumePortions(preppedMealId, count, opts);
 		// Re-sync from DB after trigger runs (portions_remaining is authoritative there)
 		const { data } = await supabase
 			.from('prepped_meals')

@@ -28,6 +28,82 @@ export type Database = {
 	};
 	public: {
 		Tables: {
+			meal_logs: {
+				Row: {
+					created_at: string;
+					household_id: string | null;
+					id: string;
+					log_type: Database['public']['Enums']['meal_log_type'];
+					logged_at: string;
+					meal_slot: Database['public']['Enums']['meal_slot'] | null;
+					name_snapshot: string | null;
+					notes: string | null;
+					owner_id: string;
+					planned_meal_id: string | null;
+					prepped_meal_id: string | null;
+					recipe_id: string | null;
+					servings: number;
+					updated_at: string;
+					verdict: Database['public']['Enums']['meal_verdict'] | null;
+				};
+				Insert: {
+					created_at?: string;
+					household_id?: string | null;
+					id?: string;
+					log_type: Database['public']['Enums']['meal_log_type'];
+					logged_at?: string;
+					meal_slot?: Database['public']['Enums']['meal_slot'] | null;
+					name_snapshot?: string | null;
+					notes?: string | null;
+					owner_id?: string;
+					planned_meal_id?: string | null;
+					prepped_meal_id?: string | null;
+					recipe_id?: string | null;
+					servings?: number;
+					updated_at?: string;
+					verdict?: Database['public']['Enums']['meal_verdict'] | null;
+				};
+				Update: {
+					created_at?: string;
+					household_id?: string | null;
+					id?: string;
+					log_type?: Database['public']['Enums']['meal_log_type'];
+					logged_at?: string;
+					meal_slot?: Database['public']['Enums']['meal_slot'] | null;
+					name_snapshot?: string | null;
+					notes?: string | null;
+					owner_id?: string;
+					planned_meal_id?: string | null;
+					prepped_meal_id?: string | null;
+					recipe_id?: string | null;
+					servings?: number;
+					updated_at?: string;
+					verdict?: Database['public']['Enums']['meal_verdict'] | null;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'meal_logs_planned_meal_id_fkey';
+						columns: ['planned_meal_id'];
+						isOneToOne: false;
+						referencedRelation: 'planned_meals';
+						referencedColumns: ['id'];
+					},
+					{
+						foreignKeyName: 'meal_logs_prepped_meal_id_fkey';
+						columns: ['prepped_meal_id'];
+						isOneToOne: false;
+						referencedRelation: 'prepped_meals';
+						referencedColumns: ['id'];
+					},
+					{
+						foreignKeyName: 'meal_logs_recipe_id_fkey';
+						columns: ['recipe_id'];
+						isOneToOne: false;
+						referencedRelation: 'recipes';
+						referencedColumns: ['id'];
+					}
+				];
+			};
 			meal_plans: {
 				Row: {
 					created_at: string;
@@ -660,11 +736,13 @@ export type Database = {
 			[_ in never]: never;
 		};
 		Functions: {
-			seed_demo_data: { Args: { p_owner?: string }; Returns: Json };
+			[_ in never]: never;
 		};
 		Enums: {
 			defrost_state: 'NOT_APPLICABLE' | 'FROZEN' | 'DEFROSTING' | 'READY';
+			meal_log_type: 'FROM_PLAN' | 'FROM_RECIPE' | 'FROM_PREPPED' | 'QUICK_LOG' | 'CUSTOM';
 			meal_slot: 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK';
+			meal_verdict: 'KEEP' | 'FINE' | 'REST';
 			planned_meal_source: 'RECIPE' | 'PREPPED' | 'STORE_BOUGHT' | 'QUICK';
 			planned_meal_status: 'PLANNED' | 'LOGGED' | 'SKIPPED' | 'SWAPPED';
 			portion_event_kind: 'INITIALIZED' | 'CONSUMED' | 'ADJUSTED';
@@ -811,7 +889,9 @@ export const Constants = {
 	public: {
 		Enums: {
 			defrost_state: ['NOT_APPLICABLE', 'FROZEN', 'DEFROSTING', 'READY'],
+			meal_log_type: ['FROM_PLAN', 'FROM_RECIPE', 'FROM_PREPPED', 'QUICK_LOG', 'CUSTOM'],
 			meal_slot: ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'],
+			meal_verdict: ['KEEP', 'FINE', 'REST'],
 			planned_meal_source: ['RECIPE', 'PREPPED', 'STORE_BOUGHT', 'QUICK'],
 			planned_meal_status: ['PLANNED', 'LOGGED', 'SKIPPED', 'SWAPPED'],
 			portion_event_kind: ['INITIALIZED', 'CONSUMED', 'ADJUSTED'],

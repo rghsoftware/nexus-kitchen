@@ -72,13 +72,18 @@ export async function updatePreppedMeal(
 // Portion operations (all via ledger — never direct column writes)
 // ---------------------------------------------------------------------------
 
-export async function consumePortions(preppedMealId: string, count: number): Promise<void> {
+export async function consumePortions(
+	preppedMealId: string,
+	count: number,
+	opts?: { triggeredBy?: string } // meal_logs.id — the ledger attribution reserved in 0004
+): Promise<void> {
 	if (count <= 0) throw new PreppedMealServiceError('count must be positive');
 	try {
 		await insertPortionEvent({
 			preppedMealId,
 			deltaPortions: -count,
-			kind: 'CONSUMED'
+			kind: 'CONSUMED',
+			triggeredBy: opts?.triggeredBy
 		});
 	} catch (err) {
 		if (err instanceof PortionLedgerError) throw err;

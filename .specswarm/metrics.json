@@ -40,6 +40,21 @@
       "reviews": "supabase-rls-reviewer + svelte5-reviewer dispatched; criticals fixed (cross-user FK guard, inert/Escape on sheets)",
       "infra_repair": "0008_data_api_grants.sql (CLI auto_expose_new_tables flip 2026-05-30)",
       "completed_at": "2026-06-11"
+    },
+    "006-today-logging": {
+      "quality_score": 91,
+      "tasks_total": 26,
+      "tasks_completed": 25,
+      "tasks_outstanding": "T026 manual browser quickstart (needs human session)",
+      "unit_tests": {
+        "server": "266/266",
+        "new": 45
+      },
+      "pgtap_tests": "99/99 (26 new)",
+      "e2e_tests": "25/25 (8 new, tests/today.e2e.ts)",
+      "reviews": "supabase-rls-reviewer + svelte5-reviewer; criticals fixed (SET NULL cascade vs annotation trigger, triggered_by FK + ownership guard, sheet stays open on failed log)",
+      "infra_repair": ".prettierignore /.impeccable/ cache exclusion",
+      "completed_at": "2026-07-09"
     }
   }
 }

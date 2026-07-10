@@ -320,6 +320,17 @@ export function fulfillmentFor(meal: PlannedMeal): FulfillmentResult | null {
 }
 
 /** Optimistically remove a meal. Returns true on success, false on rollback. */
+/**
+ * Reflect a PLANNED → LOGGED flip performed by the log module (feature 006,
+ * FR-TL-010). The durable write is the log module's safe-flip UPDATE; this only
+ * keeps already-loaded calendar/Today state in sync without a refetch.
+ */
+export function markMealLoggedLocally(id: string): void {
+	_meals = _meals.map((m) =>
+		m.id === id && m.status === 'PLANNED' ? { ...m, status: 'LOGGED' } : m
+	);
+}
+
 export async function removeMeal(id: string): Promise<boolean> {
 	const before = _meals;
 	const target = _meals.find((m) => m.id === id);

@@ -2,14 +2,13 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 
-	// The Today dashboard isn't built yet; Plan is the app's home surface for now
-	// (per the differentiator: planning is how demand is expressed).
+	// Today is the app's home surface (feature 006, FR-TL-001).
 	$effect(() => {
-		void goto(resolve('/plan'), { replaceState: true });
+		void goto(resolve('/today'), { replaceState: true });
 	});
 </script>
 
-<p class="redirect">Opening your plan…</p>
+<p class="redirect">Opening your day…</p>
 
 <style>
 	.redirect {
