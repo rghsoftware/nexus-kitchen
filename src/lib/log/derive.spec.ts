@@ -4,6 +4,7 @@ import type { MealLog } from './types';
 import {
 	deriveDayCoverage,
 	groupLogSources,
+	isDayCovered,
 	keepers,
 	recents,
 	unratedRecent,
@@ -182,5 +183,28 @@ describe('deriveDayCoverage', () => {
 			{ meal: meal({ mealSlot: 'BREAKFAST' }), fulfillment: 'HAVE_IT' }
 		]);
 		expect(coverage.slots.map((s) => s.label)).toEqual(['Breakfast', 'Dinner', 'Anytime']);
+	});
+});
+
+describe('isDayCovered', () => {
+	it('is false for an empty day — nothing planned is an invitation, not coverage', () => {
+		expect(isDayCovered(deriveDayCoverage([]))).toBe(false);
+	});
+
+	it('is true when every slot is on hand, cooking, or eaten', () => {
+		const coverage = deriveDayCoverage([
+			{ meal: meal({ mealSlot: 'BREAKFAST', status: 'LOGGED' }), fulfillment: null },
+			{ meal: meal({ mealSlot: 'LUNCH' }), fulfillment: 'HAVE_IT' },
+			{ meal: meal({ mealSlot: 'DINNER' }), fulfillment: 'CAN_MAKE_IT' }
+		]);
+		expect(isDayCovered(coverage)).toBe(true);
+	});
+
+	it('is false as soon as any slot needs acquiring', () => {
+		const coverage = deriveDayCoverage([
+			{ meal: meal({ mealSlot: 'LUNCH' }), fulfillment: 'HAVE_IT' },
+			{ meal: meal({ mealSlot: 'DINNER' }), fulfillment: 'MUST_ACQUIRE' }
+		]);
+		expect(isDayCovered(coverage)).toBe(false);
 	});
 });

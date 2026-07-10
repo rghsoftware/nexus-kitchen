@@ -13,6 +13,7 @@
 		clearLogNotice,
 		deriveDayCoverage,
 		deriveNudge,
+		isDayCovered,
 		keepers,
 		loadRecents,
 		loadToday,
@@ -70,6 +71,9 @@
 			todaysMeals.map((meal) => ({ meal, fulfillment: fulfillmentFor(meal)?.state ?? null }))
 		)
 	);
+	// Covered days confirm in the greeting itself; the card (a shape that asks
+	// for attention) is reserved for gaps and empty days.
+	const covered = $derived(isDayCovered(coverage));
 
 	// Nudge dismissals are device-local, per day+slot (research R6). localStorage
 	// isn't reactive, so a version counter invalidates the derivation on dismiss.
@@ -183,6 +187,12 @@
 			<div class="greet__txt">
 				<h1>{greeting}.</h1>
 				<p>{dateLine} · here's your day, no pressure.</p>
+				{#if covered}
+					<p class="greet__status" role="status">
+						<i class="ph-fill ph-check-circle" aria-hidden="true"></i>
+						{coverage.headline}
+					</p>
+				{/if}
 			</div>
 			<button
 				type="button"
@@ -205,7 +215,9 @@
 			</div>
 		{/if}
 
-		<DayCoverageCard {coverage} />
+		{#if !covered}
+			<DayCoverageCard {coverage} />
+		{/if}
 
 		{#if nudge}
 			<NudgeBanner
@@ -325,6 +337,22 @@
 		color: var(--text-muted);
 		margin-top: 4px;
 		font-size: var(--text-base);
+	}
+	/* Covered-day confirmation lives in the greeting as plain page state — no
+	   card chrome, so it can't read as a dismissable notification. */
+	.greet__status {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+	}
+	.greet p.greet__status {
+		color: var(--have-text);
+		font-size: var(--text-sm);
+		font-weight: var(--weight-semibold);
+		margin-top: var(--space-2);
+	}
+	.greet__status i {
+		font-size: 1.2em;
 	}
 
 	.banner {

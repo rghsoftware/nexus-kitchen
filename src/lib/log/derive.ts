@@ -180,3 +180,13 @@ export function deriveDayCoverage(meals: readonly MealWithFulfillment[]): DayCov
 		detail: `${gaps.length} meals want ingredients — the shopping list can gather them.`
 	};
 }
+
+/**
+ * Covered = at least one meal planned and nothing left to acquire. The Today
+ * screen renders covered days as a status line in the greeting instead of the
+ * coverage card, so the card only appears when there's something to look at
+ * (a gap, or an empty day inviting a plan).
+ */
+export function isDayCovered(coverage: DayCoverage): boolean {
+	return coverage.slots.length > 0 && coverage.slots.every((s) => s.state !== 'MUST_ACQUIRE');
+}

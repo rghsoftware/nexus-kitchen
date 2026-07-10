@@ -32,6 +32,7 @@ export {
 export {
 	deriveDayCoverage,
 	groupLogSources,
+	isDayCovered,
 	keepers,
 	recents,
 	unratedRecent,

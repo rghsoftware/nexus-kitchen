@@ -23,7 +23,9 @@
 
 <!--
 	DayCoverageCard — per-slot fulfillment rollup + one supportive sentence
-	(FR-TL-005), per design/screens/web-today.html (.coverage).
+	(FR-TL-005), per design/screens/web-today.html (.coverage). Mounted only
+	when the day isn't covered (see isDayCovered) — covered days confirm via
+	a status line in the dashboard greeting instead.
 -->
 <section class="coverage" aria-label="Day coverage">
 	<div class="coverage__ic" class:coverage__ic--attention={!allSettled} aria-hidden="true">
