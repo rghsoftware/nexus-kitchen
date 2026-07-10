@@ -20,12 +20,14 @@
 		{ label: 'Recipes', icon: 'ph-book-open', href: resolve('/recipes') },
 		{ label: 'Pantry', icon: 'ph-jar', href: resolve('/pantry') },
 		{ label: 'Shopping', icon: 'ph-shopping-cart-simple', href: resolve('/shopping') },
+		{ label: 'Nudges', icon: 'ph-bell-simple-ringing', href: resolve('/reminders') },
 		{ label: 'Meal prep', icon: 'ph-cooking-pot', href: null }
 	] as const;
 
 	// Bottom tabs (mobile) — five slots per design/mobile-*.html. Shopping is live now,
-	// so it takes the fifth slot from the still-unbuilt Meal prep surface.
-	const TABS = NAV.filter((n) => n.label !== 'Meal prep');
+	// so it takes the fifth slot from the still-unbuilt Meal prep surface. Nudges is
+	// reachable on mobile from the Today header bell instead of a tab.
+	const TABS = NAV.filter((n) => n.label !== 'Meal prep' && n.label !== 'Nudges');
 
 	function tabLabel(label: string): string {
 		return label === 'Meal prep' ? 'Prep' : label;

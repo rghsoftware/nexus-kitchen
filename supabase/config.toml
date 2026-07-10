@@ -385,6 +385,14 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+# Feature 007: meal reminders (pg_cron → this function → Pushover).
+# verify_jwt is off because the anon key is a valid, public JWT — it gates
+# nothing. The function instead requires the x-cron-secret shared secret
+# (fail-closed; see supabase/functions/README.md for secrets and local serving).
+[functions.send-meal-reminders]
+enabled = true
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 56327

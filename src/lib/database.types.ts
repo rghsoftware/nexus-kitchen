@@ -137,6 +137,54 @@ export type Database = {
 				};
 				Relationships: [];
 			};
+			meal_reminders: {
+				Row: {
+					created_at: string;
+					days_of_week: number[];
+					household_id: string | null;
+					id: string;
+					is_enabled: boolean;
+					meal_slot: Database['public']['Enums']['meal_slot'];
+					name: string;
+					notification_type: Database['public']['Enums']['reminder_notification_type'];
+					owner_id: string;
+					pre_alert_minutes: number | null;
+					reminder_time: string;
+					timezone: string;
+					updated_at: string;
+				};
+				Insert: {
+					created_at?: string;
+					days_of_week?: number[];
+					household_id?: string | null;
+					id?: string;
+					is_enabled?: boolean;
+					meal_slot: Database['public']['Enums']['meal_slot'];
+					name: string;
+					notification_type?: Database['public']['Enums']['reminder_notification_type'];
+					owner_id?: string;
+					pre_alert_minutes?: number | null;
+					reminder_time: string;
+					timezone?: string;
+					updated_at?: string;
+				};
+				Update: {
+					created_at?: string;
+					days_of_week?: number[];
+					household_id?: string | null;
+					id?: string;
+					is_enabled?: boolean;
+					meal_slot?: Database['public']['Enums']['meal_slot'];
+					name?: string;
+					notification_type?: Database['public']['Enums']['reminder_notification_type'];
+					owner_id?: string;
+					pre_alert_minutes?: number | null;
+					reminder_time?: string;
+					timezone?: string;
+					updated_at?: string;
+				};
+				Relationships: [];
+			};
 			pantry_items: {
 				Row: {
 					barcode: string | null;
@@ -313,6 +361,13 @@ export type Database = {
 						columns: ['prepped_meal_id'];
 						isOneToOne: false;
 						referencedRelation: 'prepped_meals';
+						referencedColumns: ['id'];
+					},
+					{
+						foreignKeyName: 'portion_events_triggered_by_fkey';
+						columns: ['triggered_by'];
+						isOneToOne: false;
+						referencedRelation: 'meal_logs';
 						referencedColumns: ['id'];
 					}
 				];
@@ -576,6 +631,53 @@ export type Database = {
 				};
 				Relationships: [];
 			};
+			reminder_deliveries: {
+				Row: {
+					created_at: string;
+					detail: string | null;
+					id: string;
+					kind: Database['public']['Enums']['reminder_delivery_kind'];
+					local_date: string;
+					owner_id: string;
+					reminder_id: string;
+					sent_at: string | null;
+					status: Database['public']['Enums']['reminder_delivery_status'];
+					updated_at: string;
+				};
+				Insert: {
+					created_at?: string;
+					detail?: string | null;
+					id?: string;
+					kind: Database['public']['Enums']['reminder_delivery_kind'];
+					local_date: string;
+					owner_id: string;
+					reminder_id: string;
+					sent_at?: string | null;
+					status?: Database['public']['Enums']['reminder_delivery_status'];
+					updated_at?: string;
+				};
+				Update: {
+					created_at?: string;
+					detail?: string | null;
+					id?: string;
+					kind?: Database['public']['Enums']['reminder_delivery_kind'];
+					local_date?: string;
+					owner_id?: string;
+					reminder_id?: string;
+					sent_at?: string | null;
+					status?: Database['public']['Enums']['reminder_delivery_status'];
+					updated_at?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'reminder_deliveries_reminder_id_fkey';
+						columns: ['reminder_id'];
+						isOneToOne: false;
+						referencedRelation: 'meal_reminders';
+						referencedColumns: ['id'];
+					}
+				];
+			};
 			shopping_list_items: {
 				Row: {
 					category: Database['public']['Enums']['shopping_category'];
@@ -736,7 +838,23 @@ export type Database = {
 			[_ in never]: never;
 		};
 		Functions: {
-			[_ in never]: never;
+			due_meal_reminders: {
+				Args: { p_now?: string; p_window_minutes?: number };
+				Returns: {
+					kind: Database['public']['Enums']['reminder_delivery_kind'];
+					local_date: string;
+					meal_slot: Database['public']['Enums']['meal_slot'];
+					name: string;
+					owner_id: string;
+					planned_meal_name: string;
+					planned_meal_source: Database['public']['Enums']['planned_meal_source'];
+					pre_alert_minutes: number;
+					reminder_id: string;
+					reminder_time: string;
+				}[];
+			};
+			invoke_send_meal_reminders: { Args: never; Returns: undefined };
+			seed_demo_data: { Args: { p_owner?: string }; Returns: Json };
 		};
 		Enums: {
 			defrost_state: 'NOT_APPLICABLE' | 'FROZEN' | 'DEFROSTING' | 'READY';
@@ -747,6 +865,9 @@ export type Database = {
 			planned_meal_status: 'PLANNED' | 'LOGGED' | 'SKIPPED' | 'SWAPPED';
 			portion_event_kind: 'INITIALIZED' | 'CONSUMED' | 'ADJUSTED';
 			prepped_meal_origin: 'PREP_SESSION' | 'DIRECT_ENTRY' | 'STORE_BOUGHT';
+			reminder_delivery_kind: 'MAIN' | 'PRE_ALERT';
+			reminder_delivery_status: 'PENDING' | 'SENT' | 'FAILED';
+			reminder_notification_type: 'PUSH' | 'SILENT' | 'NONE';
 			shopping_category:
 				| 'PRODUCE'
 				| 'DAIRY'
@@ -896,6 +1017,9 @@ export const Constants = {
 			planned_meal_status: ['PLANNED', 'LOGGED', 'SKIPPED', 'SWAPPED'],
 			portion_event_kind: ['INITIALIZED', 'CONSUMED', 'ADJUSTED'],
 			prepped_meal_origin: ['PREP_SESSION', 'DIRECT_ENTRY', 'STORE_BOUGHT'],
+			reminder_delivery_kind: ['MAIN', 'PRE_ALERT'],
+			reminder_delivery_status: ['PENDING', 'SENT', 'FAILED'],
+			reminder_notification_type: ['PUSH', 'SILENT', 'NONE'],
 			shopping_category: [
 				'PRODUCE',
 				'DAIRY',
