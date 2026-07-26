@@ -194,13 +194,18 @@
 					</p>
 				{/if}
 			</div>
-			<button
-				type="button"
-				class="nk-btn nk-btn--primary greet__log"
-				onclick={() => (sheetOpen = true)}
-			>
-				<i class="ph ph-plus" aria-hidden="true"></i> Log a meal
-			</button>
+			<div class="greet__actions">
+				<a class="greet__bell" href={resolve('/reminders')} aria-label="Gentle nudges">
+					<i class="ph ph-bell-simple-ringing" aria-hidden="true"></i>
+				</a>
+				<button
+					type="button"
+					class="nk-btn nk-btn--primary greet__log"
+					onclick={() => (sheetOpen = true)}
+				>
+					<i class="ph ph-plus" aria-hidden="true"></i> Log a meal
+				</button>
+			</div>
 		</header>
 
 		{#if logError()}
@@ -323,6 +328,31 @@
 		justify-content: space-between;
 		gap: var(--space-4);
 		flex-wrap: wrap;
+	}
+	.greet__actions {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+	}
+	.greet__bell {
+		width: 42px;
+		height: 42px;
+		border-radius: 50%;
+		border: 1px solid var(--border);
+		background: var(--surface);
+		color: var(--text-secondary);
+		display: grid;
+		place-items: center;
+		font-size: 20px;
+		text-decoration: none;
+	}
+	.greet__bell:hover {
+		background: var(--surface-2);
+		color: var(--text);
+	}
+	.greet__bell:focus-visible {
+		outline: 3px solid var(--focus-ring);
+		outline-offset: 2px;
 	}
 	.greet__txt {
 		flex: 1 1 340px;
