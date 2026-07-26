@@ -1,4 +1,5 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
+import { signIn } from './support/session';
 
 // ---------------------------------------------------------------------------
 // Reminders — the "Gentle nudges" setup screen (feature 007, REQ-MR-001..003).
@@ -98,6 +99,7 @@ async function mockBackend(page: Page): Promise<{ meal_reminders: Row[] }> {
 test.describe('Reminders — Gentle nudges setup (REQ-MR-001..003)', () => {
 	test('renders the four slot rows with the design defaults', async ({ page }) => {
 		await mockBackend(page);
+		await signIn(page);
 		await page.goto('/reminders');
 
 		await expect(page.getByRole('heading', { name: 'When would you like a nudge?' })).toBeVisible();
@@ -120,6 +122,7 @@ test.describe('Reminders — Gentle nudges setup (REQ-MR-001..003)', () => {
 
 	test('Set reminders persists all four slots and confirms calmly', async ({ page }) => {
 		const db = await mockBackend(page);
+		await signIn(page);
 		await page.goto('/reminders');
 		await expect(page.getByRole('heading', { name: 'When would you like a nudge?' })).toBeVisible();
 
@@ -136,6 +139,7 @@ test.describe('Reminders — Gentle nudges setup (REQ-MR-001..003)', () => {
 
 	test('edits round-trip: toggle snacks on, change its time, save, reload', async ({ page }) => {
 		const db = await mockBackend(page);
+		await signIn(page);
 		await page.goto('/reminders');
 		await expect(page.getByRole('heading', { name: 'When would you like a nudge?' })).toBeVisible();
 
@@ -157,6 +161,7 @@ test.describe('Reminders — Gentle nudges setup (REQ-MR-001..003)', () => {
 
 	test('is reachable from the Today header bell, and Maybe later exits back', async ({ page }) => {
 		await mockBackend(page);
+		await signIn(page);
 		// The bell needs no other Today data — empty states are fine.
 		await page.route(/rest\/v1\/(?!meal_reminders)/, (route) => fulfillJson(route, []));
 		await page.goto('/today');

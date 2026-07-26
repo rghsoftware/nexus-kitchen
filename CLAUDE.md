@@ -4,15 +4,16 @@ A responsive **SvelteKit SPA** (`adapter-static`, client-rendered) — an ADHD-f
 meal planner (recipes, planning, pantry/prepped inventory, shopping, energy-aware
 suggestions). One web app for desktop + mobile; **no native apps**.
 
-> **Status:** actively built. Six features are shipped and tested — recipes (+
-> substitutes), pantry/prepped inventory with an append-only portion ledger, the
-> planning calendar, fulfillment derivation (HAVE_IT / CAN_MAKE_IT / MUST_ACQUIRE),
-> shopping (generation → trip → replenishment), and the Today dashboard with one-tap
-> meal logging + verdicts (`/today` is the home surface). Nine migrations, default-deny
-> RLS with pgTAP suites throughout. Per-feature specs, tasks, and quality scores live in
-> `.specswarm/features/` and `.specswarm/metrics.json`. Not yet built (tracked in GitHub
-> issues): meal reminders / Edge Functions, prep sessions, household sharing,
-> energy-aware suggestions, real auth (sessions are anonymous-only), deployment.
+> **Status:** actively built. Shipped and tested — recipes (+ substitutes),
+> pantry/prepped inventory with an append-only portion ledger, the planning calendar,
+> fulfillment derivation (HAVE_IT / CAN_MAKE_IT / MUST_ACQUIRE), shopping (generation →
+> trip → replenishment), the Today dashboard with one-tap meal logging + verdicts
+> (`/today` is the home surface), server-side meal reminders (Cron → Edge Function →
+> Pushover), and **real auth** (Supabase Auth email/password; the app is gated behind
+> `/signin`). Ten migrations, default-deny RLS with pgTAP suites throughout. Per-feature
+> specs, tasks, and quality scores live in `.specswarm/features/` and
+> `.specswarm/metrics.json`. Not yet built (tracked in GitHub issues): prep sessions,
+> household sharing, energy-aware suggestions, deployment.
 >
 > `design/screens/*.html` are the **canonical layouts** — consult them before any UI
 > work; tokens are raw material, the mockups are the design.
@@ -65,6 +66,17 @@ bun run test:e2e     # playwright install && playwright test
   the existing `var(--token)` / `.nk-*` primitives — prefer semantic aliases (`var(--primary)`,
   not `var(--herb-500)`) — before writing a raw color/spacing/radius/font-size/shadow. Add a
   new raw value only when no suitable token exists.
+- **Auth (feature 008):** the app is **gated** — `src/routes/+layout.svelte` redirects to
+  `/signin` until a session exists, remembering the intended path in `?next=`. Every
+  credential operation goes through `$lib/auth` → Supabase Auth; never hand-roll hashing,
+  tokens or storage (INV-SEC-001). `$lib/session/session.svelte.ts` only _observes_ the
+  session — use `currentUser()` in data services (it replaced `ensureSession()`).
+  There is **no email-confirmation callback route**: supabase-js reads the session out of
+  the redirect URL fragment (`detectSessionInUrl` defaults to true), so confirmation and
+  recovery links just need `site_url` / `additional_redirect_urls` to point at the app.
+  `signUp()` returns a live session when `enable_confirmations = false` (local default)
+  and a null session when it's on — both are success, so branch, don't assume.
+  Production needs SMTP configured in Supabase or confirmation mail never sends.
 - **Prettier:** tabs, single quotes, no trailing comma, `printWidth` 100. Run `bun run format`.
 - **Data rules (when the backend exists):** UUID PKs; timestamps `timestamptz` in UTC;
   RLS enabled default-deny before any table is exposed; schema changes are Supabase CLI

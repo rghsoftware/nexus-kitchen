@@ -6,7 +6,7 @@
 // issues touches verdict/notes, matching the DB's annotation-only trigger.
 
 import { supabase } from '$lib/supabaseClient';
-import { ensureSession } from '$lib/session/session.svelte';
+import { currentUser } from '$lib/session/session.svelte';
 import { plannedMealName } from '$lib/planning/types';
 import {
 	toMealLog,
@@ -26,10 +26,10 @@ export class LogError extends Error {
 	}
 }
 
-/** Ensure a session exists, throwing a LogError if sign-in failed. */
+/** Return the signed-in user, throwing a LogError if the session has gone. */
 async function requireSession() {
-	const user = await ensureSession();
-	if (!user) throw new LogError("We couldn't start a session. Try refreshing the page.");
+	const user = await currentUser();
+	if (!user) throw new LogError('Your session has ended. Please sign in again.');
 	return user;
 }
 

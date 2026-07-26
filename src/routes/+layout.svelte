@@ -1,15 +1,54 @@
 <script lang="ts">
 	import './layout.css';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import favicon from '$lib/assets/favicon.svg';
-	import { ensureSession, sessionState } from '$lib/session/session.svelte';
+	import { restoreSession, sessionState } from '$lib/session/session.svelte';
 
 	let { children } = $props();
 
-	// Establish a session (anonymous sign-in) once, app-wide, so RLS-backed data loads work.
+	const SIGNIN = resolve('/signin');
+	const HOME = resolve('/today');
+	const ACCOUNT = resolve('/account');
+
+	// Restore any persisted session once, app-wide, before the guard decides anything.
 	$effect(() => {
-		void ensureSession();
+		void restoreSession();
+	});
+
+	// Routes reachable without a session. Everything else is RLS-backed and pointless
+	// signed out, so the guard sends you to /signin rather than rendering empty states.
+	const isPublic = $derived(page.url.pathname.startsWith(SIGNIN));
+	const signedIn = $derived(sessionState.user !== null);
+	// Gate rendering on `ready` so a returning user with a valid stored session never
+	// sees a flash of the sign-in wall while getSession() settles.
+	const showApp = $derived(sessionState.ready && signedIn && !isPublic);
+
+	$effect(() => {
+		if (!sessionState.ready) return;
+
+		if (!signedIn && !isPublic) {
+			// Remember where they were headed so sign-in can hand them back to it.
+			const intended = page.url.pathname + page.url.search;
+			const next = intended === HOME ? '' : `?next=${encodeURIComponent(intended)}`;
+			// SIGNIN is already resolve('/signin'); resolve() takes a route id, not a
+			// query string, so the concatenation below can't be expressed through it.
+			// eslint-disable-next-line svelte/no-navigation-without-resolve
+			void goto(`${SIGNIN}${next}`, { replaceState: true });
+			return;
+		}
+
+		if (signedIn && isPublic) {
+			const next = page.url.searchParams.get('next');
+			// Only honour same-origin absolute paths — never redirect to a caller-supplied
+			// host, which would turn the sign-in screen into an open redirect.
+			const safe = next && next.startsWith('/') && !next.startsWith('//') ? next : HOME;
+			// `safe` is a runtime path (validated above) or the already-resolved HOME;
+			// neither is a static route id that resolve() can accept.
+			// eslint-disable-next-line svelte/no-navigation-without-resolve
+			void goto(safe, { replaceState: true });
+		}
 	});
 
 	// Per design/web-*.html: full nav skeleton; unbuilt surfaces render muted (readme:
@@ -40,67 +79,93 @@
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
-<div class="app">
-	<!-- Sidebar (desktop) — per design/screens/web-calendar.html -->
-	<aside class="side">
-		<a class="side__logo" href={resolve('/today')}>
-			<span class="side__mark" aria-hidden="true"><i class="ph-fill ph-cooking-pot"></i></span>
-			<span class="side__name">Nexus <span>Kitchen</span></span>
-		</a>
-		<nav class="nav" aria-label="Primary">
-			{#each NAV as item (item.label)}
+{#if isPublic}
+	<!-- Sign-in wall: no app chrome, since none of it is reachable yet. -->
+	{@render children()}
+{:else if showApp}
+	<div class="app">
+		<!-- Sidebar (desktop) — per design/screens/web-calendar.html -->
+		<aside class="side">
+			<a class="side__logo" href={resolve('/today')}>
+				<span class="side__mark" aria-hidden="true"><i class="ph-fill ph-cooking-pot"></i></span>
+				<span class="side__name">Nexus <span>Kitchen</span></span>
+			</a>
+			<nav class="nav" aria-label="Primary">
+				{#each NAV as item (item.label)}
+					{#if item.href}
+						<a
+							class="nav__item"
+							class:nav__item--active={isActive(item.href)}
+							href={item.href}
+							aria-current={isActive(item.href) ? 'page' : undefined}
+						>
+							<i class="ph {item.icon}" aria-hidden="true"></i>
+							{item.label}
+						</a>
+					{:else}
+						<span class="nav__item nav__item--soon" aria-disabled="true">
+							<i class="ph {item.icon}" aria-hidden="true"></i>
+							{item.label}
+							<em>soon</em>
+						</span>
+					{/if}
+				{/each}
+			</nav>
+
+			<!-- Account sits at the foot of the sidebar; mobile reaches it from the
+			     Today header, since the five tab slots are already spoken for. -->
+			<a
+				class="side__account"
+				class:side__account--active={isActive(ACCOUNT)}
+				href={ACCOUNT}
+				aria-current={isActive(ACCOUNT) ? 'page' : undefined}
+			>
+				<i class="ph ph-user-circle" aria-hidden="true"></i>
+				<span class="side__account__txt">
+					<span class="side__account__label">Account</span>
+					{#if sessionState.user?.email}
+						<span class="side__account__email">{sessionState.user.email}</span>
+					{/if}
+				</span>
+			</a>
+		</aside>
+
+		<div class="main">
+			<div class="content">
+				{@render children()}
+			</div>
+		</div>
+
+		<!-- Bottom tabs (mobile) — per design/screens/mobile-calendar.html -->
+		<nav class="tabs" aria-label="Primary">
+			{#each TABS as item (item.label)}
 				{#if item.href}
 					<a
-						class="nav__item"
-						class:nav__item--active={isActive(item.href)}
+						class="tab"
+						class:tab--active={isActive(item.href)}
 						href={item.href}
 						aria-current={isActive(item.href) ? 'page' : undefined}
 					>
-						<i class="ph {item.icon}" aria-hidden="true"></i>
-						{item.label}
+						<i class="ph {isActive(item.href) ? 'ph-fill' : ''} {item.icon}" aria-hidden="true"></i>
+						{tabLabel(item.label)}
 					</a>
 				{:else}
-					<span class="nav__item nav__item--soon" aria-disabled="true">
+					<span class="tab tab--soon" aria-disabled="true">
 						<i class="ph {item.icon}" aria-hidden="true"></i>
-						{item.label}
-						<em>soon</em>
+						{tabLabel(item.label)}
 					</span>
 				{/if}
 			{/each}
 		</nav>
-	</aside>
-
-	<div class="main">
-		{#if sessionState.error}
-			<div class="session-error" role="alert">{sessionState.error}</div>
-		{/if}
-		<div class="content">
-			{@render children()}
-		</div>
 	</div>
-
-	<!-- Bottom tabs (mobile) — per design/screens/mobile-calendar.html -->
-	<nav class="tabs" aria-label="Primary">
-		{#each TABS as item (item.label)}
-			{#if item.href}
-				<a
-					class="tab"
-					class:tab--active={isActive(item.href)}
-					href={item.href}
-					aria-current={isActive(item.href) ? 'page' : undefined}
-				>
-					<i class="ph {isActive(item.href) ? 'ph-fill' : ''} {item.icon}" aria-hidden="true"></i>
-					{tabLabel(item.label)}
-				</a>
-			{:else}
-				<span class="tab tab--soon" aria-disabled="true">
-					<i class="ph {item.icon}" aria-hidden="true"></i>
-					{tabLabel(item.label)}
-				</span>
-			{/if}
-		{/each}
-	</nav>
-</div>
+{:else}
+	<!-- Session still resolving, or a redirect to /signin is in flight. Deliberately
+	     quiet: no chrome, no flash of protected content. -->
+	<div class="boot" role="status">
+		<span class="boot__dot" aria-hidden="true"></span>
+		<span class="boot__txt">Warming up the kitchen…</span>
+	</div>
+{/if}
 
 <style>
 	.app {
@@ -200,6 +265,54 @@
 		background: transparent;
 		color: var(--text-muted);
 	}
+	.side__account {
+		margin-top: auto;
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		min-height: var(--tap-min);
+		padding: var(--space-2) var(--space-3);
+		border-radius: var(--radius-md);
+		border-top: 1px solid var(--border);
+		color: var(--text-secondary);
+		text-decoration: none;
+		transition:
+			background var(--transition),
+			color var(--transition);
+	}
+	.side__account i {
+		font-size: 1.5em;
+		flex-shrink: 0;
+	}
+	.side__account:hover {
+		background: var(--surface-2);
+		color: var(--text);
+	}
+	.side__account:focus-visible {
+		outline: 3px solid var(--focus-ring);
+		outline-offset: 2px;
+	}
+	.side__account--active {
+		background: var(--primary-soft);
+		color: var(--primary-text);
+	}
+	.side__account__txt {
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+	}
+	.side__account__label {
+		font-size: var(--text-sm);
+		font-weight: var(--weight-semibold);
+	}
+	.side__account__email {
+		font-size: var(--text-2xs);
+		color: var(--text-muted);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
 	.nav__item--soon em {
 		margin-left: auto;
 		font-style: normal;
@@ -219,16 +332,48 @@
 		display: flex;
 		flex-direction: column;
 	}
-	.session-error {
-		padding: var(--space-3) var(--space-5);
-		background: var(--attention-soft);
-		color: var(--attention);
-		font-size: var(--text-sm);
-		text-align: center;
-	}
 	.content {
 		flex: 1;
 		min-height: 0;
+	}
+
+	/* ---------- Boot / redirect-in-flight ---------- */
+	.boot {
+		min-height: 100vh;
+		min-height: 100dvh;
+		display: grid;
+		place-content: center;
+		justify-items: center;
+		gap: var(--space-4);
+		background: var(--bg);
+	}
+	.boot__dot {
+		width: 12px;
+		height: 12px;
+		border-radius: var(--radius-pill);
+		background: var(--primary);
+		animation: boot-pulse 1.4s ease-in-out infinite;
+	}
+	.boot__txt {
+		font-size: var(--text-sm);
+		color: var(--text-muted);
+	}
+	@keyframes boot-pulse {
+		0%,
+		100% {
+			opacity: 0.35;
+			transform: scale(0.85);
+		}
+		50% {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.boot__dot {
+			animation: none;
+			opacity: 0.7;
+		}
 	}
 
 	/* ---------- Bottom tabs (mobile) ---------- */

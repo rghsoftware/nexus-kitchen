@@ -1,4 +1,5 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
+import { signIn } from './support/session';
 
 // ---------------------------------------------------------------------------
 // Planning — end-to-end calendar flows (SC-001..004).
@@ -214,6 +215,7 @@ test.describe('Plan — calendar shell', () => {
 		const errors: string[] = [];
 		page.on('pageerror', (err) => errors.push(err.message));
 		await mockBackend(page);
+		await signIn(page);
 		await gotoPlan(page);
 
 		// One cell per (day, slot): 7 add affordances per band incl. the Anytime row.
@@ -231,6 +233,7 @@ test.describe('Plan — calendar shell', () => {
 
 	test('switches between day, week, and month views', async ({ page }) => {
 		await mockBackend(page);
+		await signIn(page);
 		await gotoPlan(page);
 
 		await page.getByRole('button', { name: 'Day', exact: true }).click();
@@ -249,6 +252,7 @@ test.describe('Plan — placing meals (SC-001, SC-002)', () => {
 		page
 	}) => {
 		const db = await mockBackend(page);
+		await signIn(page);
 		await gotoPlan(page);
 
 		// 1. Recipe meal into Monday's Dinner
@@ -285,6 +289,7 @@ test.describe('Plan — placing meals (SC-001, SC-002)', () => {
 
 	test('places an unslotted meal in the Anytime group', async ({ page }) => {
 		const db = await mockBackend(page);
+		await signIn(page);
 		await gotoPlan(page);
 
 		await addButton(page, /^Add a meal to Anytime/).click();
@@ -299,6 +304,7 @@ test.describe('Plan — placing meals (SC-001, SC-002)', () => {
 test.describe('Plan — editing, moving, removing (SC-004)', () => {
 	test('edits servings, tap-moves across days, and removes a meal', async ({ page }) => {
 		const db = await mockBackend(page);
+		await signIn(page);
 		await gotoPlan(page);
 
 		// Seed via the UI: quick meal in Monday's Dinner
@@ -344,6 +350,7 @@ test.describe('Plan — editing, moving, removing (SC-004)', () => {
 test.describe('Plan — persistence (SC-003)', () => {
 	test('planned meals survive a reload with details intact', async ({ page }) => {
 		const db = await mockBackend(page);
+		await signIn(page);
 		await gotoPlan(page);
 
 		await addButton(page, /^Add a meal to Breakfast/).click();

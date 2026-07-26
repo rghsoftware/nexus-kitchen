@@ -1,80 +1,105 @@
-// Session bootstrap. No auth/login feature exists yet (feature 001), so we establish a real
-// session via Supabase anonymous sign-in. This yields a genuine auth.uid() so RLS works
-// end-to-end and recipes are usable/testable now. A future auth feature upgrades the anonymous
-// user to a permanent account.
+// Session state (feature 008 — real auth).
+//
+// Sessions are permanent accounts backed by Supabase Auth. This module observes the
+// session; it never creates one. Sign-in / sign-up live in $lib/auth/authService.
+//
+// Previously this bootstrapped `signInAnonymously()` so RLS had a real `auth.uid()`
+// before an auth feature existed. That path is gone and anonymous sign-ins are disabled
+// in supabase/config.toml — any rows still owned by an old anonymous uid are
+// unreachable by design (no credential exists that can produce that uid again).
+//
+// Token storage, refresh and rotation are handled entirely by supabase-js
+// (REQ-SC-003/004); we only mirror the current user into runes for the UI.
 
 import { supabase } from '$lib/supabaseClient';
 import type { Session, User } from '@supabase/supabase-js';
 
 interface SessionState {
 	user: User | null;
-	loading: boolean;
-	/** Set when anonymous sign-in fails (e.g. anonymous sign-ins disabled in the project). */
-	error: string | null;
+	/** False until the first getSession() settles — the guard must not redirect before this. */
+	ready: boolean;
+	/** True while a recovery link is being acted on, so /account can prompt for a new password. */
+	recovering: boolean;
 }
 
-const state = $state<SessionState>({ user: null, loading: false, error: null });
+const state = $state<SessionState>({ user: null, ready: false, recovering: false });
 
-let bootstrapPromise: Promise<User | null> | null = null;
+let restorePromise: Promise<User | null> | null = null;
 
 function applySession(session: Session | null) {
 	state.user = session?.user ?? null;
 }
 
 /**
- * Ensure a session exists, signing in anonymously if needed. Idempotent and safe to call from
- * multiple components — concurrent calls share one in-flight promise. Returns the current user
- * (or null if sign-in failed; inspect `sessionState.error`).
+ * Restore any persisted session. Idempotent and safe to call from multiple components —
+ * concurrent calls share one in-flight promise.
+ *
+ * This resolves a stored session only. A first-time visitor legitimately resolves to
+ * null; the route guard sends them to /signin.
  */
-export async function ensureSession(): Promise<User | null> {
-	if (state.user) return state.user;
-	if (bootstrapPromise) return bootstrapPromise;
+export async function restoreSession(): Promise<User | null> {
+	if (state.ready) return state.user;
+	if (restorePromise) return restorePromise;
 
-	bootstrapPromise = (async () => {
-		state.loading = true;
-		state.error = null;
+	restorePromise = (async () => {
 		try {
-			const { data: existing, error: sessionErr } = await supabase.auth.getSession();
-			if (sessionErr) {
-				console.error(
-					'[ensureSession] getSession failed, falling back to anonymous sign-in',
-					sessionErr
-				);
-			}
-			if (existing.session) {
-				applySession(existing.session);
-				return state.user;
-			}
-
-			const { data, error } = await supabase.auth.signInAnonymously();
+			const { data, error } = await supabase.auth.getSession();
 			if (error) {
-				console.error('[ensureSession] Anonymous sign-in failed', error);
-				state.error =
-					'We couldn’t start a session. If this keeps happening, anonymous sign-ins may need to be enabled.';
+				// A corrupt or expired stored session is not an error worth showing: the
+				// user simply isn't signed in, and the guard routes them accordingly.
+				console.error('[restoreSession] getSession failed; treating as signed out', error);
+				applySession(null);
 				return null;
 			}
 			applySession(data.session);
 			return state.user;
 		} finally {
-			state.loading = false;
-			bootstrapPromise = null;
+			state.ready = true;
+			restorePromise = null;
 		}
 	})();
 
-	return bootstrapPromise;
+	return restorePromise;
+}
+
+/**
+ * The signed-in user, waiting for session restore to settle first. Returns null when
+ * signed out — data services translate that into their own domain error.
+ *
+ * This replaces the old `ensureSession()`: it observes rather than creates, because
+ * there is no longer any session the app can mint on the user's behalf.
+ */
+export async function currentUser(): Promise<User | null> {
+	if (!state.ready) await restoreSession();
+	return state.user;
 }
 
 /** Reactive snapshot of the current session (read in components / effects). */
 export const sessionState = state;
 
-/** The current user id, or null if no session yet. */
+/** The current user id, or null if signed out. */
 export function currentUserId(): string | null {
 	return state.user?.id ?? null;
 }
 
-// Keep local state in sync with Supabase auth changes (token refresh, sign-out, upgrade).
-// App-lifetime listener. To prevent duplicate listeners under Vite HMR, call
-// supabase.auth.stopAutoRefresh() or unsubscribe in import.meta.hot?.dispose.
-supabase.auth.onAuthStateChange((_event, session) => {
+export function isSignedIn(): boolean {
+	return state.user !== null;
+}
+
+/** Clears the recovery flag once /account has finished handling the reset. */
+export function clearRecovering(): void {
+	state.recovering = false;
+}
+
+// App-lifetime listener: keeps local state in sync with sign-in, sign-out, token refresh
+// and — importantly — the session supabase-js parses out of the URL fragment after an
+// email confirmation or recovery redirect (detectSessionInUrl defaults to true, which is
+// why no callback route of our own is needed).
+supabase.auth.onAuthStateChange((event, session) => {
 	applySession(session);
+	// Any auth event means the client has settled on an answer, including the
+	// INITIAL_SESSION fired during construction.
+	state.ready = true;
+	if (event === 'PASSWORD_RECOVERY') state.recovering = true;
+	if (event === 'SIGNED_OUT') state.recovering = false;
 });

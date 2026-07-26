@@ -14,7 +14,7 @@ import { addPantryItemsFromShoppingList } from '$lib/pantry/shoppingListIntegrat
 import { addPreppedMeal } from '$lib/pantry/preppedMealService';
 import { loadPantryItems } from '$lib/pantry/pantryStore.svelte';
 import { loadPreppedMeals } from '$lib/pantry/preppedMealStore.svelte';
-import { ensureSession } from '$lib/session/session.svelte';
+import { currentUser } from '$lib/session/session.svelte';
 import type { User } from '@supabase/supabase-js';
 import type { ISODate } from '$lib/planning/types';
 import type { StorageLocation } from '$lib/pantry/types';
@@ -154,14 +154,14 @@ export async function completeTrip(
 	// becomes per-portion failures below (user stays null), not an escaped rejection.
 	let user: User | null = null;
 	try {
-		user = await ensureSession();
+		user = await currentUser();
 	} catch (err) {
-		console.error('[completeTrip] ensureSession failed', err);
+		console.error('[completeTrip] currentUser lookup failed', err);
 	}
 	const today = isoDate(Date.now());
 	for (const portion of additions.portions) {
 		try {
-			if (!user) throw new Error("We couldn't start a session.");
+			if (!user) throw new Error('Your session has ended.');
 			const created = await addPreppedMeal({
 				owner_id: user.id,
 				origin: 'STORE_BOUGHT',
