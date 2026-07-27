@@ -17,6 +17,9 @@
 	async function onSetPassword(event: SubmitEvent) {
 		event.preventDefault();
 		if (busy) return;
+		// Cleared before the validation check too, or a rejected retry after one success
+		// renders "Password updated." alongside the error.
+		saved = false;
 		if (password.length < MIN_PASSWORD_LENGTH) {
 			error = `Use at least ${MIN_PASSWORD_LENGTH} characters.`;
 			return;
@@ -30,6 +33,10 @@
 			saved = true;
 			clearRecovering();
 		} catch (err) {
+			console.error(
+				'[auth] password update failed:',
+				err instanceof AuthFailure ? (err.cause ?? err) : err
+			);
 			error = err instanceof AuthFailure ? err.message : 'Something went wrong. Please try again.';
 		} finally {
 			busy = false;
@@ -44,6 +51,10 @@
 			// The layout guard sees the cleared session and routes to /signin.
 			await signOut();
 		} catch (err) {
+			console.error(
+				'[auth] sign-out failed:',
+				err instanceof AuthFailure ? (err.cause ?? err) : err
+			);
 			error = err instanceof AuthFailure ? err.message : "We couldn't sign you out. Try again?";
 			busy = false;
 		}

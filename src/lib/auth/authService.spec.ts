@@ -86,15 +86,51 @@ describe('signUp', () => {
 		});
 	});
 
-	it('translates a duplicate account into a nudge toward signing in', async () => {
+	// The same duplicate reaches us as an error with confirmations off and as a success
+	// with them on. Both must produce one outcome, or sign-up would behave differently —
+	// and leak differently — depending on project configuration.
+	it('reports "already-registered" when Supabase raises a duplicate error', async () => {
 		auth.signUp.mockResolvedValue({
 			data: { user: null, session: null },
 			error: new AuthError('User already registered', 422, 'user_already_exists')
 		});
 
-		await expect(signUp('cook@example.com', 'password1')).rejects.toThrow(
-			'There’s already an account with that email. Try signing in instead.'
-		);
+		await expect(signUp('  cook@example.com  ', 'password1')).resolves.toEqual({
+			status: 'already-registered',
+			email: 'cook@example.com'
+		});
+	});
+
+	// With confirmations on, Supabase hides the duplicate behind a success response:
+	// an obfuscated user, no identities, no session, and no mail sent.
+	it('reports "already-registered" for the obfuscated duplicate-signup response', async () => {
+		auth.signUp.mockResolvedValue({
+			data: { user: { ...USER, identities: [] }, session: null },
+			error: null
+		});
+
+		await expect(signUp('  cook@example.com  ', 'password1')).resolves.toEqual({
+			status: 'already-registered',
+			email: 'cook@example.com'
+		});
+	});
+
+	it('still reports "confirmation-required" when identities are present', async () => {
+		auth.signUp.mockResolvedValue({
+			data: { user: { ...USER, identities: [{ id: 'identity-1' }] }, session: null },
+			error: null
+		});
+
+		await expect(signUp('cook@example.com', 'password1')).resolves.toEqual({
+			status: 'confirmation-required',
+			email: 'cook@example.com'
+		});
+	});
+
+	it('fails loudly when the response carries no user at all', async () => {
+		auth.signUp.mockResolvedValue({ data: { user: null, session: null }, error: null });
+
+		await expect(signUp('cook@example.com', 'password1')).rejects.toThrow(AuthFailure);
 	});
 });
 
@@ -103,6 +139,16 @@ describe('signOut', () => {
 		auth.signOut.mockResolvedValue({ error: null });
 
 		await expect(signOut()).resolves.toBeUndefined();
+	});
+
+	// supabase-js defaults to scope 'global', which would revoke every device's refresh
+	// token — signing out on a phone would sign the user out of their laptop as well.
+	it('signs out this device only', async () => {
+		auth.signOut.mockResolvedValue({ error: null });
+
+		await signOut();
+
+		expect(auth.signOut).toHaveBeenCalledWith({ scope: 'local' });
 	});
 
 	it('throws AuthFailure when sign-out fails', async () => {

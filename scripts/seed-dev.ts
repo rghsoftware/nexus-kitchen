@@ -7,7 +7,7 @@
  *
  * Usage:
  *   bun run seed                    # seed the most recently created account
- *   bun run seed -- --create-user   # make a local dev account first, then seed it
+ *   bun run seed -- --create-user   # ensure the local dev account exists, then seed it
  *   bun run seed -- --all           # seed every existing account
  *   bun run seed -- --user <id>     # seed a specific user id
  *
@@ -47,6 +47,15 @@ const serviceKey =
 	stack.SERVICE_ROLE_KEY ??
 	stack.SECRET_KEY;
 
+// --create-user provisions an account with a known password, so this must never point at
+// a remote project: SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY in the environment would
+// otherwise quietly override the local stack and create dev@nexus.kitchen in production.
+const host = URL.canParse(url) ? new URL(url).hostname : '';
+if (!['127.0.0.1', 'localhost', '::1'].includes(host)) {
+	console.error(`Refusing to seed ${url} — this script is local-only.`);
+	process.exit(1);
+}
+
 if (!serviceKey) {
 	console.error(
 		'No service-role key found (checked SUPABASE_SERVICE_ROLE_KEY, SUPABASE_SECRET_KEY, and `supabase status`).'
@@ -85,18 +94,28 @@ let users = await listUsers();
 // Since feature 008 the app is gated, so accounts come from a real sign-up rather than
 // appearing on first load. Either make one here (--create-user) or wait for the dev to
 // sign up in the browser.
-if (users.length === 0 && createUser) {
-	const { data, error } = await admin.auth.admin.createUser({
-		email: DEV_EMAIL,
-		password: DEV_PASSWORD,
-		email_confirm: true // skip the confirmation round-trip on a local stack
-	});
-	if (error) {
-		console.error(`Failed to create the dev account: ${error.message}`);
-		process.exit(1);
+//
+// Create-or-reuse by email, deliberately not gated on "no accounts exist": if the dev had
+// already signed up in the browser, the flag used to become a silent no-op that seeded
+// some other account, and the sign-in this script prints would then fail.
+if (createUser) {
+	const existing = users.find((u) => u.email === DEV_EMAIL);
+	if (existing) {
+		console.log(`${DEV_EMAIL} already exists — seeding it.`);
+		users = [existing, ...users.filter((u) => u.id !== existing.id)];
+	} else {
+		const { data, error } = await admin.auth.admin.createUser({
+			email: DEV_EMAIL,
+			password: DEV_PASSWORD,
+			email_confirm: true // skip the confirmation round-trip on a local stack
+		});
+		if (error) {
+			console.error(`Failed to create the dev account: ${error.message}`);
+			process.exit(1);
+		}
+		console.log(`Created ${DEV_EMAIL} (password: ${DEV_PASSWORD}) — sign in with these.`);
+		users = data.user ? [data.user, ...users] : await listUsers();
 	}
-	console.log(`Created ${DEV_EMAIL} (password: ${DEV_PASSWORD}) — sign in with these.`);
-	users = data.user ? [data.user] : await listUsers();
 }
 
 if (users.length === 0) {

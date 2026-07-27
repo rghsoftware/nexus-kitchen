@@ -24,6 +24,8 @@
 	let error = $state<string | null>(null);
 	/** Set once we're waiting on the user to act in their email client. */
 	let pending = $state<{ kind: 'confirm' | 'reset'; email: string } | null>(null);
+	/** A successful resend is otherwise indistinguishable from nothing happening. */
+	let resent = $state(false);
 
 	const COPY = {
 		signin: { title: 'Welcome back', action: 'Sign in', busy: 'Signing in…' },
@@ -37,6 +39,7 @@
 		mode = next;
 		error = null;
 		pending = null;
+		resent = false;
 		if (next !== 'signin') password = '';
 	}
 
@@ -69,7 +72,10 @@
 			if (mode === 'signup') {
 				const outcome = await signUp(email, password);
 				// `active` means the project auto-confirms — the guard takes it from here.
-				if (outcome.status === 'confirmation-required') {
+				// Everything else shows the same screen: `already-registered` must be
+				// indistinguishable from `confirmation-required`, or sign-up would answer
+				// the "does this address have an account?" question that reset refuses to.
+				if (outcome.status !== 'active') {
 					pending = { kind: 'confirm', email: outcome.email };
 					password = '';
 				}
@@ -81,6 +87,9 @@
 			await requestPasswordReset(email, `${window.location.origin}${resolve('/account')}`);
 			pending = { kind: 'reset', email: email.trim() };
 		} catch (err) {
+			// The banner carries product copy only; keep the underlying failure in the
+			// console or a production report is unreproducible.
+			console.error('[auth] submit failed:', err instanceof AuthFailure ? (err.cause ?? err) : err);
 			error = err instanceof AuthFailure ? err.message : 'Something went wrong. Please try again.';
 		} finally {
 			busy = false;
@@ -91,11 +100,18 @@
 		if (!pending || busy) return;
 		busy = true;
 		error = null;
+		resent = false;
 		try {
 			await resendConfirmation(pending.email);
 		} catch (err) {
-			error = err instanceof AuthFailure ? err.message : 'Something went wrong. Please try again.';
+			// Not shown to the user on purpose: a resend only succeeds for an address that
+			// is registered and still unconfirmed, so reporting the failure would answer
+			// the question the copy above deliberately leaves open. Logged so it stays
+			// diagnosable — the console is the channel for that, not the banner.
+			console.error('[auth] resend failed:', err instanceof AuthFailure ? (err.cause ?? err) : err);
 		} finally {
+			// Same acknowledgement either way, for the same reason.
+			resent = true;
 			busy = false;
 		}
 	}
@@ -120,8 +136,8 @@
 				<h1 class="title">Check your inbox</h1>
 				<p class="lede">
 					{#if pending.kind === 'confirm'}
-						We sent a confirmation link to <strong>{pending.email}</strong>. Open it and you're in —
-						you can close this tab.
+						If <strong>{pending.email}</strong> is new here, a confirmation link is on its way — open
+						it and you're in. If you already have an account, sign back in instead.
 					{:else}
 						If an account exists for <strong>{pending.email}</strong>, a reset link is on its way.
 					{/if}
@@ -129,6 +145,11 @@
 
 				{#if error}
 					<p class="banner" role="alert">{error}</p>
+				{/if}
+				{#if resent}
+					<p class="banner banner--ok" role="status">
+						If that address needs a link, another one's on its way.
+					</p>
 				{/if}
 
 				<div class="sent__actions">
@@ -350,6 +371,10 @@
 		font-size: var(--text-sm);
 		line-height: var(--leading-snug);
 		margin: 0 0 var(--space-4);
+	}
+	.banner--ok {
+		background: var(--primary-soft);
+		color: var(--primary-text);
 	}
 
 	/* ---------- Confirmation state ---------- */

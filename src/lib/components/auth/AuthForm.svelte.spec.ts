@@ -109,6 +109,40 @@ describe('AuthForm.svelte', () => {
 		await expect.element(page.getByRole('button', { name: 'Resend the link' })).toBeInTheDocument();
 	});
 
+	// The whole point of the `already-registered` outcome: the service knows, the screen
+	// must not say. Sign-up takes the same stance as the reset flow below.
+	it('does not confirm whether the address exists when signing up', async () => {
+		signUp.mockResolvedValue({ status: 'already-registered', email: 'taken@example.com' });
+		render(AuthForm);
+		await page.getByRole('button', { name: 'Create an account' }).click();
+		await page.getByLabelText('Email').fill('taken@example.com');
+		await page.getByLabelText('Password').fill('password1');
+		await page.getByRole('button', { name: 'Create account' }).click();
+
+		await expect
+			.element(page.getByRole('heading', { name: 'Check your inbox' }))
+			.toBeInTheDocument();
+		await expect.element(page.getByText(/is new here/)).toBeInTheDocument();
+		expect(document.body.textContent).not.toMatch(/already an account with that email/i);
+	});
+
+	it('keeps a failed resend from revealing that the address is registered', async () => {
+		signUp.mockResolvedValue({ status: 'already-registered', email: 'taken@example.com' });
+		resendConfirmation.mockRejectedValue(new AuthFailure('User is already confirmed'));
+		render(AuthForm);
+		await page.getByRole('button', { name: 'Create an account' }).click();
+		await page.getByLabelText('Email').fill('taken@example.com');
+		await page.getByLabelText('Password').fill('password1');
+		await page.getByRole('button', { name: 'Create account' }).click();
+		await page.getByRole('button', { name: 'Resend the link' }).click();
+
+		// Same acknowledgement a genuine resend gets, and no alert betraying the failure.
+		await expect
+			.element(page.getByRole('status'))
+			.toHaveTextContent(/If that address needs a link/);
+		expect(document.body.textContent).not.toMatch(/already confirmed/i);
+	});
+
 	it('stays put when sign-up returns an active session — the guard navigates', async () => {
 		signUp.mockResolvedValue({ status: 'active', user: { id: 'user-1' } });
 		render(AuthForm);

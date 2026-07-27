@@ -10,11 +10,13 @@
 
 import { AuthError } from '@supabase/supabase-js';
 
+// Deliberately absent: anything that would confirm an address is already registered.
+// Sign-up folds those responses into an `already-registered` outcome (see signUp) and
+// shows the same neutral copy as a new sign-up, matching the reset flow — so there is no
+// message here that could leak the difference.
 const BY_CODE: Record<string, string> = {
 	invalid_credentials: 'That email and password don’t match. Want to try again?',
 	email_not_confirmed: 'Please confirm your email first — check your inbox for the link.',
-	user_already_exists: 'There’s already an account with that email. Try signing in instead.',
-	email_exists: 'There’s already an account with that email. Try signing in instead.',
 	weak_password: 'That password is a little too easy to guess. Try a longer one.',
 	over_email_send_rate_limit:
 		'That’s a lot of emails in a short time. Give it a minute, then retry.',
@@ -28,7 +30,6 @@ const BY_CODE: Record<string, string> = {
 const BY_MESSAGE: [needle: string, message: string][] = [
 	['invalid login credentials', 'That email and password don’t match. Want to try again?'],
 	['email not confirmed', 'Please confirm your email first — check your inbox for the link.'],
-	['already registered', 'There’s already an account with that email. Try signing in instead.'],
 	['password should be at least', 'That password is a little too short.'],
 	['rate limit', 'Too many attempts just now. Give it a minute, then retry.'],
 	['failed to fetch', 'We couldn’t reach the kitchen. Check your connection and try again.']
@@ -36,7 +37,29 @@ const BY_MESSAGE: [needle: string, message: string][] = [
 
 const FALLBACK = 'Something went sideways signing you in. Please try again.';
 
+const DUPLICATE_CODES = new Set(['user_already_exists', 'email_exists']);
+
+/**
+ * True when Supabase is saying the address is already registered.
+ *
+ * Never turn this into a user-facing message — that's the whole point of routing it
+ * through here. It exists so signUp can fold the "confirmations off" error into the same
+ * outcome the "confirmations on" obfuscated response produces, leaving the UI with no way
+ * to tell a duplicate sign-up from a new one.
+ */
+export function isDuplicateAccount(error: unknown): boolean {
+	if (!(error instanceof AuthError)) return false;
+	if (error.code && DUPLICATE_CODES.has(error.code)) return true;
+	return error.message.toLowerCase().includes('already registered');
+}
+
 export function authErrorMessage(error: unknown): string {
+	// Caught before anything else, including the raw-message pass-through below: Supabase's
+	// own text ("User already registered") states outright what the sign-up flow is at
+	// pains not to. signUp intercepts these first, so this is a backstop for any future
+	// caller that doesn't.
+	if (isDuplicateAccount(error)) return FALLBACK;
+
 	if (error instanceof AuthError) {
 		if (error.code && BY_CODE[error.code]) return BY_CODE[error.code];
 		const lowered = error.message.toLowerCase();
@@ -44,7 +67,10 @@ export function authErrorMessage(error: unknown): string {
 		if (matched) return matched[1];
 		return error.message || FALLBACK;
 	}
-	// Network failures surface as plain TypeErrors from fetch, not AuthError.
+	// Rarely reached for Supabase calls: auth-js wraps fetch failures in
+	// AuthRetryableFetchError, which extends AuthError, so a network error from
+	// supabase.auth.* matches the 'failed to fetch' row in the branch above. This covers
+	// anything that reaches us from outside auth-js.
 	if (error instanceof Error) {
 		const lowered = error.message.toLowerCase();
 		const matched = BY_MESSAGE.find(([needle]) => lowered.includes(needle));

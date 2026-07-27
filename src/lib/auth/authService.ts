@@ -7,7 +7,7 @@
 
 import { supabase } from '$lib/supabaseClient';
 import type { User } from '@supabase/supabase-js';
-import { authErrorMessage } from './authErrors';
+import { authErrorMessage, isDuplicateAccount } from './authErrors';
 
 /**
  * Outcome of a sign-up.
@@ -16,10 +16,16 @@ import { authErrorMessage } from './authErrors';
  * (`auth.email.enable_confirmations = false`, the local-dev default) and a user with a
  * NULL session when confirmations are on. Both are success — they just land the person
  * in different places — so the caller branches on this instead of guessing from config.
+ *
+ * `already-registered` is the third shape, and the UI must render it exactly like
+ * `confirmation-required`: sign-up refuses to confirm whether an address is taken, the
+ * same stance the reset flow takes. It's a distinct outcome only so the service can stay
+ * honest about what happened — never so the screen can say something different.
  */
 export type SignUpOutcome =
 	| { status: 'active'; user: User }
-	| { status: 'confirmation-required'; email: string };
+	| { status: 'confirmation-required'; email: string }
+	| { status: 'already-registered'; email: string };
 
 export class AuthFailure extends Error {
 	constructor(
@@ -50,14 +56,34 @@ export async function signIn(email: string, password: string): Promise<User> {
 export async function signUp(email: string, password: string): Promise<SignUpOutcome> {
 	const trimmed = email.trim();
 	const { data, error } = await supabase.auth.signUp({ email: trimmed, password });
-	if (error) fail(error);
 
-	if (data.session && data.user) return { status: 'active', user: data.user };
+	// A duplicate sign-up reaches us two different ways depending on configuration: an
+	// explicit error when confirmations are off, and a 200 carrying an obfuscated user
+	// with no identities (and no mail sent) when they're on. Both collapse into one
+	// outcome so behaviour doesn't change with config — and so the caller has nothing
+	// left to branch on that would reveal whether the address is taken.
+	if (error) {
+		if (isDuplicateAccount(error)) return { status: 'already-registered', email: trimmed };
+		fail(error);
+	}
+	// Same guard as signIn: a shape change should surface as a clear failure.
+	if (!data.user) fail(new Error('Sign-up returned no user.'));
+	if (data.user.identities?.length === 0) return { status: 'already-registered', email: trimmed };
+
+	if (data.session) return { status: 'active', user: data.user };
 	return { status: 'confirmation-required', email: trimmed };
 }
 
+/**
+ * Signs out on this device only.
+ *
+ * supabase-js defaults to `scope: 'global'`, which revokes refresh tokens for every
+ * session on the account — signing out on a phone would sign the user out of their
+ * laptop mid-task, contradicting the "keeps everything in sync across your devices"
+ * promise the sign-up screen makes.
+ */
 export async function signOut(): Promise<void> {
-	const { error } = await supabase.auth.signOut();
+	const { error } = await supabase.auth.signOut({ scope: 'local' });
 	if (error) fail(error);
 }
 

@@ -25,29 +25,54 @@
 	// sees a flash of the sign-in wall while getSession() settles.
 	const showApp = $derived(sessionState.ready && signedIn && !isPublic);
 
+	/**
+	 * Resolve a `?next=` value to a same-origin path, falling back to the home surface.
+	 *
+	 * Parsed rather than prefix-matched: string checks like `startsWith('/')` miss the
+	 * shapes the URL parser normalises away — `/\evil.com` and a tab-prefixed `/<TAB>/evil.com`
+	 * both resolve to a foreign origin while looking relative. SvelteKit refuses to
+	 * navigate off-origin anyway, but that rejection would strand a signed-in user on the
+	 * sign-in wall, so the value is rejected here instead of failing later.
+	 */
+	function safeNext(next: string | null): string {
+		if (!next) return HOME;
+		try {
+			const target = new URL(next, page.url.origin);
+			if (target.origin !== page.url.origin) return HOME;
+			return target.pathname + target.search;
+		} catch {
+			return HOME;
+		}
+	}
+
+	function reportFailedRedirect(err: unknown) {
+		// A swallowed rejection here leaves the user staring at the wrong surface with no
+		// clue why, and the effect won't re-run to try again.
+		console.error('[guard] redirect failed', err);
+	}
+
 	$effect(() => {
 		if (!sessionState.ready) return;
 
 		if (!signedIn && !isPublic) {
-			// Remember where they were headed so sign-in can hand them back to it.
+			// Remember where they were headed so sign-in can hand them back to it. /today is
+			// the default landing spot, so carrying a ?next= for it would just be noise.
 			const intended = page.url.pathname + page.url.search;
 			const next = intended === HOME ? '' : `?next=${encodeURIComponent(intended)}`;
 			// SIGNIN is already resolve('/signin'); resolve() takes a route id, not a
 			// query string, so the concatenation below can't be expressed through it.
 			// eslint-disable-next-line svelte/no-navigation-without-resolve
-			void goto(`${SIGNIN}${next}`, { replaceState: true });
+			goto(`${SIGNIN}${next}`, { replaceState: true }).catch(reportFailedRedirect);
 			return;
 		}
 
 		if (signedIn && isPublic) {
-			const next = page.url.searchParams.get('next');
-			// Only honour same-origin absolute paths — never redirect to a caller-supplied
-			// host, which would turn the sign-in screen into an open redirect.
-			const safe = next && next.startsWith('/') && !next.startsWith('//') ? next : HOME;
-			// `safe` is a runtime path (validated above) or the already-resolved HOME;
+			// `safe` is a runtime path (validated below) or the already-resolved HOME;
 			// neither is a static route id that resolve() can accept.
 			// eslint-disable-next-line svelte/no-navigation-without-resolve
-			void goto(safe, { replaceState: true });
+			goto(safeNext(page.url.searchParams.get('next')), { replaceState: true }).catch(
+				reportFailedRedirect
+			);
 		}
 	});
 

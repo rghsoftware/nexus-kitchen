@@ -16,7 +16,12 @@ import type { Session, User } from '@supabase/supabase-js';
 
 interface SessionState {
 	user: User | null;
-	/** False until the first getSession() settles — the guard must not redirect before this. */
+	/**
+	 * False until the client has settled on an answer — whichever of the two writers gets
+	 * there first: the INITIAL_SESSION event below, or an explicit getSession(). Both wait
+	 * on the same supabase-js initialize promise, so neither can report a stale null. The
+	 * guard must not redirect before this flips.
+	 */
 	ready: boolean;
 	/** True while a recovery link is being acted on, so /account can prompt for a new password. */
 	recovering: boolean;
@@ -53,6 +58,14 @@ export async function restoreSession(): Promise<User | null> {
 			}
 			applySession(data.session);
 			return state.user;
+		} catch (err) {
+			// getSession() rejecting (rather than returning an error) must not escape: it
+			// would surface as an unhandled rejection at the layout's `void restoreSession()`
+			// and, via currentUser(), make services throw a raw Error instead of their own
+			// domain error — defeating the `instanceof PlanningError` checks downstream.
+			console.error('[restoreSession] getSession threw; treating as signed out', err);
+			applySession(null);
+			return null;
 		} finally {
 			state.ready = true;
 			restorePromise = null;
@@ -74,17 +87,13 @@ export async function currentUser(): Promise<User | null> {
 	return state.user;
 }
 
-/** Reactive snapshot of the current session (read in components / effects). */
-export const sessionState = state;
-
-/** The current user id, or null if signed out. */
-export function currentUserId(): string | null {
-	return state.user?.id ?? null;
-}
-
-export function isSignedIn(): boolean {
-	return state.user !== null;
-}
+/**
+ * Reactive snapshot of the current session (read in components / effects).
+ *
+ * Readonly on purpose: every write goes through this module, so a component can't put the
+ * app into a state the session never actually reached.
+ */
+export const sessionState: Readonly<SessionState> = state;
 
 /** Clears the recovery flag once /account has finished handling the reset. */
 export function clearRecovering(): void {
