@@ -10,8 +10,8 @@ suggestions). One web app for desktop + mobile; **no native apps**.
 > trip → replenishment), the Today dashboard with one-tap meal logging + verdicts
 > (`/today` is the home surface), server-side meal reminders (Cron → Edge Function →
 > Pushover), and **real auth** (Supabase Auth email/password; the app is gated behind
-> `/signin`). Ten migrations, default-deny RLS with pgTAP suites throughout. Per-feature
-> specs, tasks, and quality scores live in `.specswarm/features/` and
+> `/signin`). Twelve migrations, default-deny RLS with pgTAP suites throughout.
+> Per-feature specs, tasks, and quality scores live in `.specswarm/features/` and
 > `.specswarm/metrics.json`. Not yet built (tracked in GitHub issues): prep sessions,
 > household sharing, energy-aware suggestions, deployment.
 >
