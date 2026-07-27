@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { mockAuthEndpoints, signIn } from './support/session';
 
 // ---------------------------------------------------------------------------
 // Pantry & Inventory — end-to-end UI shell tests.
@@ -7,14 +8,15 @@ import { expect, test, type Page } from '@playwright/test';
 // playwright.config.ts). No live backend is involved: the pantry/prepped
 // stores swallow load failures and render their empty states, so every
 // assertion below is deterministic. We cover the shell, tab navigation,
-// the add-item/add-meal dialogs, client-side validation, and the
-// "must be signed in" guard — i.e. everything that does NOT require a
-// real authenticated session.
+// the add-item/add-meal dialogs, and client-side validation.
+//
+// Since feature 008 the app is gated, so each spec signs in first (against
+// mocked Auth endpoints) — reaching /pantry at all now requires a session.
 // ---------------------------------------------------------------------------
 
 const PANTRY_URL = '/pantry';
 
-/** Navigate to the pantry tab and wait for the tablist to render. */
+/** Sign in, navigate to the pantry tab, and wait for the tablist to render. */
 async function gotoPantry(page: Page) {
 	// Resolve Supabase REST reads with an empty result set (rather than letting
 	// them hang against the unreachable stub host). The loads succeed with zero
@@ -27,6 +29,8 @@ async function gotoPantry(page: Page) {
 			body: '[]'
 		})
 	);
+	await mockAuthEndpoints(page);
+	await signIn(page);
 	await page.goto(PANTRY_URL);
 	await expect(page.getByRole('tablist', { name: /pantry sections/i })).toBeVisible();
 }
@@ -112,20 +116,13 @@ test.describe('Pantry — add-item dialog', () => {
 		await expect(dialog).toBeVisible();
 	});
 
-	test('a filled form is blocked by the sign-in guard (no session)', async ({ page }) => {
-		await gotoPantry(page);
-		await FAB(page).click();
-		const dialog = page.getByRole('dialog', { name: /add or edit pantry item/i });
-
-		// Role-scoped to avoid matching the "…fill item name" barcode button.
-		await dialog.getByRole('textbox', { name: 'Item name' }).fill('Oat milk');
-		await dialog.getByRole('spinbutton', { name: 'Quantity' }).fill('2');
-		await dialog.getByRole('button', { name: 'Add to pantry' }).click();
-
-		// With no authenticated user the save is refused with a form-level alert,
-		// and the dialog stays open so the entry isn't lost.
-		await expect(dialog.getByText(/must be signed in/i)).toBeVisible();
-		await expect(dialog).toBeVisible();
+	// The old "a filled form is blocked by the sign-in guard" spec is gone: since
+	// feature 008 you cannot reach the form without a session at all. The guard is
+	// now asserted one level up, at the route.
+	test('the pantry route is unreachable without a session', async ({ page }) => {
+		await page.goto(PANTRY_URL);
+		await expect(page).toHaveURL(/\/signin/);
+		await expect(page.getByRole('heading', { name: 'Welcome back' })).toBeVisible();
 	});
 });
 

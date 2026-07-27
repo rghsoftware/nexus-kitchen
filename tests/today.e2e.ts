@@ -1,4 +1,5 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
+import { signIn } from './support/session';
 
 // ---------------------------------------------------------------------------
 // Today — dashboard + one-tap logging flows (feature 006, FR-TL-001..018).
@@ -275,6 +276,7 @@ test.describe('Today — dashboard shell (FR-TL-001..008)', () => {
 		const errors: string[] = [];
 		page.on('pageerror', (err) => errors.push(err.message));
 		await mockBackend(page);
+		await signIn(page);
 
 		await page.goto('/');
 		await page.waitForURL(/\/today$/);
@@ -294,6 +296,7 @@ test.describe('Today — dashboard shell (FR-TL-001..008)', () => {
 
 	test('a MUST_ACQUIRE meal offers Add to list, not Log it (FR-TL-004)', async ({ page }) => {
 		await mockBackend(page);
+		await signIn(page);
 		await gotoToday(page);
 
 		const dinner = page.getByRole('article', { name: 'Dinner: Sheet-pan salmon' });
@@ -307,6 +310,7 @@ test.describe('Today — one-tap logging (FR-TL-009..014)', () => {
 		page
 	}) => {
 		const db = await mockBackend(page);
+		await signIn(page);
 		await gotoToday(page);
 
 		const lunch = page.getByRole('article', { name: 'Lunch: Marinara pasta' });
@@ -331,6 +335,7 @@ test.describe('Today — one-tap logging (FR-TL-009..014)', () => {
 
 	test('quick "I ate something" logs with zero detail (REQ-MR-009)', async ({ page }) => {
 		const db = await mockBackend(page);
+		await signIn(page);
 		await gotoToday(page);
 
 		await page.getByRole('button', { name: 'Log a meal' }).first().click();
@@ -347,6 +352,7 @@ test.describe('Today — one-tap logging (FR-TL-009..014)', () => {
 
 	test('the sheet closes on Escape without logging anything', async ({ page }) => {
 		const db = await mockBackend(page);
+		await signIn(page);
 		await gotoToday(page);
 
 		await page.getByRole('button', { name: 'Log a meal' }).first().click();
@@ -358,6 +364,7 @@ test.describe('Today — one-tap logging (FR-TL-009..014)', () => {
 
 	test('logging a prepped meal from the sheet consumes portions (FR-TL-012)', async ({ page }) => {
 		const db = await mockBackend(page);
+		await signIn(page);
 		await gotoToday(page);
 
 		await page.getByRole('button', { name: 'Log a meal' }).first().click();
@@ -374,6 +381,7 @@ test.describe('Today — one-tap logging (FR-TL-009..014)', () => {
 test.describe('Today — verdicts (FR-TL-015..016)', () => {
 	test('sets a verdict inline after logging, and can clear it again', async ({ page }) => {
 		const db = await mockBackend(page);
+		await signIn(page);
 		await gotoToday(page);
 
 		const lunch = page.getByRole('article', { name: 'Lunch: Marinara pasta' });
@@ -387,6 +395,7 @@ test.describe('Today — verdicts (FR-TL-015..016)', () => {
 
 	test('logs survive a reload with the eaten state intact', async ({ page }) => {
 		const db = await mockBackend(page);
+		await signIn(page);
 		await gotoToday(page);
 
 		const lunch = page.getByRole('article', { name: 'Lunch: Marinara pasta' });

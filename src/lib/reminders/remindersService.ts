@@ -3,7 +3,7 @@
 // enforces isolation. Errors surface as RemindersError with calm messages.
 
 import { supabase } from '$lib/supabaseClient';
-import { ensureSession } from '$lib/session/session.svelte';
+import { currentUser } from '$lib/session/session.svelte';
 import {
 	deviceTimezone,
 	draftColumns,
@@ -22,10 +22,10 @@ export class RemindersError extends Error {
 	}
 }
 
-/** Ensure a session exists, throwing a RemindersError if sign-in failed. */
+/** Return the signed-in user, throwing a RemindersError if the session has gone. */
 async function requireSession() {
-	const user = await ensureSession();
-	if (!user) throw new RemindersError("We couldn't start a session. Try refreshing the page.");
+	const user = await currentUser();
+	if (!user) throw new RemindersError('Your session has ended. Please sign in again.');
 	return user;
 }
 

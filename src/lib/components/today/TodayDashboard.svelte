@@ -198,6 +198,11 @@
 				<a class="greet__bell" href={resolve('/reminders')} aria-label="Gentle nudges">
 					<i class="ph ph-bell-simple-ringing" aria-hidden="true"></i>
 				</a>
+				<!-- Mobile's five tab slots are spoken for, so Account rides here beside
+				     the bell; desktop also has it in the sidebar footer. -->
+				<a class="greet__bell" href={resolve('/account')} aria-label="Account">
+					<i class="ph ph-user-circle" aria-hidden="true"></i>
+				</a>
 				<button
 					type="button"
 					class="nk-btn nk-btn--primary greet__log"

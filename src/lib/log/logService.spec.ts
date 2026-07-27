@@ -15,7 +15,7 @@ vi.mock('$lib/supabaseClient', () => ({
 	supabase: { from: vi.fn() }
 }));
 vi.mock('$lib/session/session.svelte', () => ({
-	ensureSession: vi.fn().mockResolvedValue({ id: 'user-1' })
+	currentUser: vi.fn().mockResolvedValue({ id: 'user-1' })
 }));
 
 import { supabase } from '$lib/supabaseClient';
