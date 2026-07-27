@@ -15,7 +15,7 @@ jobs:
       PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
       PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun run check
@@ -34,7 +34,7 @@ jobs:
       PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
       PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       # --with-deps pulls the OS libraries Chromium needs; bare `playwright install`
@@ -52,7 +52,7 @@ jobs:
     name: Database (RLS tests, type drift)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - uses: supabase/setup-cli@v1

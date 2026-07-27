@@ -7,7 +7,7 @@
 // (>=1 ingredient/step) are enforced before any write via recipeValidation.
 
 import { supabase } from '$lib/supabaseClient';
-import { ensureSession } from '$lib/session/session.svelte';
+import { currentUser } from '$lib/session/session.svelte';
 import { RecipeError, toRecipeError } from './recipeErrors';
 import { validateRecipeInput, validateRating } from './recipeValidation';
 import {
@@ -33,10 +33,10 @@ import type {
 	RecipeTagInsert
 } from './types';
 
-/** Ensure a session exists and return the user, throwing a RecipeError if sign-in failed. */
+/** Return the signed-in user, throwing a RecipeError if the session has gone. */
 async function requireSession() {
-	const user = await ensureSession();
-	if (!user) throw new RecipeError("We couldn't start a session. Try refreshing the page.");
+	const user = await currentUser();
+	if (!user) throw new RecipeError('Your session has ended. Please sign in again.');
 	return user;
 }
 

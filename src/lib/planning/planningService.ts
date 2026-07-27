@@ -10,7 +10,7 @@
 
 import type { PostgrestError } from '@supabase/supabase-js';
 import { supabase } from '$lib/supabaseClient';
-import { ensureSession } from '$lib/session/session.svelte';
+import { currentUser } from '$lib/session/session.svelte';
 import { weekRangeOf } from './weekMath';
 import {
 	toMealPlan,
@@ -42,10 +42,10 @@ function isUniqueViolation(err: MaybePgError | null | undefined): boolean {
 	return err?.code === '23505';
 }
 
-/** Ensure a session exists, throwing a PlanningError if sign-in failed. */
+/** Return the signed-in user, throwing a PlanningError if the session has gone. */
 async function requireSession() {
-	const user = await ensureSession();
-	if (!user) throw new PlanningError("We couldn't start a session. Try refreshing the page.");
+	const user = await currentUser();
+	if (!user) throw new PlanningError('Your session has ended. Please sign in again.');
 	return user;
 }
 

@@ -8,7 +8,7 @@
 // sets completed_at (INV-SH-004).
 
 import { supabase } from '$lib/supabaseClient';
-import { ensureSession } from '$lib/session/session.svelte';
+import { currentUser } from '$lib/session/session.svelte';
 import {
 	toItemInsert,
 	toShoppingItem,
@@ -31,8 +31,8 @@ export class ShoppingError extends Error {
 }
 
 async function requireSession() {
-	const user = await ensureSession();
-	if (!user) throw new ShoppingError("We couldn't start a session. Try refreshing the page.");
+	const user = await currentUser();
+	if (!user) throw new ShoppingError('Your session has ended. Please sign in again.');
 	return user;
 }
 

@@ -14,12 +14,12 @@ vi.mock('$lib/supabaseClient', () => ({
 	supabase: { from: vi.fn() }
 }));
 vi.mock('$lib/session/session.svelte', () => ({
-	ensureSession: vi.fn().mockResolvedValue({ id: 'user-1' })
+	currentUser: vi.fn().mockResolvedValue({ id: 'user-1' })
 }));
 
 // Import mocked supabase after vi.mock is hoisted
 import { supabase } from '$lib/supabaseClient';
-import { ensureSession } from '$lib/session/session.svelte';
+import { currentUser } from '$lib/session/session.svelte';
 
 // ---------------------------------------------------------------------------
 // Chainable mock builder — thenable so plain `await builder` works too
@@ -94,7 +94,7 @@ const fromMock = supabase.from as Mock;
 describe('planningService', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		(ensureSession as Mock).mockResolvedValue({ id: 'user-1' });
+		(currentUser as Mock).mockResolvedValue({ id: 'user-1' });
 	});
 
 	describe('getOrCreatePlanForWeek', () => {
@@ -114,7 +114,7 @@ describe('planningService', () => {
 		});
 
 		it('throws PlanningError when the session cannot start', async () => {
-			(ensureSession as Mock).mockResolvedValue(null);
+			(currentUser as Mock).mockResolvedValue(null);
 			await expect(getOrCreatePlanForWeek('2026-06-10')).rejects.toBeInstanceOf(PlanningError);
 		});
 	});
