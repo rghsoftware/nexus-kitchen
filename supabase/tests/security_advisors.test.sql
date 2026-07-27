@@ -53,6 +53,16 @@ select is(
 	'lint 0028: no SECURITY DEFINER function in public is executable by anon'
 );
 
+-- `seed_demo_data` is the one intentional exception. It is SECURITY DEFINER and
+-- granted to authenticated on purpose (supabase/seed.sql) so the browser console
+-- can call supabase.rpc('seed_demo_data') for the signed-in user, and it guards
+-- itself: it raises unless auth.uid() is null or equals p_owner, so a caller can
+-- only ever seed their own account. It also never reaches production — seed.sql
+-- is loaded by `supabase db reset` / `supabase start` (db.seed.enabled in
+-- config.toml) and is not a migration, so the real advisor never sees it.
+--
+-- Excluded from *this* assertion only, deliberately: seed.sql revokes it from
+-- anon, so lint 0028 above still fails if that ever changes.
 select is(
 	(
 		select coalesce(string_agg(p.proname, ', ' order by p.proname), '')
@@ -60,6 +70,7 @@ select is(
 		join pg_namespace n on n.oid = p.pronamespace
 		where n.nspname = 'public'
 		  and p.prosecdef
+		  and p.proname <> 'seed_demo_data'
 		  and has_function_privilege('authenticated', p.oid, 'EXECUTE')
 	),
 	'',
