@@ -8,7 +8,7 @@ suggestions). One web app for desktop + mobile; **no native apps**.
 > substitutes), pantry/prepped inventory with an append-only portion ledger, the
 > planning calendar, fulfillment derivation (HAVE_IT / CAN_MAKE_IT / MUST_ACQUIRE),
 > shopping (generation → trip → replenishment), and the Today dashboard with one-tap
-> meal logging + verdicts (`/today` is the home surface). Eleven migrations, default-deny
+> meal logging + verdicts (`/today` is the home surface). Twelve migrations, default-deny
 > RLS with pgTAP suites throughout. Per-feature specs, tasks, and quality scores live in
 > `.specswarm/features/` and `.specswarm/metrics.json`. Not yet built (tracked in GitHub
 > issues): meal reminders / Edge Functions, prep sessions, household sharing,
