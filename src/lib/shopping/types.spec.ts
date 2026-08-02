@@ -22,6 +22,7 @@ function listRow(overrides: Partial<ShoppingListRow> = {}): ShoppingListRow {
 		source_type: 'MANUAL',
 		generated_range_start: null,
 		generated_range_end: null,
+		meal_prep_session_id: null,
 		status: 'ACTIVE',
 		completed_at: null,
 		created_at: '2026-06-11T00:00:00Z',

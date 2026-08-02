@@ -5,6 +5,13 @@
 	import PreppedMealForm from './PreppedMealForm.svelte';
 	import PreppedMealOverview from './PreppedMealOverview.svelte';
 	import PortionEditor from './PortionEditor.svelte';
+	import MealPrepOverview from '$lib/components/planning/mealPrep/MealPrepOverview.svelte';
+	import MealPrepSessionForm from '$lib/components/planning/mealPrep/MealPrepSessionForm.svelte';
+	import {
+		buildPrepShoppingListAction,
+		loadSessions
+	} from '$lib/planning/mealPrep/mealPrepStore.svelte';
+	import type { MealPrepSession } from '$lib/planning/mealPrep/types';
 	import type { PantryItem, PreppedMeal, StorageLocation } from '$lib/pantry/types';
 
 	type Tab = 'ALL' | StorageLocation | 'PREPPED';
@@ -47,6 +54,25 @@
 	function openPortionEditor(meal: PreppedMeal) {
 		portionMeal = meal;
 	}
+
+	let showSessionForm = $state(false);
+	let buildNotice = $state<string | null>(null);
+
+	function openSessionForm() {
+		showSessionForm = true;
+	}
+	function closeSessionForm() {
+		showSessionForm = false;
+		void loadSessions();
+	}
+	async function handleBuildShoppingList(session: MealPrepSession) {
+		buildNotice = null;
+		const { itemCount } = await buildPrepShoppingListAction(session.id);
+		buildNotice =
+			itemCount > 0
+				? `Added ${itemCount} item${itemCount === 1 ? '' : 's'} to a prep shopping list.`
+				: 'Everything for this session is already in your pantry.';
+	}
 </script>
 
 <div class="flex h-full flex-col">
@@ -77,7 +103,22 @@
 	<!-- Main content area -->
 	<div class="min-h-0 flex-1 overflow-y-auto p-4">
 		{#if activeTab === 'PREPPED'}
-			<PreppedMealOverview onAddPrepped={openAddPrepped} onEditMeal={openPortionEditor} />
+			<div class="flex flex-col" style="gap: var(--space-8);">
+				<PreppedMealOverview
+					onAddPrepped={openAddPrepped}
+					onEditMeal={openPortionEditor}
+					onStartSession={openSessionForm}
+				/>
+				{#if buildNotice}
+					<p class="nk-card text-[var(--text-secondary)] text-[var(--text-sm)]" role="status">
+						{buildNotice}
+					</p>
+				{/if}
+				<MealPrepOverview
+					onNewSession={openSessionForm}
+					onBuildShoppingList={handleBuildShoppingList}
+				/>
+			</div>
 		{:else}
 			<PantryOverview
 				storageFilter={activeTab === 'ALL' ? 'ALL' : (activeTab as StorageLocation)}
@@ -126,6 +167,21 @@
 				class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-[var(--surface)] p-4 sm:rounded-2xl"
 			>
 				<PreppedMealForm meal={editingMeal} onSave={closeMealForm} onCancel={closeMealForm} />
+			</div>
+		</div>
+	{/if}
+
+	{#if showSessionForm}
+		<div
+			class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center"
+			role="dialog"
+			aria-modal="true"
+			aria-label="Start a meal prep session"
+		>
+			<div
+				class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-[var(--surface)] p-4 sm:rounded-2xl"
+			>
+				<MealPrepSessionForm onClose={closeSessionForm} onCreated={closeSessionForm} />
 			</div>
 		</div>
 	{/if}
