@@ -28,6 +28,23 @@
 	/** A successful resend is otherwise indistinguishable from nothing happening. */
 	let resent = $state(false);
 
+	// Supabase appends `error`/`error_description` to the URL fragment when the Authentik
+	// round trip itself fails (denied consent, misconfigured provider, etc.) — there's no
+	// onAuthStateChange event for that case, so the fragment is the only signal. Runs once
+	// on mount; the fragment is stripped right after so a refresh doesn't re-show it.
+	$effect(() => {
+		const params = new URLSearchParams(window.location.hash.slice(1));
+		const description = params.get('error_description');
+		if (!description) return;
+		console.error(
+			'[auth] Authentik redirect returned an error:',
+			params.get('error_code'),
+			description.replace(/\+/g, ' ')
+		);
+		error = 'Something went wrong signing you in. Please try again.';
+		history.replaceState(null, '', window.location.pathname + window.location.search);
+	});
+
 	const COPY = {
 		signin: { title: 'Welcome back', action: 'Sign in', busy: 'Signing in…' },
 		signup: { title: 'Set up your kitchen', action: 'Create account', busy: 'Creating…' },
@@ -105,14 +122,16 @@
 			// Carries the current `?next=` (if any) through the redirect so the layout
 			// guard can hand the user back to where they started once the session lands.
 			await signInWithAuthentik(window.location.href);
-			// No further state change here: a successful call has already navigated the
-			// browser to Authentik, so anything after this point never runs.
+			// A successful call has already navigated the browser to Authentik, so this
+			// normally never runs — `finally` below still resets `busy` for the case where
+			// it resolves without an actual navigation (blocked popup, bfcache restore).
 		} catch (err) {
 			console.error(
 				'[auth] Authentik sign-in failed:',
 				err instanceof AuthFailure ? (err.cause ?? err) : err
 			);
 			error = err instanceof AuthFailure ? err.message : 'Something went wrong. Please try again.';
+		} finally {
 			busy = false;
 		}
 	}

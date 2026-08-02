@@ -15,6 +15,14 @@ import { authErrorMessage, isDuplicateAccount } from './authErrors';
  * `Provider` union — the cast reflects that the SDK's types haven't caught up with the
  * feature, not that this value is unchecked; Supabase rejects an unknown identifier
  * server-side.
+ *
+ * That provisioning lives in the Supabase project itself (dashboard / Management API),
+ * not in this repo — there's no local-CLI or migration equivalent for custom OAuth
+ * providers, so a fresh `supabase start` has no `custom:authentik` entry until one is
+ * added by hand. Since `signInWithOAuth` builds the `/authorize` URL client-side and
+ * navigates immediately, an unconfigured provider isn't caught by the `error` check
+ * below — it surfaces after the redirect, via the `error`/`error_description` fragment
+ * params AuthForm.svelte parses on mount.
  */
 const AUTHENTIK_PROVIDER = 'custom:authentik' as Provider;
 
