@@ -29,8 +29,8 @@ supabase test db       # pgTAP — meal_prep_sessions / _recipes owner-only + an
 ```
 
 ## Migrations
-- `0009_meal_prep_sessions.sql` — `meal_prep_sessions` + `meal_prep_session_recipes` (+ enum, RLS, grants).
-- `0010_shopping_from_prep.sql` — adds `FROM_PREP` to `shopping_list_source`; `shopping_lists.meal_prep_session_id` + CHECK.
+- `0013_meal_prep_sessions.sql` — `meal_prep_sessions` + `meal_prep_session_recipes` (+ enum, RLS, grants).
+- `0014_shopping_from_prep_enum.sql` / `0015_shopping_from_prep_link.sql` — adds `FROM_PREP` to `shopping_list_source` (the enum value must be committed before any DDL references it), then `shopping_lists.meal_prep_session_id` + CHECK.
 After applying, regenerate types from this worktree:
 ```bash
 supabase gen types typescript --local > src/lib/database.types.ts

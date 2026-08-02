@@ -4,7 +4,7 @@
 <!-- Validated against: .specswarm/tech-stack.md (no version bump — zero new tech) -->
 <!-- No prohibited technologies found -->
 
-**Feature**: 006-meal-prep
+**Feature**: 009-meal-prep
 **Plan**: [plan.md](./plan.md) · **Spec**: [spec.md](./spec.md) · **Data model**: [data-model.md](./data-model.md)
 
 Legend: `[P]` parallelizable (different files, no ordering dep) · `[US#]` user story.
@@ -14,9 +14,9 @@ MVP = User Story 1 (batch session core → yield → HAVE_IT).
 
 ## Phase 1 — Setup & Schema (foundational; blocks all stories)
 
-- [X] T001 Write migration `supabase/migrations/0009_meal_prep_sessions.sql` — `meal_prep_session_status` enum; `meal_prep_sessions` + `meal_prep_session_recipes` tables with all columns, CHECKs (INV-PL-007, INV-PL-008 completed⟺completed_at, UNIQUE(session,recipe)), indexes, and `updated_at` touch trigger per data-model.md — supabase/migrations/0009_meal_prep_sessions.sql
-- [X] T002 In the same migration, enable RLS (P7 default-deny) with owner-scoped policies for both tables and add explicit Data API grants (authenticated CRUD, service_role ALL, anon SELECT) per the project grant-flip convention — supabase/migrations/0009_meal_prep_sessions.sql
-- [X] T003 Write the shopping `FROM_PREP` change as TWO migrations (the new enum value must be committed before any DDL references it): `0010_shopping_from_prep_enum.sql` (`ALTER TYPE shopping_list_source ADD VALUE IF NOT EXISTS 'FROM_PREP'`) and `0011_shopping_from_prep_link.sql` (`shopping_lists.meal_prep_session_id` FK ON DELETE SET NULL + `shopping_lists_from_prep_has_session` CHECK, INV-XD-004) — supabase/migrations/0010_shopping_from_prep_enum.sql, supabase/migrations/0011_shopping_from_prep_link.sql
+- [X] T001 Write migration `supabase/migrations/0013_meal_prep_sessions.sql` — `meal_prep_session_status` enum; `meal_prep_sessions` + `meal_prep_session_recipes` tables with all columns, CHECKs (INV-PL-007, INV-PL-008 completed⟺completed_at, UNIQUE(session,recipe)), indexes, and `updated_at` touch trigger per data-model.md — supabase/migrations/0013_meal_prep_sessions.sql
+- [X] T002 In the same migration, enable RLS (P7 default-deny) with owner-scoped policies for both tables and add explicit Data API grants (authenticated CRUD, service_role ALL, anon SELECT) per the project grant-flip convention — supabase/migrations/0013_meal_prep_sessions.sql
+- [X] T003 Write the shopping `FROM_PREP` change as TWO migrations (the new enum value must be committed before any DDL references it): `0014_shopping_from_prep_enum.sql` (`ALTER TYPE shopping_list_source ADD VALUE IF NOT EXISTS 'FROM_PREP'`) and `0015_shopping_from_prep_link.sql` (`shopping_lists.meal_prep_session_id` FK ON DELETE SET NULL + `shopping_lists_from_prep_has_session` CHECK, INV-XD-004) — supabase/migrations/0014_shopping_from_prep_enum.sql, supabase/migrations/0015_shopping_from_prep_link.sql
 - [X] T004 Apply migrations to the local stack and regenerate types from this worktree: `supabase gen types typescript --local > src/lib/database.types.ts` (verify the two new tables + `FROM_PREP`/`meal_prep_session_id` appear) — src/lib/database.types.ts
 
 **Checkpoint:** schema + types exist; PostgREST can see both tables under RLS.

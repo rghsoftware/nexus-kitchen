@@ -1,6 +1,6 @@
 # Implementation Plan: Meal Prep — Batch Sessions & Make-Ahead Integrations
 
-**Feature**: 006-meal-prep
+**Feature**: 009-meal-prep
 **Spec**: [spec.md](./spec.md)
 **Created**: 2026-06-13
 **Status**: Planning complete
