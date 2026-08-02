@@ -107,15 +107,21 @@ describe('preppedMealService', () => {
 	// -------------------------------------------------------------------------
 
 	describe('addPreppedMeal', () => {
-		it('inserts meal then calls insertPortionEvent with kind INITIALIZED', async () => {
+		it('inserts the meal and returns it WITHOUT firing a positive INITIALIZED event', async () => {
+			// The row INSERT is authoritative for the starting portion count. A positive
+			// INITIALIZED portion_event is forbidden by the ledger guard, the DB CHECK, and
+			// INV-INV-011 — emitting one made addPreppedMeal throw against a real backend.
 			expect.hasAssertions();
 
-			const row = makePreppedMealRow({ id: 'meal-new', original_portions: 6 });
-			// Both the insert+single and the re-fetch+single return the same row
+			const row = makePreppedMealRow({
+				id: 'meal-new',
+				original_portions: 6,
+				portions_remaining: 6
+			});
 			const chain = makeChain({ data: row, error: null });
 			(supabase.from as Mock).mockReturnValue(chain);
 
-			await addPreppedMeal({
+			const saved = await addPreppedMeal({
 				name: 'Chicken Curry',
 				owner_id: 'user-1',
 				origin: 'DIRECT_ENTRY',
@@ -126,13 +132,10 @@ describe('preppedMealService', () => {
 				expiration_date: '2026-06-05'
 			});
 
-			expect(insertPortionEvent).toHaveBeenCalledWith(
-				expect.objectContaining({
-					preppedMealId: 'meal-new',
-					deltaPortions: 6,
-					kind: 'INITIALIZED'
-				})
-			);
+			expect(saved.id).toBe('meal-new');
+			expect(saved.portions_remaining).toBe(6);
+			// No portion event on creation — the ledger records only later consume/adjust deltas.
+			expect(insertPortionEvent).not.toHaveBeenCalled();
 		});
 	});
 

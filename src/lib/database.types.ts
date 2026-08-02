@@ -137,6 +137,81 @@ export type Database = {
 				};
 				Relationships: [];
 			};
+			meal_prep_session_recipes: {
+				Row: {
+					created_at: string;
+					id: string;
+					meal_prep_session_id: string;
+					recipe_id: string;
+					recipe_name: string;
+					servings_to_prep: number;
+				};
+				Insert: {
+					created_at?: string;
+					id?: string;
+					meal_prep_session_id: string;
+					recipe_id: string;
+					recipe_name: string;
+					servings_to_prep: number;
+				};
+				Update: {
+					created_at?: string;
+					id?: string;
+					meal_prep_session_id?: string;
+					recipe_id?: string;
+					recipe_name?: string;
+					servings_to_prep?: number;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'meal_prep_session_recipes_meal_prep_session_id_fkey';
+						columns: ['meal_prep_session_id'];
+						isOneToOne: false;
+						referencedRelation: 'meal_prep_sessions';
+						referencedColumns: ['id'];
+					},
+					{
+						foreignKeyName: 'meal_prep_session_recipes_recipe_id_fkey';
+						columns: ['recipe_id'];
+						isOneToOne: false;
+						referencedRelation: 'recipes';
+						referencedColumns: ['id'];
+					}
+				];
+			};
+			meal_prep_sessions: {
+				Row: {
+					completed_at: string | null;
+					created_at: string;
+					household_id: string | null;
+					id: string;
+					owner_id: string;
+					prep_day: string;
+					status: Database['public']['Enums']['meal_prep_session_status'];
+					updated_at: string;
+				};
+				Insert: {
+					completed_at?: string | null;
+					created_at?: string;
+					household_id?: string | null;
+					id?: string;
+					owner_id?: string;
+					prep_day: string;
+					status?: Database['public']['Enums']['meal_prep_session_status'];
+					updated_at?: string;
+				};
+				Update: {
+					completed_at?: string | null;
+					created_at?: string;
+					household_id?: string | null;
+					id?: string;
+					owner_id?: string;
+					prep_day?: string;
+					status?: Database['public']['Enums']['meal_prep_session_status'];
+					updated_at?: string;
+				};
+				Relationships: [];
+			};
 			meal_reminders: {
 				Row: {
 					created_at: string;
@@ -755,6 +830,7 @@ export type Database = {
 					generated_range_start: string | null;
 					household_id: string | null;
 					id: string;
+					meal_prep_session_id: string | null;
 					name: string;
 					owner_id: string;
 					source_type: Database['public']['Enums']['shopping_list_source'];
@@ -768,6 +844,7 @@ export type Database = {
 					generated_range_start?: string | null;
 					household_id?: string | null;
 					id?: string;
+					meal_prep_session_id?: string | null;
 					name: string;
 					owner_id?: string;
 					source_type?: Database['public']['Enums']['shopping_list_source'];
@@ -781,13 +858,22 @@ export type Database = {
 					generated_range_start?: string | null;
 					household_id?: string | null;
 					id?: string;
+					meal_prep_session_id?: string | null;
 					name?: string;
 					owner_id?: string;
 					source_type?: Database['public']['Enums']['shopping_list_source'];
 					status?: Database['public']['Enums']['shopping_list_status'];
 					updated_at?: string;
 				};
-				Relationships: [];
+				Relationships: [
+					{
+						foreignKeyName: 'shopping_lists_meal_prep_session_id_fkey';
+						columns: ['meal_prep_session_id'];
+						isOneToOne: false;
+						referencedRelation: 'meal_prep_sessions';
+						referencedColumns: ['id'];
+					}
+				];
 			};
 			user_recipe_meta: {
 				Row: {
@@ -859,6 +945,7 @@ export type Database = {
 		Enums: {
 			defrost_state: 'NOT_APPLICABLE' | 'FROZEN' | 'DEFROSTING' | 'READY';
 			meal_log_type: 'FROM_PLAN' | 'FROM_RECIPE' | 'FROM_PREPPED' | 'QUICK_LOG' | 'CUSTOM';
+			meal_prep_session_status: 'PLANNED' | 'COMPLETED' | 'CANCELLED';
 			meal_slot: 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK';
 			meal_verdict: 'KEEP' | 'FINE' | 'REST';
 			planned_meal_source: 'RECIPE' | 'PREPPED' | 'STORE_BOUGHT' | 'QUICK';
@@ -878,7 +965,7 @@ export type Database = {
 				| 'PANTRY_STAPLES'
 				| 'OTHER';
 			shopping_item_status: 'PENDING' | 'CHECKED' | 'UNAVAILABLE' | 'REMOVED';
-			shopping_list_source: 'MANUAL' | 'FROM_PLAN';
+			shopping_list_source: 'MANUAL' | 'FROM_PLAN' | 'FROM_PREP';
 			shopping_list_status: 'ACTIVE' | 'SHOPPING' | 'COMPLETED' | 'ARCHIVED';
 			storage_location: 'PANTRY' | 'FRIDGE' | 'FREEZER' | 'OTHER';
 		};
@@ -1011,6 +1098,7 @@ export const Constants = {
 		Enums: {
 			defrost_state: ['NOT_APPLICABLE', 'FROZEN', 'DEFROSTING', 'READY'],
 			meal_log_type: ['FROM_PLAN', 'FROM_RECIPE', 'FROM_PREPPED', 'QUICK_LOG', 'CUSTOM'],
+			meal_prep_session_status: ['PLANNED', 'COMPLETED', 'CANCELLED'],
 			meal_slot: ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'],
 			meal_verdict: ['KEEP', 'FINE', 'REST'],
 			planned_meal_source: ['RECIPE', 'PREPPED', 'STORE_BOUGHT', 'QUICK'],
@@ -1031,7 +1119,7 @@ export const Constants = {
 				'OTHER'
 			],
 			shopping_item_status: ['PENDING', 'CHECKED', 'UNAVAILABLE', 'REMOVED'],
-			shopping_list_source: ['MANUAL', 'FROM_PLAN'],
+			shopping_list_source: ['MANUAL', 'FROM_PLAN', 'FROM_PREP'],
 			shopping_list_status: ['ACTIVE', 'SHOPPING', 'COMPLETED', 'ARCHIVED'],
 			storage_location: ['PANTRY', 'FRIDGE', 'FREEZER', 'OTHER']
 		}
