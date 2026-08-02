@@ -5,6 +5,7 @@ vi.mock('$lib/supabaseClient', () => ({
 	supabase: {
 		auth: {
 			signInWithPassword: vi.fn(),
+			signInWithOAuth: vi.fn(),
 			signUp: vi.fn(),
 			signOut: vi.fn(),
 			resetPasswordForEmail: vi.fn(),
@@ -15,7 +16,14 @@ vi.mock('$lib/supabaseClient', () => ({
 }));
 
 import { supabase } from '$lib/supabaseClient';
-import { AuthFailure, requestPasswordReset, signIn, signOut, signUp } from './authService';
+import {
+	AuthFailure,
+	requestPasswordReset,
+	signIn,
+	signInWithAuthentik,
+	signOut,
+	signUp
+} from './authService';
 
 const auth = supabase.auth as unknown as Record<string, ReturnType<typeof vi.fn>>;
 
@@ -54,6 +62,31 @@ describe('signIn', () => {
 		auth.signInWithPassword.mockResolvedValue({ data: { user: null }, error: original });
 
 		await expect(signIn('cook@example.com', 'wrong')).rejects.toMatchObject({ cause: original });
+	});
+});
+
+describe('signInWithAuthentik', () => {
+	it('starts the redirect against the custom Authentik provider', async () => {
+		auth.signInWithOAuth.mockResolvedValue({
+			data: { provider: 'custom:authentik', url: 'x' },
+			error: null
+		});
+
+		await signInWithAuthentik('http://localhost:5173/signin');
+
+		expect(auth.signInWithOAuth).toHaveBeenCalledWith({
+			provider: 'custom:authentik',
+			options: { redirectTo: 'http://localhost:5173/signin' }
+		});
+	});
+
+	it('throws AuthFailure when Supabase rejects the request', async () => {
+		auth.signInWithOAuth.mockResolvedValue({
+			data: { provider: null, url: null },
+			error: new AuthError('nope', 500, 'unexpected_failure')
+		});
+
+		await expect(signInWithAuthentik()).rejects.toThrow(AuthFailure);
 	});
 });
 

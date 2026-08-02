@@ -4,17 +4,26 @@ import { render } from 'vitest-browser-svelte';
 
 // Mock the service seam, not supabase-js: these specs are about what the form shows,
 // and the service's own behaviour is covered in authService.spec.ts.
-const { signIn, signUp, requestPasswordReset, resendConfirmation } = vi.hoisted(() => ({
-	signIn: vi.fn(),
-	signUp: vi.fn(),
-	requestPasswordReset: vi.fn(),
-	resendConfirmation: vi.fn()
-}));
+const { signIn, signInWithAuthentik, signUp, requestPasswordReset, resendConfirmation } =
+	vi.hoisted(() => ({
+		signIn: vi.fn(),
+		signInWithAuthentik: vi.fn(),
+		signUp: vi.fn(),
+		requestPasswordReset: vi.fn(),
+		resendConfirmation: vi.fn()
+	}));
 
 vi.mock('$lib/auth', async (importOriginal) => {
 	// Keep the real validation + AuthFailure so the form's guard clauses are exercised.
 	const actual = await importOriginal<typeof import('$lib/auth')>();
-	return { ...actual, signIn, signUp, requestPasswordReset, resendConfirmation };
+	return {
+		...actual,
+		signIn,
+		signInWithAuthentik,
+		signUp,
+		requestPasswordReset,
+		resendConfirmation
+	};
 });
 
 import AuthForm from './AuthForm.svelte';
@@ -199,5 +208,41 @@ describe('AuthForm.svelte', () => {
 		// Deliberately conditional phrasing — a definite "we sent it" would leak
 		// which addresses have accounts.
 		await expect.element(page.getByText(/If an account exists/)).toBeInTheDocument();
+	});
+
+	it('starts the Authentik redirect with the current URL', async () => {
+		signInWithAuthentik.mockResolvedValue(undefined);
+		render(AuthForm);
+		await page.getByRole('button', { name: 'Continue with Authentik' }).click();
+
+		expect(signInWithAuthentik).toHaveBeenCalledWith(window.location.href);
+	});
+
+	it('shows the OAuth option on sign-up but not on the reset screen', async () => {
+		render(AuthForm);
+		await expect
+			.element(page.getByRole('button', { name: 'Continue with Authentik' }))
+			.toBeInTheDocument();
+
+		await page.getByRole('button', { name: 'Create an account' }).click();
+		await expect
+			.element(page.getByRole('button', { name: 'Continue with Authentik' }))
+			.toBeInTheDocument();
+
+		await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+		await page.getByRole('button', { name: 'Forgot it?' }).click();
+		expect(document.body.textContent).not.toMatch(/Continue with Authentik/);
+	});
+
+	it('surfaces a failed Authentik redirect in the product voice', async () => {
+		signInWithAuthentik.mockRejectedValue(
+			new AuthFailure('Something went sideways signing you in.')
+		);
+		render(AuthForm);
+		await page.getByRole('button', { name: 'Continue with Authentik' }).click();
+
+		await expect
+			.element(page.getByRole('alert'))
+			.toHaveTextContent('Something went sideways signing you in.');
 	});
 });

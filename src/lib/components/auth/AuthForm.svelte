@@ -6,6 +6,7 @@
 		requestPasswordReset,
 		resendConfirmation,
 		signIn,
+		signInWithAuthentik,
 		signUp,
 		validateEmail,
 		validateSignIn,
@@ -96,6 +97,26 @@
 		}
 	}
 
+	async function onAuthentikSignIn() {
+		if (busy) return;
+		busy = true;
+		error = null;
+		try {
+			// Carries the current `?next=` (if any) through the redirect so the layout
+			// guard can hand the user back to where they started once the session lands.
+			await signInWithAuthentik(window.location.href);
+			// No further state change here: a successful call has already navigated the
+			// browser to Authentik, so anything after this point never runs.
+		} catch (err) {
+			console.error(
+				'[auth] Authentik sign-in failed:',
+				err instanceof AuthFailure ? (err.cause ?? err) : err
+			);
+			error = err instanceof AuthFailure ? err.message : 'Something went wrong. Please try again.';
+			busy = false;
+		}
+	}
+
 	async function onResend() {
 		if (!pending || busy) return;
 		busy = true;
@@ -179,6 +200,19 @@
 					We'll email you a link to set a new one.
 				{/if}
 			</p>
+
+			{#if mode !== 'reset'}
+				<button
+					type="button"
+					class="nk-btn nk-btn--secondary nk-btn--lg nk-btn--block"
+					disabled={busy}
+					onclick={onAuthentikSignIn}
+				>
+					<i class="ph ph-key" aria-hidden="true"></i>
+					Continue with Authentik
+				</button>
+				<div class="divider" role="separator"><span>or</span></div>
+			{/if}
 
 			<form onsubmit={onSubmit} novalidate>
 				<div class="field">
@@ -314,6 +348,23 @@
 		color: var(--text-secondary);
 		line-height: var(--leading-relaxed);
 		margin: 0 0 var(--space-6);
+	}
+
+	/* ---------- SSO divider ---------- */
+	.divider {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		margin: var(--space-4) 0;
+		color: var(--text-muted);
+		font-size: var(--text-xs);
+	}
+	.divider::before,
+	.divider::after {
+		content: '';
+		flex: 1;
+		height: 1px;
+		background: var(--border);
 	}
 
 	/* ---------- Fields ---------- */

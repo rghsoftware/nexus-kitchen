@@ -1,5 +1,6 @@
 export {
 	signIn,
+	signInWithAuthentik,
 	signUp,
 	signOut,
 	requestPasswordReset,

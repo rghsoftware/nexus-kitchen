@@ -6,8 +6,17 @@
 // AuthError into product voice. It holds no state; see session.svelte.ts for that.
 
 import { supabase } from '$lib/supabaseClient';
-import type { User } from '@supabase/supabase-js';
+import type { Provider, User } from '@supabase/supabase-js';
 import { authErrorMessage, isDuplicateAccount } from './authErrors';
+
+/**
+ * Identifier of the Authentik OIDC provider configured in Supabase
+ * (`auth.custom_oauth_providers`). Custom providers aren't part of supabase-js's
+ * `Provider` union — the cast reflects that the SDK's types haven't caught up with the
+ * feature, not that this value is unchecked; Supabase rejects an unknown identifier
+ * server-side.
+ */
+const AUTHENTIK_PROVIDER = 'custom:authentik' as Provider;
 
 /**
  * Outcome of a sign-up.
@@ -51,6 +60,20 @@ export async function signIn(email: string, password: string): Promise<User> {
 	// surfaces as a clear failure rather than a null deref downstream.
 	if (!data.user) fail(new Error('Sign-in returned no user.'));
 	return data.user;
+}
+
+/**
+ * Starts the Authentik sign-in redirect. Supabase's `/authorize` endpoint sends the
+ * browser to Authentik and back; there's no user to return here because the current page
+ * is about to navigate away — the session shows up via `restoreSession`/`onAuthStateChange`
+ * once the redirect lands back on `redirectTo` (see `$lib/session/session.svelte.ts`).
+ */
+export async function signInWithAuthentik(redirectTo?: string): Promise<void> {
+	const { error } = await supabase.auth.signInWithOAuth({
+		provider: AUTHENTIK_PROVIDER,
+		options: { redirectTo }
+	});
+	if (error) fail(error);
 }
 
 export async function signUp(email: string, password: string): Promise<SignUpOutcome> {
