@@ -77,6 +77,12 @@ bun run test:e2e     # playwright install && playwright test
   `signUp()` returns a live session when `enable_confirmations = false` (local default)
   and a null session when it's on — both are success, so branch, don't assume.
   Production needs SMTP configured in Supabase or confirmation mail never sends.
+  Authentik sign-in (`signInWithAuthentik` in `$lib/auth`) is a custom OAuth provider
+  (`auth.custom_oauth_providers`) provisioned per-environment in the Supabase project
+  itself — dashboard/Management API only, no config.toml or migration equivalent, so a
+  fresh `supabase start` needs it added by hand before the button works. Failures on the
+  redirect back land as `error`/`error_description` URL-fragment params, not a catchable
+  rejection; `AuthForm.svelte` parses those on mount.
 - **Prettier:** tabs, single quotes, no trailing comma, `printWidth` 100. Run `bun run format`.
 - **Data rules (when the backend exists):** UUID PKs; timestamps `timestamptz` in UTC;
   RLS enabled default-deny before any table is exposed; schema changes are Supabase CLI

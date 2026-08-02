@@ -1,20 +1,29 @@
 import { page } from 'vitest/browser';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 
 // Mock the service seam, not supabase-js: these specs are about what the form shows,
 // and the service's own behaviour is covered in authService.spec.ts.
-const { signIn, signUp, requestPasswordReset, resendConfirmation } = vi.hoisted(() => ({
-	signIn: vi.fn(),
-	signUp: vi.fn(),
-	requestPasswordReset: vi.fn(),
-	resendConfirmation: vi.fn()
-}));
+const { signIn, signInWithAuthentik, signUp, requestPasswordReset, resendConfirmation } =
+	vi.hoisted(() => ({
+		signIn: vi.fn(),
+		signInWithAuthentik: vi.fn(),
+		signUp: vi.fn(),
+		requestPasswordReset: vi.fn(),
+		resendConfirmation: vi.fn()
+	}));
 
 vi.mock('$lib/auth', async (importOriginal) => {
 	// Keep the real validation + AuthFailure so the form's guard clauses are exercised.
 	const actual = await importOriginal<typeof import('$lib/auth')>();
-	return { ...actual, signIn, signUp, requestPasswordReset, resendConfirmation };
+	return {
+		...actual,
+		signIn,
+		signInWithAuthentik,
+		signUp,
+		requestPasswordReset,
+		resendConfirmation
+	};
 });
 
 import AuthForm from './AuthForm.svelte';
@@ -22,6 +31,12 @@ import { AuthFailure } from '$lib/auth';
 
 beforeEach(() => {
 	vi.clearAllMocks();
+});
+
+afterEach(() => {
+	// Several Authentik tests push a URL fragment to simulate the OAuth return trip —
+	// strip it so it doesn't bleed into the next test's fresh `render()`.
+	history.replaceState(null, '', window.location.pathname + window.location.search);
 });
 
 describe('AuthForm.svelte', () => {
@@ -199,5 +214,125 @@ describe('AuthForm.svelte', () => {
 		// Deliberately conditional phrasing — a definite "we sent it" would leak
 		// which addresses have accounts.
 		await expect.element(page.getByText(/If an account exists/)).toBeInTheDocument();
+	});
+
+	it('starts the Authentik redirect with the current URL', async () => {
+		signInWithAuthentik.mockResolvedValue(undefined);
+		render(AuthForm);
+		await page.getByRole('button', { name: 'Continue with Authentik' }).click();
+
+		expect(signInWithAuthentik).toHaveBeenCalledWith(window.location.href);
+	});
+
+	it('shows the OAuth option on sign-up but not on the reset screen', async () => {
+		render(AuthForm);
+		await expect
+			.element(page.getByRole('button', { name: 'Continue with Authentik' }))
+			.toBeInTheDocument();
+
+		await page.getByRole('button', { name: 'Create an account' }).click();
+		await expect
+			.element(page.getByRole('button', { name: 'Continue with Authentik' }))
+			.toBeInTheDocument();
+
+		await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+		await page.getByRole('button', { name: 'Forgot it?' }).click();
+		expect(document.body.textContent).not.toMatch(/Continue with Authentik/);
+	});
+
+	it('surfaces a failed Authentik redirect in the product voice', async () => {
+		signInWithAuthentik.mockRejectedValue(
+			new AuthFailure('Something went sideways signing you in.')
+		);
+		render(AuthForm);
+		await page.getByRole('button', { name: 'Continue with Authentik' }).click();
+
+		await expect
+			.element(page.getByRole('alert'))
+			.toHaveTextContent('Something went sideways signing you in.');
+	});
+
+	it('ignores a second click while a redirect is already in flight', async () => {
+		let resolveSignIn: (() => void) | undefined;
+		signInWithAuthentik.mockReturnValue(
+			new Promise<void>((resolve) => {
+				resolveSignIn = resolve;
+			})
+		);
+		render(AuthForm);
+		// A real double-click can land both events before Svelte's `disabled` update
+		// reaches the DOM — bypass the locator's actionability wait and call the native
+		// DOM method twice in the same tick to exercise the `if (busy) return` guard
+		// itself, not just the disabled attribute that backs it up.
+		const button = page
+			.getByRole('button', { name: 'Continue with Authentik' })
+			.element() as HTMLButtonElement;
+
+		button.click();
+		button.click();
+
+		expect(signInWithAuthentik).toHaveBeenCalledOnce();
+		resolveSignIn?.();
+	});
+
+	it('resets busy after a redirect call resolves without actually navigating', async () => {
+		let resolveSignIn: (() => void) | undefined;
+		signInWithAuthentik.mockReturnValue(
+			new Promise<void>((resolve) => {
+				resolveSignIn = resolve;
+			})
+		);
+		render(AuthForm);
+		const button = page.getByRole('button', { name: 'Continue with Authentik' });
+
+		await button.click();
+		await expect.element(button).toBeDisabled();
+
+		// In a real success this resolution never happens — the browser has already
+		// navigated to Authentik. This simulates the one case that matters: the promise
+		// settling with no navigation (blocked popup, bfcache restore), which must not
+		// leave the form permanently disabled.
+		resolveSignIn?.();
+		await expect.element(button).not.toBeDisabled();
+	});
+
+	it('clears a stale error banner when starting the Authentik redirect', async () => {
+		signIn.mockRejectedValue(new AuthFailure('That email and password don’t match.'));
+		let resolveSignIn: (() => void) | undefined;
+		signInWithAuthentik.mockReturnValue(
+			new Promise<void>((resolve) => {
+				resolveSignIn = resolve;
+			})
+		);
+		render(AuthForm);
+		await page.getByLabelText('Email').fill('cook@example.com');
+		await page.getByLabelText('Password').fill('password1');
+		await page.getByRole('button', { name: 'Sign in' }).click();
+		await expect.element(page.getByRole('alert')).toBeInTheDocument();
+
+		await page.getByRole('button', { name: 'Continue with Authentik' }).click();
+
+		expect(document.body.textContent).not.toMatch(/don.t match/);
+		resolveSignIn?.();
+	});
+
+	it('surfaces an Authentik error returned in the URL fragment', async () => {
+		// Supabase appends `error`/`error_description` to the redirect URL's fragment
+		// when the round trip itself fails (denied consent, misconfigured provider) —
+		// there's no onAuthStateChange event for this, so the fragment is the only signal.
+		history.replaceState(
+			null,
+			'',
+			`${window.location.pathname}#error=server_error&error_description=${encodeURIComponent(
+				'Provider misconfigured'
+			)}`
+		);
+
+		render(AuthForm);
+
+		await expect
+			.element(page.getByRole('alert'))
+			.toHaveTextContent('Something went wrong signing you in. Please try again.');
+		expect(window.location.hash).toBe('');
 	});
 });
