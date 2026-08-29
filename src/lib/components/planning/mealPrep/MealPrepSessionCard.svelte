@@ -6,9 +6,16 @@
 		onComplete?: (session: MealPrepSession) => void;
 		onCancel?: (session: MealPrepSession) => void;
 		onBuildShoppingList?: (session: MealPrepSession) => void;
+		buildingShoppingList?: boolean;
 	}
 
-	let { session, onComplete, onCancel, onBuildShoppingList }: Props = $props();
+	let {
+		session,
+		onComplete,
+		onCancel,
+		onBuildShoppingList,
+		buildingShoppingList = false
+	}: Props = $props();
 
 	const STATUS_LABEL: Record<MealPrepSession['status'], string> = {
 		PLANNED: 'Planned',
@@ -92,8 +99,10 @@
 					type="button"
 					class="nk-btn nk-btn--secondary"
 					onclick={() => onBuildShoppingList(session)}
+					disabled={buildingShoppingList}
+					aria-busy={buildingShoppingList}
 				>
-					Build shopping list
+					{buildingShoppingList ? 'Building…' : 'Build shopping list'}
 				</button>
 			{/if}
 			<button type="button" class="nk-btn nk-btn--secondary" onclick={() => onCancel?.(session)}>

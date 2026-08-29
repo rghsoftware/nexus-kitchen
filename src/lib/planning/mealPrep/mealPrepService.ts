@@ -249,9 +249,12 @@ const DEFAULT_YIELD_STORAGE: StorageLocation = 'FRIDGE';
 
 /**
  * Complete a session: yield one PREP_SESSION-origin prepped portion per recipe into
- * inventory, then mark the session COMPLETED. Idempotent — if portions linked to this
- * session already exist (a prior, possibly partial, completion), no further yield happens
- * (FR-PP-014). Distribution into the meal plan is out of scope (yield-to-inventory-only).
+ * inventory, then mark the session COMPLETED. Idempotent — keyed off which recipe_ids
+ * already have a portion linked to this session (not just "does any exist"), so a retry
+ * after a partial failure (addPreppedMeal throwing partway through the loop below) yields
+ * only the recipes still missing a portion instead of skipping straight to markCompleted
+ * and silently dropping the rest (FR-PP-014/015). Distribution into the meal plan is out
+ * of scope (yield-to-inventory-only).
  */
 export async function completeSession(
 	sessionId: string,
@@ -259,16 +262,20 @@ export async function completeSession(
 ): Promise<MealPrepSession> {
 	const session = await requireSession(sessionId);
 
-	// Idempotency guard: the session<->portion link is the key, not a local flag.
+	// Idempotency guard: the session<->portion link is the key, not a local flag. A recipe
+	// appears at most once per session (meal_prep_session_recipes_unique), so recipe_id
+	// uniquely identifies which session recipes have already been yielded.
 	const { data: existing, error: existingError } = await supabase
 		.from('prepped_meals')
-		.select('id')
-		.eq('meal_prep_session_id', sessionId)
-		.limit(1);
+		.select('recipe_id')
+		.eq('meal_prep_session_id', sessionId);
 	if (existingError) {
 		throw new MealPrepServiceError('Failed to check existing yield', existingError);
 	}
-	if ((existing ?? []).length > 0) {
+	const alreadyYielded = new Set((existing ?? []).map((row) => row.recipe_id));
+	const recipesToYield = session.recipes.filter((r) => !alreadyYielded.has(r.recipeId));
+
+	if (recipesToYield.length === 0) {
 		// Already yielded — make sure the status reflects completion and return.
 		if (session.status !== 'COMPLETED') return markCompleted(sessionId);
 		return session;
@@ -281,7 +288,7 @@ export async function completeSession(
 	const storageByRecipe = new Map(yields.map((y) => [y.sessionRecipeId, y.storageLocation]));
 	const preparedDate = todayIso();
 
-	for (const recipe of session.recipes) {
+	for (const recipe of recipesToYield) {
 		const storage = storageByRecipe.get(recipe.id) ?? DEFAULT_YIELD_STORAGE;
 		await addPreppedMeal({
 			owner_id: user.id,

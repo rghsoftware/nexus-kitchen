@@ -9,6 +9,8 @@
 
 	let showSessionForm = $state(false);
 	let buildNotice = $state<string | null>(null);
+	let buildError = $state<string | null>(null);
+	let building = $state(false);
 
 	$effect(() => {
 		void loadSessions();
@@ -20,12 +22,22 @@
 	}
 
 	async function handleBuildShoppingList(session: MealPrepSession) {
+		if (building) return; // guard against a double-click creating duplicate FROM_PREP lists
+		building = true;
 		buildNotice = null;
-		const { itemCount } = await buildPrepShoppingListAction(session.id);
-		buildNotice =
-			itemCount > 0
-				? `Added ${itemCount} item${itemCount === 1 ? '' : 's'} to a prep shopping list.`
-				: 'Everything for this session is already in your pantry.';
+		buildError = null;
+		try {
+			const { itemCount } = await buildPrepShoppingListAction(session.id);
+			buildNotice =
+				itemCount > 0
+					? `Added ${itemCount} item${itemCount === 1 ? '' : 's'} to a prep shopping list.`
+					: 'Everything for this session is already in your pantry.';
+		} catch (err) {
+			buildError =
+				err instanceof Error ? err.message : 'Could not build the shopping list. Please try again.';
+		} finally {
+			building = false;
+		}
 	}
 
 	function onKeydown(event: KeyboardEvent) {
@@ -48,7 +60,11 @@
 		</h1>
 	</header>
 
-	{#if buildNotice}
+	{#if buildError}
+		<p class="nk-card text-[var(--attention)] text-[var(--text-sm)]" role="alert">
+			{buildError}
+		</p>
+	{:else if buildNotice}
 		<p class="nk-card text-[var(--text-secondary)] text-[var(--text-sm)]" role="status">
 			{buildNotice}
 		</p>
@@ -57,6 +73,7 @@
 	<MealPrepOverview
 		onNewSession={() => (showSessionForm = true)}
 		onBuildShoppingList={handleBuildShoppingList}
+		buildingShoppingList={building}
 	/>
 </section>
 

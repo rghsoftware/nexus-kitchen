@@ -14,9 +14,10 @@
 	interface Props {
 		onNewSession?: () => void;
 		onBuildShoppingList?: (session: MealPrepSession) => void;
+		buildingShoppingList?: boolean;
 	}
 
-	let { onNewSession, onBuildShoppingList }: Props = $props();
+	let { onNewSession, onBuildShoppingList, buildingShoppingList = false }: Props = $props();
 
 	// Session currently being marked prepped (drives the completion dialog).
 	let completing = $state<MealPrepSession | null>(null);
@@ -111,6 +112,7 @@
 					onComplete={(s) => (completing = s)}
 					onCancel={handleCancel}
 					{onBuildShoppingList}
+					{buildingShoppingList}
 				/>
 			{/each}
 		</div>

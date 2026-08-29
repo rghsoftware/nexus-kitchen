@@ -169,18 +169,35 @@ describe('completeSession — yield to inventory (FR-PP-014/015)', () => {
 		);
 	});
 
-	it('is idempotent — does not yield again when portions already exist for the session', async () => {
+	it('is idempotent — does not yield again when both recipes already have portions', async () => {
 		mockTables({
 			meal_prep_sessions: {
 				data: sessionRow({ status: 'COMPLETED', completed_at: isoDay() }),
 				error: null
 			},
-			prepped_meals: { data: [{ id: 'pp-existing' }], error: null } // already yielded
+			// both session recipes already yielded
+			prepped_meals: { data: [{ recipe_id: 'r-1' }, { recipe_id: 'r-2' }], error: null }
 		});
 
 		await completeSession('sess-1');
 
 		expect(addPreppedMeal).not.toHaveBeenCalled();
+	});
+
+	it('retries only the recipes still missing a portion after a partial failure', async () => {
+		// r-1 already has a linked portion (a prior attempt yielded it before throwing);
+		// r-2 does not yet.
+		mockTables({
+			meal_prep_sessions: { data: sessionRow(), error: null },
+			prepped_meals: { data: [{ recipe_id: 'r-1' }], error: null }
+		});
+
+		await completeSession('sess-1', [{ sessionRecipeId: 'sr-2', storageLocation: 'FRIDGE' }]);
+
+		expect(addPreppedMeal).toHaveBeenCalledTimes(1);
+		expect(addPreppedMeal).toHaveBeenCalledWith(
+			expect.objectContaining({ recipe_id: 'r-2', recipe_name: 'Oats' })
+		);
 	});
 });
 
