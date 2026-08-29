@@ -33,25 +33,15 @@ export async function getPreppedMeals(householdId?: string | null): Promise<Prep
 // ---------------------------------------------------------------------------
 
 export async function addPreppedMeal(meal: NewPreppedMeal): Promise<PreppedMeal> {
+	// The INSERT itself sets portions_remaining = original_portions (the authoritative
+	// starting count). We deliberately do NOT emit an INITIALIZED portion_event: a positive
+	// non-ADJUSTED delta is forbidden by the ledger guard, the DB CHECK, and INV-INV-011.
+	// The append-only ledger records only later CONSUMED/ADJUSTED *changes* (INV-CC-006);
+	// the initial count lives on the row.
 	const { data, error } = await supabase.from('prepped_meals').insert(meal).select().single();
 	if (error) throw new PreppedMealServiceError('Failed to add prepped meal', error);
 
-	// Record the initial portion count as an INITIALIZED event
-	await insertPortionEvent({
-		preppedMealId: data.id,
-		deltaPortions: data.original_portions,
-		kind: 'INITIALIZED'
-	});
-
-	// Re-fetch so portions_remaining reflects the trigger update
-	const { data: refreshed, error: refetchError } = await supabase
-		.from('prepped_meals')
-		.select('*')
-		.eq('id', data.id)
-		.single();
-	if (refetchError)
-		throw new PreppedMealServiceError('Failed to fetch new prepped meal', refetchError);
-	return toPreppedMeal(refreshed);
+	return toPreppedMeal(data);
 }
 
 export async function updatePreppedMeal(

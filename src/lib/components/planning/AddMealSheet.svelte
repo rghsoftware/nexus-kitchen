@@ -13,7 +13,11 @@
 		preppedMeals,
 		preppedMealsLoading
 	} from '$lib/pantry/preppedMealStore.svelte';
-	import type { PreppedMeal, StorageLocation } from '$lib/pantry/types';
+	import {
+		placeablePreppedPortions,
+		type PreppedMeal,
+		type StorageLocation
+	} from '$lib/pantry/types';
 	import { recipesRepository, type RecipeSummary } from '$lib/recipes';
 
 	interface Props {
@@ -48,7 +52,7 @@
 	// Prepped tab (FR-FS-010) — only portions that still exist to eat
 	let selectedPrepped = $state<PreppedMeal | null>(null);
 	let preppedRequested = $state(false);
-	const availablePortions = $derived(preppedMeals().filter((p) => p.portions_remaining > 0));
+	const availablePortions = $derived(placeablePreppedPortions(preppedMeals()));
 
 	const STORAGE_LABEL: Record<StorageLocation, string> = {
 		PANTRY: 'Pantry',

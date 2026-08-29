@@ -45,6 +45,44 @@ export {
 	updateMeal
 } from './planStore.svelte';
 
+// Meal-prep batch sessions (feature 006).
+export {
+	toMealPrepSession,
+	toMealPrepSessionRecipe,
+	type MealPrepSession,
+	type MealPrepSessionRecipe,
+	type MealPrepSessionStatus,
+	type NewMealPrepSession,
+	type NewSessionRecipe,
+	type YieldChoice,
+	type PrepShoppingGapItem
+} from './mealPrep/types';
+
+export { MealPrepServiceError } from './mealPrep/mealPrepService';
+
+export { isNotPast, isWeekend, suggestPrepDay } from './mealPrep/prepDay';
+
+export {
+	computePrepShoppingGap,
+	type PrepRecipeIngredient,
+	type RecipeForPrep
+} from './mealPrep/prepShoppingList';
+
+export {
+	addRecipeAction,
+	buildPrepShoppingListAction,
+	cancelSessionAction,
+	completeSessionAction,
+	createSessionAction,
+	loadSessions,
+	plannedSessions,
+	removeRecipeAction,
+	sessions,
+	sessionsError,
+	sessionsLoaded,
+	sessionsLoading
+} from './mealPrep/mealPrepStore.svelte';
+
 export {
 	addDays,
 	dayFullLabel,

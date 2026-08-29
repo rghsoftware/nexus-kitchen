@@ -126,3 +126,14 @@ export function toPreppedMeal(row: PreppedMealRow): PreppedMeal {
 		isReadyToEat: row.defrost_state === 'NOT_APPLICABLE' || row.defrost_state === 'READY'
 	};
 }
+
+/**
+ * Prepped portions that can be placed on the meal plan as a PREPPED source: only those
+ * with portions remaining > 0 (an exhausted portion would derive MUST_ACQUIRE, not HAVE_IT).
+ * Shared by the Add-meal picker (feature 004) and the make-ahead suggestion surfaces.
+ */
+export function placeablePreppedPortions<T extends { portions_remaining: number }>(
+	portions: readonly T[]
+): T[] {
+	return portions.filter((p) => p.portions_remaining > 0);
+}

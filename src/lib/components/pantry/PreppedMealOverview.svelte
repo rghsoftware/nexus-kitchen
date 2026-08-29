@@ -12,9 +12,10 @@
 	interface Props {
 		onAddPrepped?: () => void;
 		onEditMeal?: (meal: PreppedMeal) => void;
+		onStartSession?: () => void;
 	}
 
-	let { onAddPrepped, onEditMeal }: Props = $props();
+	let { onAddPrepped, onEditMeal, onStartSession }: Props = $props();
 
 	// Nearest-expiry first; spread to avoid mutating the live $state array
 	const sortedMeals = $derived(
@@ -69,17 +70,23 @@
 					+ Add a prepped meal I already have
 				</button>
 			{/if}
-			<!-- Prep sessions are a separate feature — kept visible but non-functional -->
-			<button
-				class="nk-btn nk-btn--secondary"
-				type="button"
-				disabled
-				aria-disabled="true"
-				title="Prep sessions coming soon"
-				style="opacity: 0.5; cursor: not-allowed;"
-			>
-				+ Start a prep session
-			</button>
+			{#if onStartSession}
+				<button class="nk-btn nk-btn--secondary" type="button" onclick={onStartSession}>
+					+ Start a prep session
+				</button>
+			{:else}
+				<!-- No handler wired yet — kept visible but non-functional -->
+				<button
+					class="nk-btn nk-btn--secondary"
+					type="button"
+					disabled
+					aria-disabled="true"
+					title="Prep sessions coming soon"
+					style="opacity: 0.5; cursor: not-allowed;"
+				>
+					+ Start a prep session
+				</button>
+			{/if}
 		</div>
 	</div>
 {:else}

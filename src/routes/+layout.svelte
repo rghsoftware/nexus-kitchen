@@ -76,8 +76,9 @@
 		}
 	});
 
-	// Per design/web-*.html: full nav skeleton; unbuilt surfaces render muted (readme:
-	// "Other surfaces are scaffolded in the nav but not yet designed").
+	// Per design/web-*.html: full nav skeleton. Every surface is live as of 009; the
+	// null-href branch below stays as the scaffold for the next unbuilt one (household
+	// sharing, energy-aware suggestions), which renders muted rather than linking.
 	const NAV = [
 		{ label: 'Today', icon: 'ph-house', href: resolve('/today') },
 		{ label: 'Plan', icon: 'ph-calendar-dots', href: resolve('/plan') },
@@ -85,12 +86,12 @@
 		{ label: 'Pantry', icon: 'ph-jar', href: resolve('/pantry') },
 		{ label: 'Shopping', icon: 'ph-shopping-cart-simple', href: resolve('/shopping') },
 		{ label: 'Nudges', icon: 'ph-bell-simple-ringing', href: resolve('/reminders') },
-		{ label: 'Meal prep', icon: 'ph-cooking-pot', href: null }
+		{ label: 'Meal prep', icon: 'ph-cooking-pot', href: resolve('/prep') }
 	] as const;
 
-	// Bottom tabs (mobile) — five slots per design/mobile-*.html. Shopping is live now,
-	// so it takes the fifth slot from the still-unbuilt Meal prep surface. Nudges is
-	// reachable on mobile from the Today header bell instead of a tab.
+	// Bottom tabs (mobile) — five slots per design/mobile-*.html. Shopping holds the
+	// fifth slot; Meal prep and Nudges are reachable on mobile from the Pantry →
+	// Prepped shelf and the Today header bell respectively.
 	const TABS = NAV.filter((n) => n.label !== 'Meal prep' && n.label !== 'Nudges');
 
 	function tabLabel(label: string): string {
