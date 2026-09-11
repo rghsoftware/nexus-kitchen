@@ -1,3 +1,4 @@
+import asyncio
 from typing import Annotated, Any, Literal
 
 from fastmcp import FastMCP
@@ -7,7 +8,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from nexus_mcp.auth import build_auth
-from nexus_mcp.items import ShoppingItemInput, merge_items, normalize
+from nexus_mcp.items import ShoppingItemInput, merge_items, merge_needed_for, normalize
 from nexus_mcp.postgrest import Postgrest, caller_token
 from nexus_mcp.settings import load_settings
 
@@ -179,13 +180,15 @@ async def add_shopping_items(
         )
         if not lists:
             raise ToolError("No shopping list with that id — call list_shopping_lists first.")
+        if lists[0]["status"] not in {"ACTIVE", "SHOPPING"}:
+            raise ToolError("Items can only be added to an active shopping list.")
 
         existing_rows = await db.select(
             "shopping_list_items",
             {
                 "shopping_list_id": f"eq.{list_id}",
                 "status": "eq.PENDING",
-                "select": "id,name,unit,quantity",
+                "select": "id,name,unit,quantity,category,needed_for",
             },
         )
         existing_by_key = {
@@ -193,32 +196,32 @@ async def add_shopping_items(
             for row in existing_rows
         }
 
+        updates: list[tuple[str, dict[str, Any]]] = []
         added_rows: list[dict[str, Any]] = []
         results: list[dict[str, Any]] = []
-        added = 0
-        updated = 0
         for item in merged:
             key = (normalize(item.name), normalize(item.unit))
             existing = existing_by_key.get(key)
             if existing is not None:
                 quantity = round(float(existing["quantity"]) + item.quantity, 3)
-                await db.patch(
-                    "shopping_list_items",
-                    {"id": f"eq.{existing['id']}"},
-                    {"quantity": quantity},
+                needed_for = merge_needed_for(existing.get("needed_for"), item.needed_for)
+                updates.append(
+                    (
+                        str(existing["id"]),
+                        {"quantity": quantity, "needed_for": needed_for},
+                    )
                 )
-                updated += 1
                 results.append(
                     {
                         "name": existing["name"],
                         "quantity": quantity,
                         "unit": existing["unit"],
+                        "category": existing["category"],
                         "action": "updated",
                     }
                 )
                 continue
 
-            added += 1
             added_rows.append(
                 {
                     "shopping_list_id": list_id,
@@ -234,17 +237,33 @@ async def add_shopping_items(
                     "name": item.name,
                     "quantity": item.quantity,
                     "unit": item.unit,
+                    "category": item.category,
                     "action": "added",
                 }
             )
 
+        if updates:
+            patch_results = await asyncio.gather(
+                *(
+                    db.patch(
+                        "shopping_list_items",
+                        {"id": f"eq.{item_id}"},
+                        values,
+                    )
+                    for item_id, values in updates
+                ),
+                return_exceptions=True,
+            )
+            for patch_result in patch_results:
+                if isinstance(patch_result, BaseException):
+                    raise patch_result
         if added_rows:
             await db.insert("shopping_list_items", added_rows)
 
     return {
         "list_id": list_id,
-        "added": added,
-        "updated": updated,
+        "added": len(added_rows),
+        "updated": len(updates),
         "items": results,
     }
 

@@ -11,7 +11,7 @@
 
 	const scopes = $derived(
 		authorization?.scope
-			.split(' ')
+			?.split(' ')
 			.map((scope) => scope.trim())
 			.filter(Boolean) ?? []
 	);
