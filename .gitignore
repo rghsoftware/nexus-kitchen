@@ -8,6 +8,12 @@ node_modules
 /.svelte-kit
 /build
 
+# Python
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+*.py[cod]
+
 # OS
 .DS_Store
 Thumbs.db
